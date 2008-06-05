@@ -1,6 +1,19 @@
 #include "jsint.h"
 #include <lwip/api.h>
 
+extern JSVirtualMachine *s_vm;
+static unsigned char http_request_flag = 0;
+
+static void
+httpRequest_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+				  void *instance_context, JSNode * result_return, JSNode * args)
+{
+	result_return->type = JS_BOOLEAN;
+	result_return->u.vboolean = 0;
+	if (args->u.vinteger == 2) {
+	}
+}
+
 static void
 netInit_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
