@@ -107,15 +107,20 @@ File.prototype.writeln = function(a) {
 
 <script type="text/javascript">
 //<![CDATA[
+var error = function(a) {
+	$('message').innerHTML += "<span class='error'>error: " + a + "</span><br />";
+	throw(a);
+}
 var warning = function(a) {
-	console.error("warning: "+a);
+	$('message').innerHTML += "warning: " + a + "<br />";
 }
 var message = function(a) {
-	console.info(a);
+	$('message').innerHTML += "message: " + a + "<br />";
 }
 function make() {
 	$('asm').innerHTML = "";
 	$('bc').innerHTML = "";
+	$('message').innerHTML = "";
 	var flag = JSC$FLAG_VERBOSE;// | JSC$FLAG_GENERATE_DEBUG_INFO;
 	JSC$compile_file('source', flag, 'asm', 'bc');
 }
@@ -123,7 +128,12 @@ function send(host, param) {
 	$('send_iframe').src = 'http://'+host+'/'+param;
 }
 function print() {
-	console.log.apply(this, arguments);
+	var line = "print:";
+	for(var i=0; i<arguments.length; i++) {
+		line += " " + arguments[i];
+	}
+	line += "<br />";
+	$('message').innerHTML += line;
 }
 //]]>
 </script>
@@ -144,9 +154,15 @@ pre {
 	width: 100%;
 	border: 1px solid #ddd;
 	font-family: "Courier New";
+	white-space: -moz-pre-wrap;
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 small {
 	color: #999;
+}
+.error {
+	color: #f30;
 }
 </style>
 </head>
@@ -175,15 +191,26 @@ function onDigitalIo() {
 </textarea>
 </div>
 <div>
-<div id="bc_raw"></div>
+<pre id="bc_raw"></pre>
 <input type="text" id="ipaddr" value="192.168.1.16" />
 <input type="button" onclick="send($('ipaddr').value, $('bc_raw').innerHTML);" value="send" />
 <iframe style="display: none;" id="send_iframe"></iframe>
 </div>
-<div id="bc_hex"></div>
-<div id="out" style="display: none;">
-asm:<span id="asm_bin"></span><pre id="asm"></pre>
-bc:<span id="bc_bin"></span><pre id="bc"></pre>
+
+<div>
+<span id="asm_bin"></span>
+<span id="bc_hex"></span>
+<span id="bc_bin"></span>
 </div>
+
+<div>
+<pre id="message"></pre>
+</div>
+
+<div id="out" style="display: none;">
+asm:<pre id="asm"></pre>
+bc:<pre id="bc"></pre>
+</div>
+
 </body>
 </html>
