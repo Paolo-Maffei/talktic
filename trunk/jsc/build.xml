@@ -2,17 +2,29 @@
 
 <project default="jar"  basedir=".">
 	<property name="jar_name" value="jsc.jar"/>
-	<property name="main_class" value="JavaScriptCompiler"/>
+	<property name="rhino_jar_name" value="js.jar"/>
+	<property name="jscjs_name" value="jsc.js"/>
+	<property name="main_class" value="com.talktic.JavaScriptCompiler"/>
+	
+	<target name="jsc">
+		<concat destfile="${jscjs_name}">
+			<fileset dir="lib" includes="jsc/*.js" />
+			<fileset dir="lib" includes="support/*.js" />
+		</concat>
+	</target>
 
-	<target name="jar">
+	<target name="jar" depends="jsc">
 		<jar jarfile="${jar_name}" basedir="bin">
 			<manifest>
 				<attribute name="Main-Class" value="${main_class}"/>
+				<attribute name="Class-path" value="${rhino_jar_name}" />
 			</manifest>
+			<fileset file="${jscjs_name}" />
 		</jar>
 	</target>
 
 	<target name="clean">
 		<delete file="${jar_name}" />
+		<delete file="${jscjs_name}" />
 	</target>
 </project>

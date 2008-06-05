@@ -85,9 +85,28 @@ File.prototype.write = function(a) {
 File.prototype.writeln = function(a) {
 	this.write(a + "\n");
 }
-File.byteToString = function(b) {
-	return String.fromCharCode(b);
-}
+//]]>
+</script>
+
+<script type="text/javascript" src="lib/jsc/debug.js"></script>
+<script type="text/javascript" src="lib/jsc/asm.js"></script>
+<script type="text/javascript" src="lib/jsc/defs.js"></script>
+<script type="text/javascript" src="lib/jsc/entry.js"></script>
+<script type="text/javascript" src="lib/jsc/gram.js"></script>
+<script type="text/javascript" src="lib/jsc/lexer.js"></script>
+<script type="text/javascript" src="lib/jsc/namespace.js"></script>
+<script type="text/javascript" src="lib/jsc/parser.js"></script>
+<script type="text/javascript" src="lib/jsc/streams.js"></script>
+
+<script type="text/javascript" src="lib/support/base64.js"></script>
+<script type="text/javascript" src="lib/support/binary-parser.js"></script>
+<script type="text/javascript" src="lib/support/support.js"></script>
+
+<script type="text/javascript" src="lib/web/prototype.js"></script>
+<script type="text/javascript" src="lib/web/catchtab.js"></script>
+
+<script type="text/javascript">
+//<![CDATA[
 var error = function(a) {
 	console.error(a);
 	exit(); // report error to browser. exit() is not defined in browser js, this code raise an error.
@@ -112,23 +131,6 @@ function print() {
 }
 //]]>
 </script>
-
-<script type="text/javascript" src="lib/jsc/debug.js"></script>
-<script type="text/javascript" src="lib/jsc/asm.js"></script>
-<script type="text/javascript" src="lib/jsc/defs.js"></script>
-<script type="text/javascript" src="lib/jsc/entry.js"></script>
-<script type="text/javascript" src="lib/jsc/gram.js"></script>
-<script type="text/javascript" src="lib/jsc/lexer.js"></script>
-<script type="text/javascript" src="lib/jsc/namespace.js"></script>
-<script type="text/javascript" src="lib/jsc/parser.js"></script>
-<script type="text/javascript" src="lib/jsc/streams.js"></script>
-
-<script type="text/javascript" src="lib/support/base64.js"></script>
-<script type="text/javascript" src="lib/support/binary-parser.js"></script>
-<script type="text/javascript" src="lib/support/support.js"></script>
-
-<script type="text/javascript" src="lib/utils/prototype.js"></script>
-<script type="text/javascript" src="lib/utils/catchtab.js"></script>
 
 <style>
 body {

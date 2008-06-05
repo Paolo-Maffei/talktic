@@ -73,3 +73,16 @@ function isInt(a) {
 function isFloat(a) {
 	return a != Math.floor(a);
 }
+
+function error(a) {
+	stderr.println(a);
+	exit();
+}
+function warning(a) {
+	stderr.println(a);
+}
+function message(a) {
+	stdout.println(a);
+}
+
+File.byteToString = String.fromCharCode;
