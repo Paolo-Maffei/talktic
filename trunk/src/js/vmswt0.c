@@ -82,7 +82,9 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 #endif
 
 	if (bc) {
-		/* Executing byte-code. */
+		/*
+		 * Executing byte-code.
+		 */
 
 		/* Find the code section. */
 		for (i = 0; i < bc->num_sects; i++)
@@ -148,7 +150,10 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 			}
 		}
 	} else {
-		/* Applying arguments to function. */
+		/*
+		 * Applying arguments to function.
+		 */
+
 		if (func->type != JS_FUNC) {
 #ifdef JS_RUNTIME_WARNING
 			sprintf(vm->error, "illegal function in apply");

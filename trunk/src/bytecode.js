@@ -1,3 +1,20 @@
+function a() {
+	print("a");
+	function b() {
+		print("b");
+	}
+	function c() {
+		print("c");
+	}
+}
+function d() {
+	function e() {
+		print("e");
+	}
+}
+var x = new d();
+x.e();
+
 /*
 // class methods
 function put() {
@@ -36,6 +53,7 @@ for(var i=0; i<1000; i++) {
 	x.show();
 }
 */
+
 /*
 var h = 0;
 
@@ -75,6 +93,7 @@ while(true) {
 	}
 }
 */
+
 /*
 var f = 3.1415926535897932384;
 var i = 4;
@@ -83,6 +102,7 @@ debug("f="+f+"\r\n");
 while(1) {
 }
 */
+
 /*
 var hogehoge = 1;
 while(hogehoge < 2000) {
@@ -103,6 +123,7 @@ snd(0,0);
 while(true) {
 }
 */
+
 /*
 while(true) {
 	var f = adc(0);
@@ -111,11 +132,13 @@ while(true) {
 	debug("f="+f+"\r\n");
 }
 */
+
 /*
 for(var i=0; i<100; i++) {
 	print(int(Math.random()*10000));
 }
 */
+
 /*
 try {
 	print("go...");
@@ -133,17 +156,7 @@ print("rescue");
 hogehoge();
 print("norescue");
 */
-function a() {
-	try{
-	print("a");
-	function b() {
-		print("b");
-	}
-	b();
-	}catch(e){}
-}
-var x = new a();
-x.b();
+
 /*
 print((1073741823).toString(2));
 print((2147483647).toString(2));
