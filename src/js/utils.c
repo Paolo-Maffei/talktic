@@ -250,7 +250,7 @@ js_vm_to_string(JSVirtualMachine * vm, const JSNode * n,
         break;
 
     default:
-        tostring = "??? unknown type in js_vm_to_string() ???";
+        tostring = "?";
         break;
     }
 

@@ -230,6 +230,7 @@ extern "C" {
 
 
 /* ---------------------------------------------------------------------------------------------- */
+#ifdef JS_EVENT_HOOK
 /*
  * Noticeable virtual machine events.  The `JS_VM_EVENT_OPERAND_COUNT'
  * event is generated only if the interpreter was configured with the
@@ -237,7 +238,7 @@ extern "C" {
  */
 #define JS_VM_EVENT_OPERAND_COUNT       1
 #define JS_VM_EVENT_GARBAGE_COLLECT     2
-
+#endif
 
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -796,10 +797,12 @@ extern "C" {
         JSNode exec_result;
 
         /* Event callback hook. */
+#ifdef JS_EVENT_HOOK
         int (*hook) (int event, void *context);
         void *hook_context;
         unsigned int hook_operand_count;
         unsigned int hook_operand_count_trigger;
+#endif
 
         /* How many file descriptors can be allocated. */
         unsigned long fd_count;

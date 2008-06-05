@@ -107,8 +107,9 @@ while(true) {
 }
 */
 var hogehoge = 1;
-while(1) {
+while(hogehoge < 1000) {
 	hogehoge++;
-//print("hoge is", hogehoge , ". I mean, you are ",hogehoge);
-print("hoge is", hogehoge , ". I mean, you are ",hogehoge);
+print("hoge is"+hogehoge+". I mean, you are "+hogehoge);
+//print("hoge is", hogehoge , ". I mean, you are ",hogehoge, hogehoge, hogehoge, hogehoge, hogehoge);
+//debug("hoge is"+hogehoge+". I mean, you are "+hogehoge);
 }

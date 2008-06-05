@@ -242,10 +242,13 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
 		fwrite(buf, strlen(buf), 1, stderr);
 #endif
     }
+#else
+#ifdef JS_HEAP_DEBUG
+    printf("VM: heap: malloc(%u): needed=%u, size=%lu, free=%lu, allocated=%lu\r\n",
+          to_alloc, alloc_size, vm->heap_size, vm->gc.bytes_free,
+          vm->gc.bytes_allocated);
 #endif
-//    printf("VM: heap: malloc(%u): needed=%u, size=%lu, free=%lu, allocated=%lu\r\n",
-//          to_alloc, alloc_size, vm->heap_size, vm->gc.bytes_free,
-//          vm->gc.bytes_allocated);
+#endif
 
     hb = js_malloc(vm, to_alloc);
 
@@ -478,9 +481,12 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
 		fwrite(buf, strlen(buf), 1, stderr);
 #endif
     }
+#else
+#ifdef JS_HEAP_DEBUG
+    printf("VM: heap: garbage collect: num_consts=%u, num_globals=%u\r\n",
+                vm->num_consts, vm->num_globals);
 #endif
-//    printf("VM: heap: garbage collect: num_consts=%u, num_globals=%u\r\n",
-//                vm->num_consts, vm->num_globals);
+#endif
 
     vm->gc.count++;
 
