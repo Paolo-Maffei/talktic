@@ -1614,7 +1614,7 @@ function JSC$expr_string(ln, value)
 	this.etype = JSC$EXPR_STRING;
 	this.lang_type = JSC$JS_STRING;
 	this.linenum = ln;
-	this.value = value;
+	this.value = String(value);
 	this.asm = JSC$expr_string_asm;
 }
 

@@ -54,7 +54,7 @@ public class JavaScriptCompiler {
 		String result = null;
         Object func = global.get("JSC$compile_file", global);
         if (func instanceof Function) {
-            Object args[] = {src, "JSC$FLAG_VERBOSE", asm, bc};
+            Object args[] = {src, "JSC$FLAG_VERBOSE|JSC$FLAG_OPTIMIZE_MASK", asm, bc};
             Function f = (Function)func;
             result = Context.toString(f.call(context, global, global, args));
         }
