@@ -33,57 +33,57 @@
 
 function JSC$StreamFile(name)
 {
-    this.name = name;
-    this.stream = new File(name);
-    this.error = "";
+	this.name = name;
+	this.stream = new File(name);
+	this.error = "";
 
-    this.open = JSC$StreamFile_open;
-    this.close = JSC$StreamFile_close;
-    this.rewind = JSC$StreamFile_rewind;
-    this.readByte = JSC$StreamFile_read_byte;
-    this.ungetByte = JSC$StreamFile_unget_byte;
-    this.readln = JSC$StreamFile_readln;
+	this.open = JSC$StreamFile_open;
+	this.close = JSC$StreamFile_close;
+	this.rewind = JSC$StreamFile_rewind;
+	this.readByte = JSC$StreamFile_read_byte;
+	this.ungetByte = JSC$StreamFile_unget_byte;
+	this.readln = JSC$StreamFile_readln;
 }
 
 
 function JSC$StreamFile_open()
 {
-    if (!this.stream.open("r")) {
-        this.error = System.strerror(System.errno);
-        return false;
-    }
+	if (!this.stream.open("r")) {
+		this.error = System.strerror(System.errno);
+		return false;
+	}
 
-    return true;
+	return true;
 }
 
 
 function JSC$StreamFile_close()
 {
-    return this.stream.close();
+	return this.stream.close();
 }
 
 
 function JSC$StreamFile_rewind()
 {
-    return this.stream.setPosition(0);
+	return this.stream.setPosition(0);
 }
 
 
 function JSC$StreamFile_read_byte()
 {
-    return this.stream.readByte();
+	return this.stream.readByte();
 }
 
 
 function JSC$StreamFile_unget_byte(byte)
 {
-    this.stream.ungetByte(byte);
+	this.stream.ungetByte(byte);
 }
 
 
 function JSC$StreamFile_readln()
 {
-    return this.stream.readln();
+	return this.stream.readln();
 }
 
 
@@ -93,74 +93,74 @@ function JSC$StreamFile_readln()
 
 function JSC$StreamString(str)
 {
-    this.name = "StringStream";
-    this.string = str;
-    this.pos = 0;
-    this.unget_byte = -1;
-    this.error = "";
+	this.name = "StringStream";
+	this.string = str;
+	this.pos = 0;
+	this.unget_byte = -1;
+	this.error = "";
 
-    this.open = JSC$StreamString_open;
-    this.close = JSC$StreamString_close;
-    this.rewind = JSC$StreamString_rewind;
-    this.readByte = JSC$StreamString_read_byte;
-    this.ungetByte = JSC$StreamString_unget_byte;
-    this.readln = JSC$StreamString_readln;
+	this.open = JSC$StreamString_open;
+	this.close = JSC$StreamString_close;
+	this.rewind = JSC$StreamString_rewind;
+	this.readByte = JSC$StreamString_read_byte;
+	this.ungetByte = JSC$StreamString_unget_byte;
+	this.readln = JSC$StreamString_readln;
 }
 
 
 function JSC$StreamString_open()
 {
-    return true;
+	return true;
 }
 
 
 function JSC$StreamString_close()
 {
-    return true;
+	return true;
 }
 
 
 function JSC$StreamString_rewind()
 {
-    this.pos = 0;
-    this.unget_byte = -1;
-    this.error = "";
-    return true;
+	this.pos = 0;
+	this.unget_byte = -1;
+	this.error = "";
+	return true;
 }
 
 
 function JSC$StreamString_read_byte()
 {
-    var ch;
+	var ch;
 
-    if (this.unget_byte >= 0) {
-        ch = this.unget_byte;
-        this.unget_byte = -1;
-        return ch;
-    }
+	if (this.unget_byte >= 0) {
+		ch = this.unget_byte;
+		this.unget_byte = -1;
+		return ch;
+	}
 
-    if (this.pos >= this.string.length)
-        return -1;
+	if (this.pos >= this.string.length)
+		return -1;
 
-    return this.string.charCodeAt(this.pos++);
+	return this.string.charCodeAt(this.pos++);
 }
 
 
 function JSC$StreamString_unget_byte(byte)
 {
-    this.unget_byte = byte;
+	this.unget_byte = byte;
 }
 
 
 function JSC$StreamString_readln()
 {
-    var line = new String("");
-    var ch;
+	var line = new String("");
+	var ch;
 
-    while ((ch = this.readByte()) != -1 && ch != '\n'.charCodeAt(0))
-        line = line.append(String.pack("C", ch));
+	while ((ch = this.readByte()) != -1 && ch != '\n'.charCodeAt(0))
+		line = line.append(String.pack("C", ch));
 
-    return line;
+	return line;
 }
 
 
