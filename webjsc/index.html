@@ -15,18 +15,21 @@ Number.prototype.zsHex = function(len) {
 }
 String.prototype.intelHex = function() {
 	var h = "";
-	for(var i=0; i<this.length; i+= 16) {
+	for(var i=0; i<this.length && i < 0xFFFF; i+= 16) {
 		var s = 0;
 		var l = Math.min(this.length - i, 16);
 		h += ':' + l.zsHex(2) + i.zsHex(4) + '00';
 		s += l;
-		s += i;
+		s += ((i >> 8) & 0xFF);
+		s += i & 0xFF;
 		for(var j=0; j<l; j++) {
 			var code = this.charCodeAt(i+j);
 			h += code.zsHex(2);
 			s += code;
 		}
-		h += (0x100 - (s & 0xFF)).zsHex(2) + "\n";
+		var cs = (0x100 - (s & 0xFF)) & 0xFF;
+//		h += (cs+s).zsHex(2);
+		h += cs.zsHex(2) + "\n";
 	}
 	h += ':00000001FF';
 	return h;
@@ -59,7 +62,9 @@ File.prototype.close = function() {
 			e.innerHTML = "<a href='"+bin+"'>"+this.name+".bin</a>";
 		}
 		if(e = $(this.name + "_hex")) {
-			var bin = "data:application/octet-stream;base64," + base64encode(this.binary.intelHex());
+			var hex = this.binary.intelHex();
+			//e.innerHTML = hex;
+			var bin = "data:application/octet-stream;base64," + base64encode(hex);
 			e.innerHTML = "<a href='"+bin+"'>"+this.name+".hex</a>";
 		}
 	}
@@ -305,16 +310,31 @@ small {
 </head>
 <body>
 <h1>Talktic Scripting</h1>
+<div>
+<input type="button" onclick="make();" value="make" />
+<input type="button" onclick="Element.toggle($('out'))" value="Toggle Output" />
+</div>
+<div>
 script:<textarea id="source" onkeydown="return catchTab(this,event)">
-for(var i=0; i<10; i+=0.1) {
-	System.print(i);
+while(true) {
+}
+
+function blink() {
+	led(true);
+	for(var i=0; i<200; i++) {
+	}
+	led(false);
+}
+
+function onDigitalIo() {
+	blink();
 }
 </textarea>
-<input type="button" onclick="make();" value="make" /> <span id="bc_hex"></span>
-<input type="button" onclick="Element.toggle($('out'))" value="Toggle Output" />
+</div>
+<div id="bc_hex"></div>
 <div id="out" style="display: none;">
-asm:<pre id="asm"></pre>
-bc:<pre id="bc"></pre>
+asm:<span id="asm_bin"></span><pre id="asm"></pre>
+bc:<span id="bc_bin"></span><pre id="bc"></pre>
 stdout:<pre id="stdout"></pre>
 stderr:<pre id="stderr"></pre>
 </div>
