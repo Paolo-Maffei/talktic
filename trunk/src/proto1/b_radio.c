@@ -7,12 +7,16 @@ static void radioSend_global_method(JSVirtualMachine * vm, JSBuiltinInfo * built
 					 void *instance_context, JSNode * result_return, JSNode * args)
 {
 	JSNode n;
+	result_return->type = JS_BOOLEAN;
+	result_return->u.vboolean = 0;
 
 	if (args->u.vinteger == 2) {
 		js_vm_to_string(vm, &args[2], &n);
-		RADIO_sendPacket((unsigned short)js_vm_to_int32(vm, &args[1]), n.u.vstring->data, n.u.vstring->len);
+		if(RADIO_sendPacket((unsigned short)js_vm_to_int32(vm, &args[1]),
+			n.u.vstring->data, n.u.vstring->len) == MOXA_SUCCESS) {
+			result_return->u.vboolean = 1;
+		}
 	}
-	result_return->type = JS_UNDEFINED;
 }
 
 static int onRadioReceive_global_vm_interrupt(JSVirtualMachine * vm, void *data)
