@@ -1,18 +1,28 @@
 # Redboot load command
 # load -r -v -b 0x400000 -h 192.168.1.11 -m tftp main.bin
 
-## General Options
+### Build options
+
+## General options
 PROJECT = talktic
 TARGET = $(PROJECT).elf $(PROJECT).bin
+
+## Commands
 CC = h8300-elf-gcc
 SIZE = h8300-elf-size
 OBJCOPY = h8300-elf-objcopy
+ECOS_CONFIG = ecosconfig
+
+## Source path
 SRC_DIR = ../../src
 
 ## ecos Options
-#ECOS_CONFIG = ecosconfig.exe
-#ECOS_REPOSITORY = ecos_cvshead
+ECOS_REPOSITORY = ecos_cvshead/packages
 ECOS_DIR = ecos
+
+
+
+### Build enviroment
 
 ## Options common to compile, link and assembly rules
 COMMON = -mh -mint32 -mrelax
@@ -35,39 +45,67 @@ LIBDIRS = -L$(ECOS_DIR)/install/lib
 LIBS =
 
 ## Objects that must be built in order to link
-MAIN_OBJECTS = 	\
+OBJECTS = 		\
 	main.o 		\
 	$(NULL)
-# MAIN_OBJECTS += js_class.o 
-JS_OBJECTS =	\
-	alloc.o		\
-	b_array.o	\
-	b_bool.o	\
-	b_core.o	\
-	b_func.o	\
-	b_number.o	\
-	b_object.o	\
-	b_string.o	\
-	bc.o		\
-	debug.o		\
-	heap.o		\
-	iostream.o	\
-	mrgsort.o	\
-	object.o	\
-	utils.o		\
-	vm.o		\
-	vmswt0.o	\
-	$(NULL)
-OBJECTS = $(MAIN_OBJECTS) $(JS_OBJECTS)
 
 ## Objects explicitly added by the user
 LINKONLYOBJECTS =
 
+
+
+### JavaScript libraries
+
+## Includes
+INCLUDES += -I$(SRC_DIR)/js
+
+## Objects
+OBJECTS +=		\
+	alloc.o		\
+	heap.o		\
+	object.o	\
+	vm.o		\
+	vmswt0.o	\
+	utils.o		\
+	b_core.o	\
+	b_bool.o	\
+	b_object.o	\
+	b_func.o	\
+	b_number.o	\
+	b_array.o	\
+	mrgsort.o	\
+	b_string.o	\
+	bc.o		\
+	iostream.o	\
+	$(NULL)
+
+## Compile
+%.o: $(SRC_DIR)/js/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+
+
+
+### aki3086net ext libraries
+
+## Includes
+INCLUDES += -I$(SRC_DIR)/aki3068net
+
+## Objects
+OBJECTS += 		\
+	net.o		\
+	$(NULL)
+
+## Compile
+%.o: $(SRC_DIR)/aki3068net/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+
+
+
+### Common
+
 ## Build
 all: $(TARGET) size
-# not works well
-#ecosconfig: $(ECOS_DIR)/ecos.ecc
-#	cd $(ECOS_DIR) && ../$(ECOS_CONFIG) --srcdir=../$(ECOS_REPOSITORY)/packages tree
+	echo $(OBJECTS)
 
 ## Compile
 %.o: $(SRC_DIR)/%.c
@@ -75,7 +113,11 @@ all: $(TARGET) size
 $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
 	cd ../bytecodeh && $(MAKE)
 
-##Link
+## ecos configure
+ecostree: $(ECOS_DIR)/ecos.ecc
+	cd $(ECOS_DIR); ../$(ECOS_CONFIG) --srcdir="`cd ../$(ECOS_REPOSITORY); pwd`" tree
+
+## Link
 %.elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) $(LINKONLYOBJECTS) $(LIBDIRS) $(LIBS) -o $@
 %.bin: %.elf
@@ -90,4 +132,3 @@ clean:
 
 ## Other dependencies
 -include $(shell mkdir dep 2>/dev/null) $(wildcard dep/*)
-
