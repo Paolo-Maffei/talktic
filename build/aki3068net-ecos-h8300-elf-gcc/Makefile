@@ -12,6 +12,7 @@ CC = h8300-elf-gcc
 SIZE = h8300-elf-size
 OBJCOPY = h8300-elf-objcopy
 ECOS_CONFIG = ecosconfig
+JSC = ../../jsc/jsc
 
 ## Testing enviroment
 TEST_COMPORT = com6
@@ -155,10 +156,12 @@ all: $(TARGET) size
 	echo $(OBJECTS)
 
 ## Compile
+%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 %.o: $(SRC_DIR)/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
-	cd ../bytecodeh && $(MAKE)
+	$(JSC) -C$@ $<
 
 ## ecos configure
 ecostree: $(ECOS_DIR)/ecos.ecc

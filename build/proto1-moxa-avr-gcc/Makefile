@@ -11,6 +11,7 @@ SIZE = avr-size
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
 NM = avr-nm
+JSC = ../../jsc/jsc
 
 ## Testing enviroment
 AVRDUDE = avrdude
@@ -188,10 +189,12 @@ INCLUDES += -I$(SRC_DIR)
 all: $(TARGET) size
 
 ## Compile
+%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 %.o: $(SRC_DIR)/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
-	cd ../bytecodeh && $(MAKE)
+	$(JSC) -C$@ $<
 
 ##Link
 %.elf: $(OBJECTS)
