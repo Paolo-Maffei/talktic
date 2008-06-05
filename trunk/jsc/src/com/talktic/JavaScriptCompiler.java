@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Vector;
 
 public class JavaScriptCompiler {
@@ -18,22 +19,19 @@ public class JavaScriptCompiler {
 
 	protected boolean isSystemLibraryLoaded;
 
-	public JavaScriptCompiler(boolean loadSystemLibrary) throws IOException {
+	public JavaScriptCompiler(boolean loadSystemLibrary) throws Exception {
 		context = Context.enter();
 		global = context.initStandardObjects();
-		try {
-			ScriptableObject.defineClass(global, com.talktic.JSFile.class);
-			ScriptableObject.putProperty(global, "stdout", Context.javaToJS(System.out, global));
-			ScriptableObject.putProperty(global, "stderr", Context.javaToJS(System.err, global));
-			if (loadSystemLibrary) {
-				InputStream is = ClassLoader.getSystemResourceAsStream("jsc.js");
-				if (is != null) {
-					context.evaluateReader(global, new InputStreamReader(is), "<base>", 1, null);
-					isSystemLibraryLoaded = true;
-				}
+
+		ScriptableObject.defineClass(global, com.talktic.JSFile.class);
+		ScriptableObject.putProperty(global, "stdout", Context.javaToJS(System.out, global));
+		ScriptableObject.putProperty(global, "stderr", Context.javaToJS(System.err, global));
+		if (loadSystemLibrary) {
+			InputStream is = ClassLoader.getSystemResourceAsStream("jsc.js");
+			if (is != null) {
+				context.evaluateReader(global, new InputStreamReader(is), "<base>", 1, null);
+				isSystemLibraryLoaded = true;
 			}
-		} catch (Exception e) {
-			System.err.println(e);
 		}
 	}
 
@@ -60,39 +58,42 @@ public class JavaScriptCompiler {
 		}
 	}
 
-	public void compile(String src, String asm, String bc) {
-		if (asm == null) {
-			asm = src + ".asm";
-		}
-		if (bc == null) {
-			bc = src + ".bc";
-		}
-		Object result = context.evaluateString(global, "JSC$compile_file('" + src
-				+ "',JSC$FLAG_VERBOSE,'" + asm + "','" + bc + "');", "<str>", 1, null);
-		//System.out.println(Context.toString(result));
+	public String compile(String src, String asm, String bc) {
+		String result = null;
+        Object func = global.get("JSC$compile_file", global);
+        if (func instanceof Function) {
+            Object args[] = {src, "JSC$FLAG_VERBOSE", asm, bc};
+            Function f = (Function)func;
+            result = Context.toString(f.call(context, global, global, args));
+        }
+        return result;
 	}
 
 	public static void main(String[] args) {
 		boolean loadSystemLibrary = true;
+		boolean putBytecodeToStdout = false;
 		String asmPath = null, bytecodePath = null, sourcePath = null;
 		Vector<String> baseLibraryPathList = new Vector<String>();
 
 		for (String arg : args) {
 			if (arg.startsWith("-L")) {
-				baseLibraryPathList.addElement(arg.substring(3));
+				baseLibraryPathList.addElement(arg.substring(2));
 			} else if (arg.startsWith("-A")) {
-				asmPath = arg.substring(3);
+				asmPath = arg.substring(2);
 			} else if (arg.startsWith("-B")) {
-				bytecodePath = arg.substring(3);
-			} else if (arg == "-n") {
+				bytecodePath = arg.substring(2);
+			} else if (arg.equals("-n")) {
 				loadSystemLibrary = false;
-			} else {
+			} else if (arg.equals("-")) {
+				putBytecodeToStdout = true;
+			}else {
 				sourcePath = arg;
 			}
 		}
 
 		if (sourcePath == null) {
-			System.out.println("java -jar jsc.jar [-n] [-Lpath] [-Afile] [-Bfile] source");
+			System.out.println("java -jar jsc.jar [-n] [-Lpath] [-Afile] [-Bfile] [-] source");
+			System.out.println("\t-               put compiled bytecode to stdout");
 			System.out.println("\t-n              don't load system library");
 			System.out.println("\t-Llibrary_path  additional library dir/file path");
 			System.out.println("\t-Lasm_file      asm output file path");
@@ -105,7 +106,10 @@ public class JavaScriptCompiler {
 			for(int i=0; i<baseLibraryPathList.size(); i++) {
 				jsc.load(baseLibraryPathList.get(i));
 			}
-			jsc.compile(sourcePath, asmPath, bytecodePath);
+			String bc = jsc.compile(sourcePath, asmPath, bytecodePath);
+			if(putBytecodeToStdout && bc != null) {
+				System.out.println(bc);
+			}
 		} catch (Exception e) {
 			System.err.println(e);
 		}

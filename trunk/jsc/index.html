@@ -107,10 +107,6 @@ File.prototype.writeln = function(a) {
 
 <script type="text/javascript">
 //<![CDATA[
-var error = function(a) {
-	console.error(a);
-	exit(); // report error to browser. exit() is not defined in browser js, this code raise an error.
-}
 var warning = function(a) {
 	console.error("warning: "+a);
 }
