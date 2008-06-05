@@ -27,9 +27,9 @@
  * $Id: debug.c,v 1.6 1998/08/25 09:51:35 mtr Exp $
  */
 
-#ifdef _RUNTIME_DEBUG
-
 #include "jsint.h"
+
+#ifdef JS_RUNTIME_DEBUG
 
 /*
  * Global functions.
@@ -156,4 +156,4 @@ void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames)
 	}
 }
 
-#endif							/* _RUNTIME_DEBUG */
+#endif							/* JS_RUNTIME_DEBUG */

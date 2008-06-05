@@ -31,14 +31,14 @@
 
 #include "jsint.h"
 
-#undef _ENABLE_STRING_CRC32
-#undef _ENABLE_STRING_REGEXP
+#undef JS_ENABLE_STRING_CRC32
+#undef JS_ENABLE_STRING_REGEXP
 
 /*
  * Types and definitions.
  */
-#ifdef _ENABLE_STRING_PACKUNPACK
-#ifdef _RUNTIME_WARNING
+#ifdef JS_ENABLE_STRING_PACKUNPACK
+#ifdef JS_RUNTIME_WARNING
 #define UNPACK_NEED(n) \
     do { \
   	    if (bufpos + (n) > buflen) { \
@@ -71,17 +71,17 @@ struct string_ctx_st {
     JSSymbol s_charAt;
     JSSymbol s_charCodeAt;
     JSSymbol s_concat;
-#ifdef _ENABLE_STRING_CRC32
+#ifdef JS_ENABLE_STRING_CRC32
     JSSymbol s_crc32;
 #endif
     JSSymbol s_fromCharCode;
     JSSymbol s_indexOf;
     JSSymbol s_lastIndexOf;
-#ifdef _ENABLE_STRING_PACKUNPACK
+#ifdef JS_ENABLE_STRING_PACKUNPACK
     JSSymbol s_pack;
     JSSymbol s_unpack;
 #endif
-#ifdef _ENABLE_STRING_REGEXP
+#ifdef JS_ENABLE_STRING_REGEXP
     JSSymbol s_match;
     JSSymbol s_replace;
     JSSymbol s_search;
@@ -90,13 +90,13 @@ struct string_ctx_st {
     JSSymbol s_split;
     JSSymbol s_substr;
     JSSymbol s_substring;
-#ifdef _ENABLE_STRING_LOWERUPPER
+#ifdef JS_ENABLE_STRING_LOWERUPPER
     JSSymbol s_toLowerCase;
     JSSymbol s_toUpperCase;
 #endif
 
     /* Data we need to implement the RegExp related stuffs. */
-#ifdef _ENABLE_STRING_REGEXP
+#ifdef JS_ENABLE_STRING_REGEXP
     JSBuiltinInfo *regexp_info;
 #endif
 };
@@ -119,7 +119,7 @@ global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
     else if (args->u.vinteger == 1)
         js_vm_to_string(vm, &args[1], result_return);
     else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(vm->error, "String(): illegal amount of arguments");
 #endif
         js_vm_error(vm);
@@ -153,7 +153,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         }
     }
     /* ********************************************************************** */
-#ifdef _ENABLE_STRING_PACKUNPACK
+#ifdef JS_ENABLE_STRING_PACKUNPACK
     else if (method == ctx->s_pack) {
         unsigned int op;
         unsigned int arg = 2;
@@ -169,7 +169,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 
         for (op = 0; op < args[1].u.vstring->len; op++) {
             if (arg >= args->u.vinteger + 1) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
                 sprintf(vm->error,
                         "String.%s(): too few arguments for format",
                         js_vm_symname(vm, method));
@@ -268,7 +268,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                 goto argument_error;
 
             if (n->u.vstring->staticp) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
                 sprintf(vm->error,
                         "String.%s(): can't append to a static string",
                         js_vm_symname(vm, method));
@@ -322,7 +322,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                 goto argument_error;
 
             if (ui >= n->u.vstring->len) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
                 sprintf(vm->error, "String.%s(): index out of range",
                         js_vm_symname(vm, method));
 #endif
@@ -363,7 +363,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
             }
         }
         /* ***************************************************************** */
-#ifdef _ENABLE_STRING_CRC32
+#ifdef JS_ENABLE_STRING_CRC32
         else if (method == ctx->s_crc32) {
             if (args->u.vinteger != 0)
                 goto argument_error;
@@ -441,7 +441,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
             }
         }
         /* ***************************************************************** */
-#ifdef _ENABLE_STRING_REGEXP
+#ifdef JS_ENABLE_STRING_REGEXP
         else if (method == ctx->s_match) {
             if (args->u.vinteger != 1)
                 goto argument_error;
@@ -586,7 +586,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                                           n->u.vstring->len - start);
                     }
 				}
-#ifdef _ENABLE_STRING_REGEXP
+#ifdef JS_ENABLE_STRING_REGEXP
                 else if (args[1].type == JS_BUILTIN
                            && args[1].u.vbuiltin->info == ctx->regexp_info)
                 {
@@ -661,7 +661,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                 end = n->u.vstring->len;
 
             if (start > end) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
                 sprintf(vm->error,
                         "String.%s(): start index is bigger than end",
                         js_vm_symname(vm, method));
@@ -673,7 +673,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                               n->u.vstring->data + start, end - start);
         }
         /* ***************************************************************** */
-#ifdef _ENABLE_STRING_LOWERUPPER
+#ifdef JS_ENABLE_STRING_LOWERUPPER
         else if (method == ctx->s_toLowerCase) {
             if (args->u.vinteger != 0)
                 goto argument_type_error;
@@ -699,7 +699,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         }
 #endif
         /* ***************************************************************** */
-#ifdef _ENABLE_STRING_PACKUNPACK
+#ifdef JS_ENABLE_STRING_PACKUNPACK
         else if (method == ctx->s_unpack) {
             unsigned int op;
             unsigned char *buffer;
@@ -786,14 +786,14 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
      */
 
   argument_error:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     sprintf(vm->error, "String.%s(): illegal amount of arguments",
             js_vm_symname(vm, method));
 #endif
     js_vm_error(vm);
 
   argument_type_error:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     sprintf(vm->error, "String %s(): illegal argument",
             js_vm_symname(vm, method));
 #endif
@@ -833,7 +833,7 @@ property(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
      */
 
   immutable:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     sprintf(vm->error, "String.%s: immutable property",
             js_vm_symname(vm, property));
 #endif
@@ -865,7 +865,7 @@ new_proc(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         js_vm_make_string(vm, result_return, source->u.vstring->data,
                           source->u.vstring->len);
     } else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(vm->error, "new String(): illegal amount of arguments");
 #endif
         js_vm_error(vm);
@@ -893,17 +893,17 @@ void js_builtin_String(JSVirtualMachine * vm)
     ctx->s_charAt = js_vm_intern(vm, "charAt");
     ctx->s_charCodeAt = js_vm_intern(vm, "charCodeAt");
     ctx->s_concat = js_vm_intern(vm, "concat");
-#ifdef _ENABLE_STRING_CRC32
+#ifdef JS_ENABLE_STRING_CRC32
     ctx->s_crc32 = js_vm_intern(vm, "crc32");
 #endif
     ctx->s_fromCharCode = js_vm_intern(vm, "fromCharCode");
     ctx->s_indexOf = js_vm_intern(vm, "indexOf");
     ctx->s_lastIndexOf = js_vm_intern(vm, "lastIndexOf");
-#ifdef _ENABLE_STRING_PACKUNPACK
+#ifdef JS_ENABLE_STRING_PACKUNPACK
     ctx->s_pack = js_vm_intern(vm, "pack");
     ctx->s_unpack = js_vm_intern(vm, "unpack");
 #endif
-#ifdef _ENABLE_STRING_REGEXP
+#ifdef JS_ENABLE_STRING_REGEXP
     ctx->s_match = js_vm_intern(vm, "match");
     ctx->s_replace = js_vm_intern(vm, "replace");
     ctx->s_search = js_vm_intern(vm, "search");
@@ -912,7 +912,7 @@ void js_builtin_String(JSVirtualMachine * vm)
     ctx->s_split = js_vm_intern(vm, "split");
     ctx->s_substr = js_vm_intern(vm, "substr");
     ctx->s_substring = js_vm_intern(vm, "substring");
-#ifdef _ENABLE_STRING_LOWERUPPER
+#ifdef JS_ENABLE_STRING_LOWERUPPER
     ctx->s_toLowerCase = js_vm_intern(vm, "toLowerCase");
     ctx->s_toUpperCase = js_vm_intern(vm, "toUpperCase");
 #endif
@@ -931,7 +931,7 @@ void js_builtin_String(JSVirtualMachine * vm)
     n = &vm->globals[js_vm_intern(vm, "String")];
     js_vm_builtin_create(vm, n, info, NULL);
 
-#ifdef _ENABLE_STRING_REGEXP
+#ifdef JS_ENABLE_STRING_REGEXP
     /* Fetch the JSBuiltinInfo of the RegExp object. */
     n = &vm->globals[js_vm_intern(vm, "RegExp")];
     ctx->regexp_info = n->u.vbuiltin->info;

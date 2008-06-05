@@ -69,10 +69,10 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 	vm = js_calloc(NULL, 1, sizeof(*vm));
 	if (vm == NULL)
 		return NULL;
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 	vm->verbose = verbose;
 #endif
-#ifdef _RUNTIME_DEBUG
+#ifdef JS_RUNTIME_DEBUG
 	vm->stacktrace_on_error = stacktrace_on_error;
 #endif
 	vm->warn_undef = 1;
@@ -86,7 +86,7 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 //    vm->dispatch_method = dispatch_method;
 //    vm->dispatch_method_name = "switch-basic";
 	vm->dispatch_execute = js_vm_switch0_exec;
-#ifdef _RUNTIME_DEBUG
+#ifdef JS_RUNTIME_DEBUG
 	vm->dispatch_func_name = js_vm_switch0_func_name;
 	vm->dispatch_debug_position = js_vm_switch0_debug_position;
 #endif
@@ -224,9 +224,9 @@ void js_vm_destroy(JSVirtualMachine * vm)
 		js_free(f);
 	}
 
-#if PROFILING
+#if JS_PROFILING
 #define NUM_OPS 68
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 
 	/* Dump profiling data to the stderr. */
 	{
@@ -249,7 +249,7 @@ void js_vm_destroy(JSVirtualMachine * vm)
 		}
 	}
 #endif
-#endif							/* PROFILING */
+#endif							/* JS_PROFILING */
 
 	/* Flush and free the default system streams. */
 
@@ -261,7 +261,7 @@ void js_vm_destroy(JSVirtualMachine * vm)
 	js_free(vm);
 }
 
-#if PROFILING
+#if JS_PROFILING
 /*
  * The support stuffs for the byte-code operand profiling.
  */
@@ -277,25 +277,25 @@ static void sig_alarm(int sig)
 }
 
 /* Turn on the byte-code operand profiling. */
-#define PROFILING_ON()			\
+#define JS_PROFILING_ON()			\
       profiling_vm = vm;		\
       vm->prof_op = 255;		\
       signal (SIGALRM, sig_alarm);	\
       ualarm (1, 1)
 
 /* Turn off the byte-code operand profiling. */
-#define PROFILING_OFF()			\
+#define JS_PROFILING_OFF()			\
       vm->prof_op = 255;		\
       ualarm (0, 0);			\
       signal (SIGALRM, SIG_IGN);	\
       profiling_vm = NULL
 
-#else							/* not PROFILING */
+#else							/* not JS_PROFILING */
 
-#define PROFILING_ON()
-#define PROFILING_OFF()
+#define JS_PROFILING_ON()
+#define JS_PROFILING_OFF()
 
-#endif							/* PROFILING */
+#endif							/* JS_PROFILING */
 
 int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 {
@@ -321,7 +321,7 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 
 	handler = js_calloc(NULL, 1, sizeof(*handler));
 	if (handler == NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		sprintf(vm->error, "VM: out of memory");
 #endif
 		return 0;
@@ -428,7 +428,7 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 
 					default:
 					case JS_IPTR:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 						sprintf(buf,
 								"js_vm_execute(): unknown constant type %d%s",
 								c->type, JS_HOST_LINE_BREAK);
@@ -495,12 +495,12 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 			}
 
 		/* Clear error message and old exec result. */
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		vm->error[0] = '\0';
 #endif
 		vm->exec_result.type = JS_UNDEFINED;
 
-		PROFILING_ON();
+		JS_PROFILING_ON();
 
 		/* Execute. */
 		result =
@@ -510,7 +510,7 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 									 debug_info_len, NULL, NULL, 0, NULL);
 	}
 
-	PROFILING_OFF();
+	JS_PROFILING_OFF();
 
 	if (symtab) {
 		for (ui = 0; ui < num_symtab_entries; ui++)
@@ -545,7 +545,7 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func, unsigned int 
 
 	handler = js_calloc(NULL, 1, sizeof(*handler));
 	if (handler == NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		sprintf(vm->error, "VM: out of memory");
 #endif
 		return 0;
@@ -558,7 +558,7 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func, unsigned int 
 		result = 0;
 	} else {
 		/* Clear error message and old exec result. */
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		vm->error[0] = '\0';
 #endif
 		vm->exec_result.type = JS_UNDEFINED;
@@ -569,7 +569,7 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func, unsigned int 
 
 		/* Check what kind of function should be called. */
 		if (func->type == JS_FUNC) {
-			PROFILING_ON();
+			JS_PROFILING_ON();
 
 			/* Call function. */
 			result = (*vm->dispatch_execute) (vm, NULL, NULL, 0, 0, 0,
@@ -583,7 +583,7 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func, unsigned int 
 														   instance_context,
 														   &vm->exec_result, argv);
 		} else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 			if (func_name)
 				sprintf(vm->error, "undefined function `%s' in apply", func_name);
 			else
@@ -594,7 +594,7 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func, unsigned int 
 		}
 	}
 
-	PROFILING_OFF();
+	JS_PROFILING_OFF();
 
 	/* Pop all error handler frames from the handler chain. */
 	for (; vm->error_handler != saved_handler; vm->error_handler = handler) {
@@ -625,7 +625,7 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 
 	handler = js_calloc(NULL, 1, sizeof(*handler));
 	if (handler == NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		sprintf(vm->error, "VM: out of memory");
 #endif
 		return 0;
@@ -641,7 +641,7 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 		symbol = js_vm_intern(vm, method_name);
 
 		/* Clear error message and old exec result. */
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		vm->error[0] = '\0';
 #endif
 		vm->exec_result.type = JS_UNDEFINED;
@@ -659,13 +659,13 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 															  instance_context,
 															  symbol, &vm->exec_result, argv)
 					== JS_PROPERTY_UNKNOWN) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 					sprintf(vm->error, "call_method: unknown method");
 #endif
 					result = 0;
 				}
 			} else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 				sprintf(vm->error, "illegal builtin object for call_method");
 #endif
 				result = 0;
@@ -678,12 +678,12 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 				== JS_PROPERTY_FOUND) {
 				/* The property has been defined in the object. */
 				if (method.type != JS_FUNC) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 					sprintf(vm->error, "call_method: unknown method");
 #endif
 					result = 0;
 				} else {
-					PROFILING_ON();
+					JS_PROFILING_ON();
 					result =
 						(*vm->dispatch_execute) (vm, NULL, NULL, 0, 0, 0,
 												 NULL, 0, object, &method, argc, argv);
@@ -699,20 +699,20 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 																 type],
 														object, symbol, &vm->exec_result, argv)
 				== JS_PROPERTY_UNKNOWN) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 				sprintf(vm->error, "call_method: unknown method");
 #endif
 				result = 0;
 			}
 		} else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 			sprintf(vm->error, "illegal object for call_method");
 #endif
 			result = 0;
 		}
 	}
 
-	PROFILING_OFF();
+	JS_PROFILING_OFF();
 
 	/* Pop all error handler frames from the handler chain. */
 	for (; vm->error_handler != saved_handler; vm->error_handler = handler) {
@@ -726,7 +726,7 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 	return result;
 }
 
-#ifdef _RUNTIME_DEBUG
+#ifdef JS_RUNTIME_DEBUG
 const char *js_vm_func_name(JSVirtualMachine * vm, void *pc)
 {
 	return (*vm->dispatch_func_name) (vm, pc);
@@ -783,7 +783,7 @@ const char *js_vm_symname(JSVirtualMachine * vm, JSSymbol sym)
 
 void js_vm_error(JSVirtualMachine * vm)
 {
-#ifdef _RUNTIME_DEBUG
+#ifdef JS_RUNTIME_DEBUG
 	const char *file;
 	unsigned int ln;
 	char error[1024];
@@ -807,7 +807,7 @@ void js_vm_error(JSVirtualMachine * vm)
 #endif
 	longjmp(vm->error_handler->error_jmp, 1);
 	// NOTREACHED (I hope)
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 	sprintf(error, "VM: no valid error handler initialized%s", JS_HOST_LINE_BREAK);
 	js_iostream_write(vm->s_stderr, error, strlen(error));
 	js_iostream_flush(vm->s_stderr);

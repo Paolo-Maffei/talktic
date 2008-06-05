@@ -134,7 +134,7 @@ sort_js_cmp_func(const void *aptr, const void *bptr, void *context)
 
     /* Fetch the return value. */
     if (ctx->vm->exec_result.type != JS_INTEGER) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(ctx->vm->error,
                 "Array.sort(): comparison function didn't return integer");
 #endif
@@ -490,14 +490,14 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
      */
 
   argument_error:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     sprintf(vm->error, "Array.%s(): illegal amount of arguments",
             js_vm_symname(vm, method));
 #endif
     js_vm_error(vm);
 
   argument_type_error:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     sprintf(vm->error, "Array.%s(): illegal argument",
             js_vm_symname(vm, method));
 #endif
@@ -536,7 +536,7 @@ property(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
      */
 
   immutable:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     sprintf(vm->error, "Array.%s: immutable property",
             js_vm_symname(vm, property));
 #endif

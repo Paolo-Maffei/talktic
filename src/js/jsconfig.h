@@ -68,7 +68,7 @@
 /* #undef ALL_DISPATCHERS */
 
 /* Do we want to profile byte-code operands. */
-/* #undef PROFILING */
+/* #undef JS_PROFILING */
 
 /* Do we want the byte-code operand hooks. */
 /* #undef BC_OPERAND_HOOKS */
@@ -177,16 +177,16 @@
 
 /* Define if don't remove runtime warning message formatted in sprintf */
 #if __AVR__ || __ICCAVR__ || __H8300H__
-/* #undef _RUNTIME_DEBUG */
-/* #undef _RUNTIME_WARNING */
+/* #undef JS_RUNTIME_DEBUG */
+/* #undef JS_RUNTIME_WARNING */
 /* #undef JS_DEBUG_MEMORY_LEAKS */
-/* #undef _ENABLE_STRING_LOWERUPPER */
-/* #undef _ENABLE_STRING_PACKUNPACK */
+/* #undef JS_ENABLE_STRING_LOWERUPPER */
+/* #undef JS_ENABLE_STRING_PACKUNPACK */
 #else
-#define _RUNTIME_DEBUG 1
-#define PROFILING 1
-#define _RUNTIME_WARNING 1
+#define JS_RUNTIME_DEBUG 1
+#define JS_PROFILING 1
+#define JS_RUNTIME_WARNING 1
 #define JS_DEBUG_MEMORY_LEAKS 1
-#define _ENABLE_STRING_LOWERUPPER
-#define _ENABLE_STRING_PACKUNPACK
+#define JS_ENABLE_STRING_LOWERUPPER
+#define JS_ENABLE_STRING_PACKUNPACK
 #endif

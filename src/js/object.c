@@ -250,7 +250,7 @@ js_vm_object_load_array(JSVirtualMachine * vm, JSObject * obj,
         else
             JS_COPY(value_return, &obj->props[pos].value);
     } else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(vm->error, "load_property: illegal array index");
 #endif
         js_vm_error(vm);
@@ -264,7 +264,7 @@ js_vm_object_store_array(JSVirtualMachine * vm, JSObject * obj,
 {
     if (sel->type == JS_INTEGER) {
         if (sel->u.vinteger < 0) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
             sprintf(vm->error,
                     "store_array: array index can't be nagative");
 #endif
@@ -352,7 +352,7 @@ js_vm_object_delete_array(JSVirtualMachine * vm, JSObject * obj,
                         sel->u.vstring->len);
         }
     } else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(vm->error, "delete_array: illegal array index");
 #endif
         js_vm_error(vm);
@@ -384,7 +384,7 @@ js_vm_object_nth(JSVirtualMachine * vm, JSObject * obj, int nth,
     /* The chain <i> is the correct one. */
     for (b = obj->hash[i]; b && nth > 0; b = b->next, nth--);
     if (b == NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         char buf[512];
 
         sprintf(buf,

@@ -165,7 +165,7 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
     JSHeapBlock *hb;
     unsigned int to_alloc;
     unsigned int freelist;
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     char buf[512];
 #endif
 
@@ -230,7 +230,7 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
     else
         to_alloc = BLOCK_SIZE;
 
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     if (vm->verbose > 2) {
         sprintf(buf,
                 "VM: heap: malloc(%u): needed=%u, size=%lu, free=%lu, allocated=%lu%s",
@@ -455,7 +455,7 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
 {
     unsigned int i;
     unsigned long bytes_in_use;
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     char buf[512];
 #endif
 #if GC_TIMES
@@ -464,7 +464,7 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
     clock_t after_sweep_clock;
 #endif
 
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     if (vm->verbose > 1) {
         sprintf(buf, "VM: heap: garbage collect: num_consts=%u, num_globals=%u%s",
                 vm->num_consts, vm->num_globals, JS_HOST_LINE_BREAK);
@@ -549,7 +549,7 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
     after_sweep_clock = clock();
 #endif
 
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
     if (vm->verbose > 1) {
         sprintf(buf, "VM: heap: bytes_in_use=%lu, bytes_free=%lu%s",
                 bytes_in_use, vm->gc.bytes_free, JS_HOST_LINE_BREAK);

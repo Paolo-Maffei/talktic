@@ -33,7 +33,7 @@
  * Global variables.
  */
 
-#ifdef _ENABLE_STRING_LOWERUPPER
+#ifdef JS_ENABLE_STRING_LOWERUPPER
 unsigned char js_latin1_tolower[256] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
     0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -136,7 +136,7 @@ js_vm_to_primitive(JSVirtualMachine * vm, const JSNode * n,
                      && JS_IS_PRIMITIVE_VALUE(&vm->exec_result))
                 JS_COPY(result_return, &vm->exec_result);
             else {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
                 sprintf(vm->error, "ToPrimitive(): couldn't convert");
 #endif
                 js_vm_error(vm);
@@ -153,7 +153,7 @@ js_vm_to_primitive(JSVirtualMachine * vm, const JSNode * n,
 
     case JS_BUILTIN:
         /* XXX ToPrimitive() for built-ins. */
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(vm->error,
                 "ToPrimitive(): not implemented yet for built-ins");
 #endif
@@ -165,7 +165,7 @@ js_vm_to_primitive(JSVirtualMachine * vm, const JSNode * n,
     case JS_FUNC:
     case JS_IPTR:
     default:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(vm->error, "ToPrimitive(): couldn't convert (%d)",
                 n->type);
 #endif
@@ -358,7 +358,7 @@ js_vm_to_object(JSVirtualMachine * vm, const JSNode * n,
     case JS_UNDEFINED:
     case JS_NULL:
     default:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         sprintf(vm->error, "ToObject(): illegal argument");
 #endif
         js_vm_error(vm);
