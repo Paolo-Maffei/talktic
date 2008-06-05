@@ -46,4 +46,6 @@ function onr(seq,src,pan,pay,rss) {
 while(true) {
 	debug(".");
 	srd(0xFFFF, "muchmorebigpacket");
+	var x = new Hello("Hello World!\r\n");
+	x.show();
 }
