@@ -44,7 +44,6 @@
 #endif
 #include <setjmp.h>
 #include <math.h>
-//#include <time.h>
 #include <limits.h>
 
 #if HAVE_UNISTD_H
@@ -80,7 +79,6 @@
 
 
 
-/* ---------------------------------------------------------------------------------------------- */
 #if __cplusplus
 extern "C" {
 #endif
@@ -626,7 +624,7 @@ extern "C" {
                                 unsigned int anonymous_function_offset,
 #ifdef JS_RUNTIME_DEBUG
                                 unsigned char *debug_info, unsigned int debug_info_len,
-
+#endif
                                 JSNode * object, JSNode * func, unsigned int argc, JSNode * argv);
 
     typedef const char *(*JSVMFuncName) (struct js_vm_st * vm, void *pc);
@@ -1101,8 +1099,8 @@ extern "C" {
 
     int js_vm_object_nth(JSVirtualMachine * vm, JSObject * obj, int nth, JSNode * value_return);
 
-/* Debug. */
 #ifdef JS_RUNTIME_DEBUG
+/* Debug. */
     void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames);
 #endif
 
@@ -1158,8 +1156,13 @@ extern "C" {
     }
 
 	void js_alloc_dump_blocks();
+
+
+
 #ifdef __cplusplus
 }
 #endif
+
+
 
 #endif /* not JSINT_H */
