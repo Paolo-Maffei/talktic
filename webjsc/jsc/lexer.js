@@ -695,7 +695,7 @@ function JSC$lexer_eof_in_constant(possible_start, name)
 			   + ": unterminated " + name + " constant");
 
 	if (possible_start > 0)
-		msg += (System.lineBreakSequence + JSC$filename + ":" + possible_start.toString()
+		msg += ("\n" + JSC$filename + ":" + possible_start.toString()
 				+ ": possible real start of unterminated " + name + " constant");
 
 	error(msg);

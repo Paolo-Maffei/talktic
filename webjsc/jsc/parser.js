@@ -84,13 +84,13 @@ function JSC$parser_syntax_error()
 /* All warnings are reported through this function. */
 function JSC$warning(line)
 {
-	System.stderr.writeln(line);
+	warning(line);
 }
 
 /* All messages are reported throught this function. */
 function JSC$message(line)
 {
-	System.stderr.writeln(line);
+	message(line);
 }
 
 
