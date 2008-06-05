@@ -64,25 +64,10 @@ void nothing_response(void) {
 	}
 }
 
-/* Onboard LED is connected to pin PB7 */
-#define LED_DDR   DDRB
-#define LED_PORT  PORTB
-#define LED_PIN   PINB
-#define LED       PINB7
 #define cbi(addr,bit)			addr&=~_BV(bit)
 #define sbi(addr,bit)			addr|=_BV(bit)
 
-inline void blink() {
-	uint32_t l;
-	cbi(LED_PORT,LED);
-	for(l=0; l<700000; ++l);
-	sbi(LED_PORT,LED);
-	for(l=0; l<7000000; ++l);
-}
-
 void end() {
-	blink();
-
 	UBRR1L = 0;
 	UBRR1H = 0;
 	UCSR1A = 0x20;
@@ -106,25 +91,19 @@ void boot()
 	UCSR1B |= _BV(TXEN1)|_BV(RXEN1);
 	UCSR1C |= _BV(UCSZ11)|_BV(UCSZ10);
 
-	sbi(LED_DDR,LED);
-	sbi(LED_PORT,LED);
-
 	ch2 = 0;
-	for (w=0; w<25; ++w) {
-		for(l=0; l<3000000; ++l);
+	for (w=0; w<50; ++w) {
 		if (rs_buff()) {
 			ch2 = 1;
 			break;
 		}
+		for(l=0; l<3000000; ++l);
 	}
 
 	if(ch2 == 0) {
 		end();
 		return;
 	}
-
-	blink();
-	blink();
 
 	while(1) {
 		if (rs_buff()) {
