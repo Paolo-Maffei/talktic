@@ -21,7 +21,10 @@ COMMON = -mmcu=$(MCU)
 
 ## Compile options common for all C compilation units.
 CFLAGS = $(COMMON)
-CFLAGS += -Wall -Os -fsigned-char -gstabs -mcall-prologues
+#CFLAGS += -gstabs
+#CFLAGS += -fsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+#CFLAGS += -gdwarf-2
+CFLAGS += -Wall -Os -mcall-prologues
 CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d 
 
 ifdef MOXA
@@ -36,7 +39,7 @@ endif
 
 ## Assembly specific flags
 ASMFLAGS = $(COMMON)
-ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf2
+ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf-2
 
 ## Linker flags
 LDFLAGS = $(COMMON)
@@ -46,12 +49,12 @@ LDFLAGS += -Wl,-Map=$(PROJECT).map
 # |internal SRAM       |extrenal SRAM(32K)       |
 # |0x1000        0x10FF|0x1100             0x90FF|
 # |data,bss--> <--stack|heap                     |
-#LDFLAGS += -Wl,--defsym=__heap_start=0x801100,--defsym=__heap_end=0x8090FF
+LDFLAGS += -Wl,--defsym=__heap_start=0x801100,--defsym=__heap_end=0x8090FF
 
 # |internal SRAM       |extrenal SRAM(32K)       |
 # |0x1000        0x10FF|0x1100             0x90FF|
 # |            <--stack|data,bss,heap            |
-LDFLAGS += -Wl,-section-start=.data=0x801100,--defsym=__heap_end=0x8090FF
+#LDFLAGS += -Wl,-section-start=.data=0x801100,--defsym=__heap_end=0x8090FF
 
 
 ## Intel Hex file production flags

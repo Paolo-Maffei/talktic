@@ -269,7 +269,6 @@ link_code(JSVirtualMachine * vm, unsigned char *code,
 #define ERROR(...) \
   	do { \
     	JS_SAVE_REGS (); \
-		printf(__VA_ARGS__); \
     	js_vm_error (vm); \
     	/* NOTREACHED */ \
   	} while (0)
