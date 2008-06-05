@@ -1,7 +1,7 @@
 ## General Options
 PROJECT = talktic
 MCU = atmega128
-TARGET = $(PROJECT).elf $(PROJECT).cof $(PROJECT).hex $(PROJECT).eep
+TARGET = $(PROJECT).elf $(PROJECT).hex $(PROJECT).eep
 CC = avr-gcc
 SIZE = avr-size
 OBJCOPY = avr-objcopy
@@ -125,7 +125,7 @@ eep: $(PROJECT).eep
 	$(AVRDUDE) $(AVRDUDE_OPTIONS) -U eeprom:w:$<:i
 
 ## Testing target
-write_test: erase flash eep test
+write_test: flash eep test
 test: 
 	cat /dev/$(TEST_COMPORT)
 
