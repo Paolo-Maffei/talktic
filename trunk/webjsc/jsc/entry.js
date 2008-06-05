@@ -86,7 +86,7 @@ function JSC$compile_stream(stream, flags, asm_file, bc_file)
 
 	JSC$compiler_reset();
 
-	if (stream.open()) {
+	if (stream.open("r")) {
 		try {
 			JSC$verbose = ((flags & JSC$FLAG_VERBOSE) != 0);
 			JSC$generate_debug_info = ((flags & JSC$FLAG_GENERATE_DEBUG_INFO) != 0);
