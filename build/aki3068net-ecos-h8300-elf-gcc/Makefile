@@ -1,5 +1,5 @@
 # Redboot load command
-# load -r -v -b 0x400000 -h 192.168.1.11 -m tftp main.bin
+# load -r -v -b 0x400000 -h 192.168.1.12 -m tftp talktic.bin
 
 ### Build options
 
@@ -27,6 +27,8 @@ ECOS_DIR = ecos
 ## Build options
 NET = 1
 #DNS = 1
+DIGITALIO = 1
+ANALOGIO = 1
 
 ### Build enviroment
 
@@ -82,7 +84,17 @@ OBJECTS += 		\
 ifdef NET
 CFLAGS += -D_AKI3068NET_NET
 OBJECTS += b_net.o base64.o
-endif # NET
+endif
+
+ifdef DIGITALIO
+CFLAGS += -D_AKI3068NET_DIGITALIO
+OBJECTS += b_digitalio.o
+endif
+
+ifdef ANALOGIO
+CFLAGS += -D_AKI3068NET_ANALOGIO
+OBJECTS += b_analogio.o
+endif
 
 ifdef DNS
 INCLUDES += -I$(SRC_DIR)/aki3068net/ares
@@ -111,7 +123,7 @@ OBJECTS +=		\
 	$(NULL)
 %.o: $(SRC_DIR)/aki3068net/ares/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
-endif # DNS
+endif
 
 
 
