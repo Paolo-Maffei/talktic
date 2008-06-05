@@ -31,7 +31,6 @@ extern void init_builtin_analogio();
 
 extern JSByteCode *init_bytecode();
 extern void init_builtin_globals();
-extern void init_builtin_hello_class();
 
 int main()
 {
@@ -77,7 +76,6 @@ int main()
 		bc = init_bytecode();
 
 		init_builtin_globals(vm);
-		init_builtin_hello_class(vm);
 
 #ifdef _PROTO1_RADIO
 		init_builtin_radio(vm);
