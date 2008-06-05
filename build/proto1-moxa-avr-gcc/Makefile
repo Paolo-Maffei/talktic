@@ -170,6 +170,7 @@ OBJECTS +=		\
 	mrgsort.o	\
 	b_string.o	\
 	bc.o		\
+	b_math.o	\
 	$(NULL)
 
 ## Compile

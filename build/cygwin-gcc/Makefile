@@ -83,6 +83,7 @@ OBJECTS +=		\
 	bc.o		\
 	iostream.o	\
 	iostream_file.o	\
+	b_math.o	\
 	$(NULL)
 
 ## Compile
