@@ -112,6 +112,10 @@ $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
 size: $(PROJECT).exe
 	$(SIZE) $<
 
+## Test
+test: $(PROJECT).exe
+	$<
+
 ## Clean target
 .PHONY: clean
 clean:
