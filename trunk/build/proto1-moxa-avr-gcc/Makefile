@@ -64,7 +64,7 @@ HEX_EEPROM_FLAGS += --set-section-flags=.eeprom="alloc,load"
 HEX_EEPROM_FLAGS += --change-section-lma .eeprom=0
 
 ## Include Directories
-INCLUDES = -I$(SRC_DIR)
+INCLUDES =
 
 ## Common Libraries
 LIBDIRS =
@@ -162,6 +162,9 @@ endif
 
 
 ### Common
+
+## Includes
+INCLUDES += -I$(SRC_DIR)
 
 ## Build
 all: $(TARGET) size

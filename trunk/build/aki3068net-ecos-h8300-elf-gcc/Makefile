@@ -38,7 +38,6 @@ LDFLAGS += -Ttarget.ld -nostdlib
 
 ## Include Directories
 INCLUDES = -I$(ECOS_DIR)/install/include
-INCLUDES += -I$(SRC_DIR)
 
 ## Libraries
 LIBDIRS = -L$(ECOS_DIR)/install/lib
@@ -103,6 +102,9 @@ OBJECTS += 		\
 
 
 ### Common
+
+## Includes
+INCLUDES += -I$(SRC_DIR)
 
 ## Build
 all: $(TARGET) size
