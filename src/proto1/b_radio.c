@@ -9,11 +9,8 @@ static void radioSend_global_method(JSVirtualMachine * vm, JSBuiltinInfo * built
 	JSNode n;
 
 	if (args->u.vinteger == 2) {
-		if (args[1].type == JS_INTEGER) {
-			unsigned short addr = args[1].u.vinteger;
-			js_vm_to_string(vm, &args[2], &n);
-			RADIO_sendPacket(addr, n.u.vstring->data, n.u.vstring->len);
-		}
+		js_vm_to_string(vm, &args[2], &n);
+		RADIO_sendPacket((unsigned short)js_vm_to_int32(vm, &args[1]), n.u.vstring->data, n.u.vstring->len);
 	}
 	result_return->type = JS_UNDEFINED;
 }
@@ -59,26 +56,24 @@ static MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
 static void radioInit_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 					 void *instance_context, JSNode * result_return, JSNode * args)
 {
+	UINT8 channel = 11;
+	UINT8 powerAmpLevel = 31;
+
 	result_return->type = JS_BOOLEAN;
 	result_return->u.vboolean = 0;
-	if (args->u.vinteger >= 2) {
-		if (args[1].type == JS_INTEGER
-			&& args[2].type == JS_INTEGER
-		) {
-			UINT8 channel = 11;
-			UINT8 powerAmpLevel = 31;
-			if(args->u.vinteger >= 3) {
-				channel = (UINT8)args[3].u.vinteger;
-			}
-			if(args->u.vinteger >= 4) {
-				powerAmpLevel = (UINT8)args[4].u.vinteger;
-			}
-			RADIO_init(channel, (WORD)args[1].u.vinteger, (WORD)args[2].u.vinteger, powerAmpLevel);
-			RADIO_setRecvHandler(&receiveHandler);
-			vm->interrupt_table[0].enable = 1;
 
-			result_return->u.vboolean = 1;
+	if (args->u.vinteger >= 2) {
+		if(args->u.vinteger >= 3) {
+			channel = (UINT8)js_vm_to_int32(vm, &args[3]);
 		}
+		if(args->u.vinteger >= 4) {
+			powerAmpLevel = (UINT8)js_vm_to_int32(vm, &args[4]);
+		}
+		RADIO_init(channel, (WORD)js_vm_to_int32(vm, &args[1]), (WORD)js_vm_to_int32(vm, &args[2]), powerAmpLevel);
+		RADIO_setRecvHandler(&receiveHandler);
+		vm->interrupt_table[0].enable = 1;
+
+		result_return->u.vboolean = 1;
 	}
 }
 
