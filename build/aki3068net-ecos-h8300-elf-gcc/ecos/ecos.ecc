@@ -5735,6 +5735,20 @@ cdl_interface CYGINT_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_COUNT {
 };
 
 # <
+# Use mboxt_plain mbox implementation
+# Use the plain mboxt implementation instead of the mboxt2
+# implementation. The mboxt2 version is designed to provide
+# semantics compatible with UITRON, the plain implementation
+# is adquate in most other situations.
+#
+cdl_option CYGIMP_MBOX_USE_MBOXT_PLAIN {
+    # Flavor: bool
+    # No user value, uncomment the following line to provide one.
+    # user_value 1
+    # value_source default
+    # Default value: 1
+};
+
 # Message box blocking put support
 # doc: ref/kernel-mail-boxes.html
 # Message boxes can support three different versions of the
