@@ -284,7 +284,7 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 /* I/O streams. */
 
-
+#ifdef JS_IOSTREAM
     /* Buffer filler or flusher function. */
     typedef int (*JSIOStreamIOFunc) (void *context, unsigned char *buffer,
                                      unsigned int todo, int *error_return);
@@ -320,7 +320,7 @@ extern "C" {
         void *context;
     };
     typedef struct js_io_stream_st JSIOStream;
-
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* The destroy callback for the destroyable heap blocks. */
@@ -716,9 +716,11 @@ extern "C" {
         unsigned long security;
 
         /* The default system streams. */
+#ifdef JS_IOSTREAM
         JSIOStream *s_stdin;
         JSIOStream *s_stdout;
         JSIOStream *s_stderr;
+#endif
 
         /* The byte-code instruction dispatcher. */
 //        JSVMDispatchMethod dispatch_method;
@@ -863,6 +865,7 @@ extern "C" {
     //JSByteCode *js_bc_read_file(FILE * fp);
     void js_bc_free(JSByteCode * bc);
 
+#ifdef JS_IOSTREAM
 /* I/O streams. */
     /* Allocate one I/O stream handle. */
     JSIOStream *js_iostream_new();
@@ -877,14 +880,17 @@ extern "C" {
     long js_iostream_get_position(JSIOStream * stream);
     long js_iostream_get_length(JSIOStream * stream);
     void js_iostream_fill_buffer(JSIOStream * stream);
+#endif
 
 /* Virtual machine. */
     JSVirtualMachine *js_vm_create(unsigned int stack_size,
 //                                   JSVMDispatchMethod dispatch_method,
                                    unsigned int verbose,
-                                   int stacktrace_on_error,
-                                   JSIOStream * s_stdin,
-                                   JSIOStream * s_stdout, JSIOStream * s_stderr);
+                                   int stacktrace_on_error
+#ifdef JS_IOSTREAM
+                                   ,JSIOStream * s_stdin, JSIOStream * s_stdout, JSIOStream * s_stderr
+#endif
+								   );
     void js_vm_destroy(JSVirtualMachine * vm);
 
     /*

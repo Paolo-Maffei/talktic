@@ -35,6 +35,7 @@
 /* #undef HAVE_UNISTD_H */
 
 /* Define if don't remove runtime warning message formatted in sprintf */
+/* #undef JS_IOSTREAM */
 /* #undef JS_RUNTIME_DEBUG */
 /* #undef JS_RUNTIME_WARNING */
 /* #undef JS_DEBUG_MEMORY_LEAKS */

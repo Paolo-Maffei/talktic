@@ -48,7 +48,11 @@ void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames)
 
 	sprintf(buf, "VM: stacktrace: stacksize=%d, used=%d%s",
 			vm->stack_size, (vm->stack + vm->stack_size - sp), JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
 	js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+	fwrite(buf, strlen(buf), 1, stderr);
+#endif
 
 	/* STACKFRAME */
 
@@ -70,7 +74,11 @@ void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames)
 		const char *func_name = js_vm_func_name(vm, pc);
 
 		sprintf(buf, "#%-3u %s%s:", frame++, func_name, func_name[0] == '.' ? "" : "()");
+#ifdef JS_IOSTREAM
 		js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+		fwrite(buf, strlen(buf), 1, stderr);
+#endif
 
 		if (vm->verbose_stacktrace) {
 			sprintf(buf,
@@ -79,7 +87,11 @@ void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames)
 					(unsigned long) JS_WITHPTR->u.iptr,
 					JS_ARGS_FIXP->u.args_fix.argc,
 					JS_ARGS_FIXP->u.args_fix.delta, (unsigned long) fp->u.iptr);
+#ifdef JS_IOSTREAM
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+			fwrite(buf, strlen(buf), 1, stderr);
+#endif
 		}
 
 		for (n = sp + 1; n != fp - 3; n++) {
@@ -143,11 +155,18 @@ void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames)
 				sprintf(buf, " type=%d???", n->type);
 				break;
 			}
-
+#ifdef JS_IOSTREAM
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+			fwrite(buf, strlen(buf), 1, stderr);
+#endif
 		}
 
+#ifdef JS_IOSTREAM
 		js_iostream_write(vm->s_stderr, JS_HOST_LINE_BREAK, JS_HOST_LINE_BREAK_LEN);
+#else
+		fwrite(JS_HOST_LINE_BREAK, JS_HOST_LINE_BREAK_LEN, 1, stderr);
+#endif
 
 		/* Move to the caller. */
 		sp = fp;

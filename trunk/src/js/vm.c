@@ -59,8 +59,11 @@ static void intern_builtins(JSVirtualMachine * vm);
 JSVirtualMachine *js_vm_create(unsigned int stack_size,
 //                               JSVMDispatchMethod dispatch_method,
 							   unsigned int verbose,
-							   int stacktrace_on_error,
-							   JSIOStream * s_stdin, JSIOStream * s_stdout, JSIOStream * s_stderr)
+							   int stacktrace_on_error
+#ifdef JS_IOSTREAM
+							   ,JSIOStream * s_stdin, JSIOStream * s_stdout, JSIOStream * s_stderr
+#endif
+							   )
 {
 	unsigned char i;
 	JSVirtualMachine *vm;
@@ -76,9 +79,11 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 	vm->warn_undef = 1;
 
 	/* Set the system streams. */
+#ifdef JS_IOSTREAM
 	vm->s_stdin = s_stdin;
 	vm->s_stdout = s_stdout;
 	vm->s_stderr = s_stderr;
+#endif
 
 	/* Resolve the dispatch method. */
 //    vm->dispatch_method = dispatch_method;
@@ -243,17 +248,22 @@ void js_vm_destroy(JSVirtualMachine * vm)
 					i, vm->prof_count[i],
 					(double) vm->prof_count[i] / total * 100, JS_HOST_LINE_BREAK);
 
-			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#ifdef JS_IOSTREAM
+	        js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+			fwrite(buf, strlen(buf), 1, stderr);
+#endif
 		}
 	}
 #endif
 #endif							/* JS_PROFILING */
 
+#ifdef JS_IOSTREAM
 	/* Flush and free the default system streams. */
-
 	js_iostream_close(vm->s_stdin);
 	js_iostream_close(vm->s_stdout);
 	js_iostream_close(vm->s_stderr);
+#endif
 
 	/* And finally, the VM handle. */
 	js_free(vm);
@@ -431,8 +441,12 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 								"js_vm_execute(): unknown constant type %d%s",
 								c->type, JS_HOST_LINE_BREAK);
 
-						js_iostream_write(vm->s_stderr, buf, strlen(buf));
-						js_iostream_flush(vm->s_stderr);
+#ifdef JS_IOSTREAM
+				        js_iostream_write(vm->s_stderr, buf, strlen(buf));
+        				js_iostream_flush(vm->s_stderr);
+#else
+						fwrite(buf, strlen(buf), 1, stderr);
+#endif
 #endif
 
 						abort();
@@ -794,7 +808,11 @@ void js_vm_error(JSVirtualMachine * vm)
 
 	if (vm->stacktrace_on_error) {
 		sprintf(error, "VM: error: %s%s", vm->error, JS_HOST_LINE_BREAK);
-		js_iostream_write(vm->s_stderr, error, strlen(error));
+#ifdef JS_IOSTREAM
+        js_iostream_write(vm->s_stderr, error, strlen(error));
+#else
+		fwrite(error, strlen(error), 1, stderr);
+#endif
 
 		js_vm_stacktrace(vm, (unsigned int) -1);
 	}
@@ -807,8 +825,12 @@ void js_vm_error(JSVirtualMachine * vm)
 	// NOTREACHED (I hope)
 #ifdef JS_RUNTIME_WARNING
 	sprintf(error, "VM: no valid error handler initialized%s", JS_HOST_LINE_BREAK);
-	js_iostream_write(vm->s_stderr, error, strlen(error));
+#ifdef JS_IOSTREAM
+    js_iostream_write(vm->s_stderr, error, strlen(error));
 	js_iostream_flush(vm->s_stderr);
+#else
+	fwrite(error, strlen(error), 1, stderr);
+#endif
 #endif
 	abort();
 }

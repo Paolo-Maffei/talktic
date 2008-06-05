@@ -24,6 +24,8 @@
 
 #include "jsint.h"
 
+#ifdef JS_IOSTREAM
+
 /* The `FILE *' stream. */
 static int file_read(void *context, unsigned char *buffer, unsigned int todo, int *error_return)
 {
@@ -117,3 +119,5 @@ JSIOStream *js_iostream_file(FILE * fp, int readp, int writep, int do_close)
 
     return stream;
 }
+
+#endif

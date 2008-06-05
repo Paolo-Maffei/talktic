@@ -576,7 +576,6 @@ isInt_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         result_return->u.vboolean = 1;
 }
 
-
 static void
 print_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                     void *instance_context, JSNode * result_return,
@@ -591,15 +590,25 @@ print_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         JSNode result;
 
         js_vm_to_string(vm, &args[i], &result);
-        js_iostream_write(vm->s_stdout, result.u.vstring->data,
-                          result.u.vstring->len);
+#ifdef JS_IOSTREAM
+        js_iostream_write(vm->s_stdout, result.u.vstring->data, result.u.vstring->len);
+#else
+        fwrite(result.u.vstring->data, result.u.vstring->len, 1, stdout);
+#endif
 
         if (i + 1 <= args->u.vinteger)
+#ifdef JS_IOSTREAM
             js_iostream_write(vm->s_stdout, " ", 1);
+#else
+			fwrite(" ", 1, 1, stdout);
+#endif
     }
 
-    js_iostream_write(vm->s_stdout, JS_HOST_LINE_BREAK,
-                      JS_HOST_LINE_BREAK_LEN);
+#ifdef JS_IOSTREAM
+    js_iostream_write(vm->s_stdout, JS_HOST_LINE_BREAK, JS_HOST_LINE_BREAK_LEN);
+#else
+    fwrite(JS_HOST_LINE_BREAK, JS_HOST_LINE_BREAK_LEN, 1, stdout);
+#endif
 }
 
 
@@ -611,21 +620,21 @@ static struct {
     char *name;
     JSBuiltinGlobalMethod method;
 } global_methods[] = {
-    {
-    "parseInt", parseInt_global_method}, {
-    "parseFloat", parseFloat_global_method}, {
-    "escape", escape_global_method}, {
-    "unescape", unescape_global_method}, {
-    "isNaN", isNaN_global_method}, {
-    "isFinite", isFinite_global_method}, {
-    "debug", debug_global_method}, {
-    "error", error_global_method}, {
-    "float", float_global_method}, {
-    "int", int_global_method}, {
-    "isFloat", isFloat_global_method}, {
-    "isInt", isInt_global_method}, {
-    "print", print_global_method}, {
-NULL, NULL},};
+	{"parseInt", parseInt_global_method},
+	{"parseFloat", parseFloat_global_method},
+	{"escape", escape_global_method},
+	{"unescape", unescape_global_method},
+	{"isNaN", isNaN_global_method},
+	{"isFinite", isFinite_global_method},
+	{"debug", debug_global_method},
+	{"error", error_global_method},
+	{"float", float_global_method},
+	{"int", int_global_method},
+	{"isFloat", isFloat_global_method},
+	{"isInt", isInt_global_method},
+	{"print", print_global_method},
+	{NULL, NULL}
+};
 
 
 void js_builtin_core(JSVirtualMachine * vm)

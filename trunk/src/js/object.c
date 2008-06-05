@@ -390,8 +390,12 @@ js_vm_object_nth(JSVirtualMachine * vm, JSObject * obj, int nth,
         sprintf(buf,
                 "js_vm_object_nth(): chain didn't contain that many items%s",
                 JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
         js_iostream_flush(vm->s_stderr);
+#else
+		fwrite(buf, strlen(buf), 1, stderr);
+#endif
 #endif
 
         abort();
