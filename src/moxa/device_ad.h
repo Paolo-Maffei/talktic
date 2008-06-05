@@ -31,7 +31,9 @@
   （これは評価用ボードの制限で、最終的なボード基板にはこの制約はないはずです）
   配列の定義はsensor_port.cをご覧ください。
 */
+#if ! ((MOXA_BOARD_TYPE == MOXA_BOARD_PROTO_1) | (MOXA_BOARD_TYPE == MOXA_BOARD_STK300))
 extern INT8 g_DeviceAdMapping[DEVICE_PORT_N];
+#endif
 
 #if defined _CHIP_ATMEGA128_ | defined _CHIP_ATMEGA128L_
 
