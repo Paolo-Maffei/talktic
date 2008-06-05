@@ -272,6 +272,18 @@ extern "C" {
      */
     typedef unsigned long JSUIntAlign;
 
+/*
+ * Float type
+ */
+#if SIZEOF_FLOAT == 4
+	typedef float JSFloat;
+#else
+#if SIZEOF_DOUBLE == 4
+	typedef double JSFloat;
+#else
+#error "do not know how to define a 32 bit float"
+#endif
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /* I/O streams. */
@@ -485,8 +497,8 @@ extern "C" {
 
             JSString *vstring;
 
-            long vinteger;
-            double vfloat;
+            JSInt32 vinteger;
+            JSFloat vfloat;
 
             struct js_object_st *vobject;
 

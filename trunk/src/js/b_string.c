@@ -158,7 +158,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         unsigned int op;
         unsigned int arg = 2;
         JSUInt32 ui;
-        double dval;
+        JSFloat dval;
         unsigned char *buffer = NULL;
         unsigned int bufpos = 0;
 
@@ -220,15 +220,15 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                     goto argument_type_error;
 
                 if (args[arg].type == JS_INTEGER)
-                    dval = (double) args[arg].u.vinteger;
+                    dval = (JSFloat) args[arg].u.vinteger;
                 else
                     dval = args[arg].u.vfloat;
                 arg++;
 
                 buffer =
-                    js_vm_realloc(vm, buffer, bufpos + sizeof(double));
-                memcpy(buffer + bufpos, &dval, sizeof(double));
-                bufpos += sizeof(double);
+                    js_vm_realloc(vm, buffer, bufpos + sizeof(JSFloat));
+                memcpy(buffer + bufpos, &dval, sizeof(JSFloat));
+                bufpos += sizeof(JSFloat);
                 break;
 
             default:
@@ -757,12 +757,12 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                     break;
 
                 case 'd':
-                    UNPACK_NEED(8);
+                    UNPACK_NEED(sizeof(JSFloat));
                     UNPACK_EXPAND();
 
                     rnode->type = JS_FLOAT;
-                    memcpy(&rnode->u.vfloat, buffer + bufpos, 8);
-                    bufpos += 8;
+                    memcpy(&rnode->u.vfloat, buffer + bufpos, sizeof(JSFloat));
+                    bufpos += sizeof(JSFloat);
                     break;
 
                 default:

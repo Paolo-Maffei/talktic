@@ -13,11 +13,11 @@
  */
 /* #undef DISABLE_JUMPS */
 
-/* The number of bytes in a int.  */
+/* The number of bytes in a types  */
 #define SIZEOF_INT 2
-
-/* The number of bytes in a long.  */
 #define SIZEOF_LONG 4
+#define SIZEOF_FLOAT 4
+#define SIZEOF_DOUBLE 4
 
 /* Define if you have the <errno.h> header file.  */
 #define HAVE_ERRNO_H 1

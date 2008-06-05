@@ -828,12 +828,12 @@ if (JS_SP2->type == JS_INTEGER && JS_SP1->type == JS_INTEGER) {
             JS_SP2->u.vinteger = l->u.vinteger - r->u.vinteger;
         } else {
             JS_SP2->type = JS_FLOAT;
-            JS_SP2->u.vfloat = (double) l->u.vinteger - r->u.vfloat;
+            JS_SP2->u.vfloat = (JSFloat) l->u.vinteger - r->u.vfloat;
         }
     } else {
         if (r->type == JS_INTEGER) {
             JS_SP2->type = JS_FLOAT;
-            JS_SP2->u.vfloat = l->u.vfloat - (double) r->u.vinteger;
+            JS_SP2->u.vfloat = l->u.vfloat - (JSFloat) r->u.vinteger;
         } else {
             JS_SP2->type = JS_FLOAT;
             JS_SP2->u.vfloat = l->u.vfloat - r->u.vfloat;
@@ -906,12 +906,12 @@ if (JS_SP2->type == JS_STRING || JS_SP1->type == JS_STRING) {
             JS_SP2->u.vinteger = l->u.vinteger + r->u.vinteger;
         } else {
             JS_SP2->type = JS_FLOAT;
-            JS_SP2->u.vfloat = (double) l->u.vinteger + r->u.vfloat;
+            JS_SP2->u.vfloat = (JSFloat) l->u.vinteger + r->u.vfloat;
         }
     } else {
         if (r->type == JS_INTEGER) {
             JS_SP2->type = JS_FLOAT;
-            JS_SP2->u.vfloat = l->u.vfloat + (double) r->u.vinteger;
+            JS_SP2->u.vfloat = l->u.vfloat + (JSFloat) r->u.vinteger;
         } else {
             JS_SP2->type = JS_FLOAT;
             JS_SP2->u.vfloat = l->u.vfloat + r->u.vfloat;
@@ -957,7 +957,7 @@ if (JS_SP2->type == JS_INTEGER && JS_SP1->type == JS_INTEGER) {
                 JS_SP2->type = JS_NAN;
             else {
                 JS_SP2->type = JS_FLOAT;
-                JS_SP2->u.vfloat = (double) l->u.vinteger * r->u.vfloat;
+                JS_SP2->u.vfloat = (JSFloat) l->u.vinteger * r->u.vfloat;
             }
         }
     } else {
@@ -969,7 +969,7 @@ if (JS_SP2->type == JS_INTEGER && JS_SP1->type == JS_INTEGER) {
             JS_SP2->type = JS_FLOAT;
 
             if (r->type == JS_INTEGER)
-                JS_SP2->u.vfloat = l->u.vfloat * (double) r->u.vinteger;
+                JS_SP2->u.vfloat = l->u.vfloat * (JSFloat) r->u.vinteger;
             else
                 JS_SP2->u.vfloat = l->u.vfloat * r->u.vfloat;
         }
@@ -983,7 +983,7 @@ break;
 case 41:
 {
     int nan = 0;
-    double l = 0, r =0;
+    JSFloat l = 0, r =0;
     int l_inf = 0;
     int r_inf = 0;
     JSNode *n;
@@ -999,7 +999,7 @@ case 41:
 
     switch (n->type) {
     case JS_INTEGER:
-        l = (double) n->u.vinteger;
+        l = (JSFloat) n->u.vinteger;
         break;
 
     case JS_FLOAT:
@@ -1024,7 +1024,7 @@ case 41:
 
     switch (n->type) {
     case JS_INTEGER:
-        r = (double) n->u.vinteger;
+        r = (JSFloat) n->u.vinteger;
         break;
 
     case JS_FLOAT:
@@ -1102,16 +1102,16 @@ if (JS_SP2->type == JS_INTEGER && JS_SP1->type == JS_INTEGER) {
             JS_SP2->type = JS_INTEGER;
             JS_SP2->u.vinteger = l->u.vinteger % r->u.vinteger;
         } else {
-            double ld, rd;
+            JSFloat ld, rd;
             int full;
 
             if (l->type == JS_INTEGER)
-                ld = (double) l->u.vinteger;
+                ld = (JSFloat) l->u.vinteger;
             else
                 ld = l->u.vfloat;
 
             if (r->type == JS_INTEGER)
-                rd = (double) r->u.vinteger;
+                rd = (JSFloat) r->u.vinteger;
             else
                 rd = r->u.vfloat;
 
