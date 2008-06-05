@@ -111,6 +111,23 @@ while(true) {
 	debug("f="+f+"\r\n");
 }
 */
+/*
 for(var i=0; i<100; i++) {
 	print(int(Math.random()*10000));
 }
+*/
+try {
+	print("go...");
+	try{
+	exit(999);
+		throw(123.4);
+	} catch(e) {
+		print("error2=", e);
+	}
+	print("rescue");
+} catch(e) {
+	print("error=", e);
+}
+print("rescue");
+hogehoge();
+print("norescue");

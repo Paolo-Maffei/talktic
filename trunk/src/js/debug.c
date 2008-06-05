@@ -152,7 +152,7 @@ void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames)
 				break;
 
 			default:
-				sprintf(buf, " type=%d???", n->type);
+				sprintf(buf, " type=%d?", n->type);
 				break;
 			}
 #ifdef JS_IOSTREAM

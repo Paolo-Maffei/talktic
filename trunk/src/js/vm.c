@@ -339,7 +339,11 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 
 	if (setjmp(vm->error_handler->error_jmp)) {
 		/* Ok, we had an error down there somewhere. */
-		result = 0;
+		if(vm->error_handler->thrown.type == JS_INTEGER) {
+			result = vm->error_handler->thrown.u.vinteger;
+		} else {
+			result = 0;
+		}
 	} else {
 		/* The main stuffs for the execute. */
 
@@ -567,7 +571,11 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func, unsigned int 
 
 	if (setjmp(vm->error_handler->error_jmp)) {
 		/* An error occurred. */
-		result = 0;
+		if(vm->error_handler->thrown.type == JS_INTEGER) {
+			result = vm->error_handler->thrown.u.vinteger;
+		} else {
+			result = 0;
+		}
 	} else {
 		/* Clear error message and old exec result. */
 #ifdef JS_RUNTIME_WARNING
@@ -647,7 +655,11 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 
 	if (setjmp(vm->error_handler->error_jmp)) {
 		/* An error occurred. */
-		result = 0;
+		if(vm->error_handler->thrown.type == JS_INTEGER) {
+			result = vm->error_handler->thrown.u.vinteger;
+		} else {
+			result = 0;
+		}
 	} else {
 		/* Intern the method name. */
 		symbol = js_vm_intern(vm, method_name);
@@ -789,13 +801,13 @@ const char *js_vm_symname(JSVirtualMachine * vm, JSSymbol sym)
 			if (b->u.ui == sym)
 				return b->name;
 
-	return "???";
+	return "?";
 }
 
 
 void js_vm_error(JSVirtualMachine * vm)
 {
-#if JS_RUNTIME_WARNING
+#if JS_RUNTIME_WARNING | JS_RUNTIME_DEBUG
 	char error[1024];
 #endif
 #ifdef JS_RUNTIME_DEBUG
@@ -815,11 +827,12 @@ void js_vm_error(JSVirtualMachine * vm)
 #else
 		fwrite(error, strlen(error), 1, stderr);
 #endif
-
 		js_vm_stacktrace(vm, (unsigned int) -1);
 	}
+#endif
 	// We are jumping to a catch-block.  Format our error message to
 	// the `thrown' node.
+#ifdef JS_RUNTIME_WARNING
 	if (vm->error_handler->sp)
 		js_vm_make_string(vm, &vm->error_handler->thrown, vm->error, strlen(vm->error));
 #endif
