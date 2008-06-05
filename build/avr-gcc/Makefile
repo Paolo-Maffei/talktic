@@ -2,10 +2,10 @@
 PROJECT = talktic
 MCU = atmega128
 TARGET = $(PROJECT).elf $(PROJECT).cof $(PROJECT).hex $(PROJECT).eep
-CC = avr-gcc.exe
-SIZE = avr-size.exe
-OBJCOPY = avr-objcopy.exe
-OBJDUMP = avr-objdump.exe
+CC = avr-gcc
+SIZE = avr-size
+OBJCOPY = avr-objcopy
+OBJDUMP = avr-objdump
 SRC_DIR = ../../src
 
 MOXA = 1
