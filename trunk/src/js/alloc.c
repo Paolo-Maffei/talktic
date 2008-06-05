@@ -124,7 +124,7 @@ void *js_malloc_i(JSVirtualMachine * vm, size_t size, char *file, int line)
 	ptr = malloc(sizeof(MemDebug) + size);
 	if (check_fail() || ptr == NULL) {
 		if (vm != NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 			sprintf(vm->error, "VM: memory exhausted");
 #endif
 			js_vm_error(vm);
@@ -146,7 +146,7 @@ void *js_calloc_i(JSVirtualMachine * vm, size_t num, size_t size, char *file, in
 	ptr = malloc(sizeof(MemDebug) + num * size);
 	if (check_fail() || ptr == NULL) {
 		if (vm != NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 			sprintf(vm->error, "VM: memory exhausted");
 #endif
 			js_vm_error(vm);
@@ -173,7 +173,7 @@ void *js_realloc_i(JSVirtualMachine * vm, void *ptr, size_t size, char *file, in
 	nptr = js_malloc_i(vm, size, file, line);
 	if (nptr == NULL) {
 		if (vm != NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 			sprintf(vm->error, "VM: memory exhausted");
 #endif
 			js_vm_error(vm);
@@ -227,7 +227,7 @@ void *js_malloc(JSVirtualMachine * vm, size_t size)
 
 	ptr = malloc(size);
 	if (ptr == NULL && vm != NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		sprintf(vm->error, "VM: memory exhausted");
 #endif
 		js_vm_error(vm);
@@ -243,7 +243,7 @@ void *js_calloc(JSVirtualMachine * vm, size_t num, size_t size)
 
 	ptr = calloc(num, size);
 	if (ptr == NULL && vm != NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		sprintf(vm->error, "VM: memory exhausted");
 #endif
 		js_vm_error(vm);
@@ -262,7 +262,7 @@ void *js_realloc(JSVirtualMachine * vm, void *ptr, size_t size)
 
 	nptr = realloc(ptr, size);
 	if (nptr == NULL && vm != NULL) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		sprintf(vm->error, "VM: memory exhausted");
 #endif
 		js_vm_error(vm);

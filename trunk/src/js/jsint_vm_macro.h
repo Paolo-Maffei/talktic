@@ -35,7 +35,7 @@
         vm->pc = pc; \
     } while (0)
 
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 
 #define JS_CALL_HOOK(event) \
     do { \
@@ -59,7 +59,7 @@
         (vm)->fd_count--; \
     } while (0)
 
-#else /* not _RUNTIME_WARNING */
+#else /* not JS_RUNTIME_WARNING */
 
 #define JS_CALL_HOOK(event) \
     do { \
@@ -81,7 +81,7 @@
         (vm)->fd_count--; \
     } while (0)
 
-#endif /* not _RUNTIME_WARNING */
+#endif /* not JS_RUNTIME_WARNING */
 
 #define JS_VM_FREE_FD(vm) \
     do { \

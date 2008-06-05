@@ -75,7 +75,7 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 	Function *global_f = NULL;
 	Function *f;
 	unsigned char *code = NULL;
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 	char buf[512];
 #endif
 
@@ -112,7 +112,7 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 				if (symtab[i].name[0] == '.' && symtab[i].name[1] == 'F'
 					&& symtab[i].name[2] == ':')
 					is_anonymous = 1;
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 				if (vm->verbose > 3) {
 					sprintf(buf, "VM: link: %s(): start=%d, length=%d",
 							symtab[i].name, symtab[i].offset,
@@ -126,7 +126,7 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 #endif
 
 				if (is_anonymous) {
-#ifndef _RUNTIME_WARNING
+#ifndef JS_RUNTIME_WARNING
 					char buf[16];	// CHANGE buffer size, see above code "buf[256]"
 #endif
 					sprintf(buf, ".F:%u", (unsigned int) atoi(symtab[i].name + 3)
@@ -142,12 +142,12 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 	} else {
 		/* Applying arguments to function. */
 		if (func->type != JS_FUNC) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 			sprintf(vm->error, "illegal function in apply");
 #endif
 			return 0;
 		}
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		if (vm->verbose > 1) {
 			sprintf(buf, "VM: calling function%s", JS_HOST_LINE_BREAK);
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
@@ -159,7 +159,7 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 	}
 
 	if (global_f) {
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 		if (vm->verbose > 1) {
 			sprintf(buf, "VM: exec: %s%s", global_f->name, JS_HOST_LINE_BREAK);
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
@@ -173,7 +173,7 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 	return 1;
 }
 
-#ifdef _RUNTIME_DEBUG
+#ifdef JS_RUNTIME_DEBUG
 const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *program_counter)
 {
 	int i;
@@ -257,7 +257,7 @@ link_code(JSVirtualMachine * vm, unsigned char *code,
 
 #define DONE() goto done
 
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 #define ERROR(...) \
   	do { \
     	JS_SAVE_REGS (); \
@@ -284,7 +284,7 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 	unsigned char *pc;
 	JSInt32 i, j;
 	JSInt8 i8;
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 	char buf[512];
 #endif
 
@@ -325,7 +325,7 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 			/* end include eswt0.h */
 
 		default:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 			sprintf(buf, "execute_code: unknown opcode %d%s", *(pc - 1), JS_HOST_LINE_BREAK);
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
 			js_iostream_flush(vm->s_stderr);

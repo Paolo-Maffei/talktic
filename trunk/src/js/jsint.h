@@ -694,11 +694,11 @@ extern "C" {
 
     struct js_vm_st {
         /* Options for the virtual machine. */
-#ifdef _RUTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         unsigned int verbose; /* verbosity has different levels. */
 #endif
 
-#ifdef _RUNTIME_DEBUG
+#ifdef JS_RUNTIME_DEBUG
         unsigned int stacktrace_on_error:1;
         unsigned int verbose_stacktrace:1;
 #endif
@@ -774,7 +774,7 @@ extern "C" {
         JSErrorHandlerFrame *error_handler;
 
         /* Buffer for the error message.  Sorry, we don't support long errors ;-) */
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
         char error[256];
 #endif
 
@@ -794,11 +794,11 @@ extern "C" {
         /* How many file descriptors can be allocated. */
         unsigned long fd_count;
 
-#if PROFILING
+#if JS_PROFILING
         /* Byte-code operand profiling support. */
         unsigned int prof_count[256];
         unsigned char prof_op;
-#endif /* PROFILING */
+#endif /* JS_PROFILING */
         unsigned char enable_interrupt;
         JSVMInterrupt interrupt_table[8];
     };
@@ -809,7 +809,7 @@ extern "C" {
 /*
  * Global variables.
  */
-#ifdef _ENABLE_STRING_LOWERUPPER
+#ifdef JS_ENABLE_STRING_LOWERUPPER
     extern unsigned char js_latin1_tolower[256];
     extern unsigned char js_latin1_toupper[256];
 #endif
@@ -986,7 +986,7 @@ extern "C" {
                            unsigned char *debug_info,
                            unsigned int debug_info_len,
                            JSNode * object, JSNode * func, unsigned int argc, JSNode * argv);
-#ifdef _RUNTIME_DEBUG
+#ifdef JS_RUNTIME_DEBUG
     const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *pc);
     const char *js_vm_switch0_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return);
 #endif
@@ -1140,7 +1140,7 @@ extern "C" {
     int js_vm_object_nth(JSVirtualMachine * vm, JSObject * obj, int nth, JSNode * value_return);
 
 /* Debug. */
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_DEBUG
     void js_vm_stacktrace(JSVirtualMachine * vm, unsigned int num_frames);
 #endif
 

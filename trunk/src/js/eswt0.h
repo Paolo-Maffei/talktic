@@ -1,6 +1,6 @@
 /* operand halt (0) */
 case 0:
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 sprintf(buf, "VM: halt%s", JS_HOST_LINE_BREAK);
 js_iostream_write(vm->s_stderr, buf, strlen(buf));
 js_iostream_flush(vm->s_stderr);
@@ -147,7 +147,7 @@ READ_INT32(j);
 JS_COPY(JS_SP0, JS_GLOBAL(j));
 JS_PUSH();
 
-#ifdef _RUNTIME_WARNING
+#ifdef JS_RUNTIME_WARNING
 if (vm->warn_undef && JS_SP1->type == JS_UNDEFINED) {
     sprintf(buf, "VM: warning: using undefined global `%s'%s",
             js_vm_symname(vm, j), JS_HOST_LINE_BREAK);
@@ -1770,7 +1770,7 @@ case 68:
     JSErrorHandlerFrame *f = vm->error_handler;
 
     if (f->sp == NULL) {
-#ifdef _RUNTIME_WARNING  
+#ifdef JS_RUNTIME_WARNING  
         JSNode cvt;
         int len;
 
@@ -1793,7 +1793,7 @@ case 68:
     longjmp(f->error_jmp, 1);
 
     /* NOTREACHED (I hope). */
-#ifdef _RUNTIME_WARNING  
+#ifdef JS_RUNTIME_WARNING  
     sprintf(buf, "VM: no valid error handler initialized%s",
             JS_HOST_LINE_BREAK);
     js_iostream_write(vm->s_stderr, buf, strlen(buf));
@@ -1880,7 +1880,7 @@ READ_INT32(j);
         /* Use the global value. */
         JS_COPY(JS_SP0, JS_GLOBAL(j));
         JS_PUSH();
-#ifdef _RUNTIME_WARNING  
+#ifdef JS_RUNTIME_WARNING  
         if (vm->warn_undef && JS_SP1->type == JS_UNDEFINED) {
             sprintf(buf, "VM: warning: using undefined global `%s'%s",
                     js_vm_symname(vm, j), JS_HOST_LINE_BREAK);
