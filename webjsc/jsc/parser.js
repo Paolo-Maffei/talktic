@@ -202,22 +202,27 @@ function JSC$parser_parse_function_declaration(stream)
 
     if (JSC$parser_peek_token(stream) != JSC$tFUNCTION)
         return false;
+    JSC$parser_get_token(stream);
 
     /* Record how many `arguments' identifiers have been seen so far. */
     var num_arguments_identifiers = JSC$num_arguments_identifiers;
 
-    JSC$parser_get_token(stream);
-    if (JSC$parser_get_token(stream) != JSC$tIDENTIFIER)
-        JSC$parser_syntax_error();
+    if (JSC$parser_peek_token(stream) == JSC$tIDENTIFIER) {
+    	JSC$parser_get_token(stream);
+    	id = JSC$parser_token_value;
+	}
 
-    id = JSC$parser_token_value;
     var ln = JSC$parser_token_linenum;
     var id_given = id;
 
-    if (JSC$nested_function_declarations.length > 0) {
+    if (JSC$nested_function_declarations.length > 0 || id == undefined) {
         /* This is a nested function declaration. */
         id = ".F:" + (JSC$anonymous_function_count++).toString();
     }
+	if(id_given == undefined) {
+		id_given = id;
+	}
+
     JSC$nested_function_declarations.push(id);
 
     if (JSC$parser_get_token(stream) != '('.charCodeAt(0))
@@ -339,17 +344,13 @@ function JSC$parser_parse_stmt(stream)
 
         return new JSC$stmt_function_declaration(JSC$parser_token_linenum,
                                                  container_id, function_id, given_id);
-    } else if (typeof(item = JSC$parser_parse_variable_stmt(stream))
-               != "boolean")
+    } else if (typeof(item = JSC$parser_parse_variable_stmt(stream)) != "boolean")
         return item;
-    else if (typeof(item = JSC$parser_parse_if_stmt(stream))
-             != "boolean")
+    else if (typeof(item = JSC$parser_parse_if_stmt(stream)) != "boolean")
         return item;
-    else if (typeof(item = JSC$parser_parse_iteration_stmt(stream))
-             != "boolean")
+    else if (typeof(item = JSC$parser_parse_iteration_stmt(stream)) != "boolean")
         return item;
-    else if (typeof(item = JSC$parser_parse_expr(stream))
-             != "boolean") {
+    else if (typeof(item = JSC$parser_parse_expr(stream)) != "boolean") {
         if (item.etype == JSC$EXPR_IDENTIFIER) {
             /* Possible `Labeled Statement'. */
             token = JSC$parser_peek_token(stream);
@@ -894,8 +895,7 @@ function JSC$parser_parse_expr(stream)
 {
     var expr, expr2;
 
-    if (typeof(expr = JSC$parser_parse_assignment_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_assignment_expr(stream)) == "boolean")
         return false;
 
     /* Check for the comma expression. */
@@ -903,8 +903,7 @@ function JSC$parser_parse_expr(stream)
         JSC$parser_get_token(stream);
         var ln = JSC$parser_token_linenum;
 
-        if (typeof(expr2 = JSC$parser_parse_assignment_expr(stream))
-            == "boolean")
+        if (typeof(expr2 = JSC$parser_parse_assignment_expr(stream)) == "boolean")
             JSC$parser_syntax_error();
         expr = new JSC$expr_comma(ln, expr, expr2);
     }
@@ -917,8 +916,7 @@ function JSC$parser_parse_assignment_expr(stream)
 {
     var expr, expr2, token;
 
-    if (typeof(expr = JSC$parser_parse_conditional_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_conditional_expr(stream)) == "boolean")
         return false;
 
     if (JSC$parser_expr_is_left_hand_side(expr)) {
@@ -951,8 +949,7 @@ function JSC$parser_parse_conditional_expr(stream)
 {
     var expr, expr2, expr3, token;
 
-    if (typeof(expr = JSC$parser_parse_logical_or_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_logical_or_expr(stream)) == "boolean")
         return false;
 
     token = JSC$parser_peek_token(stream);
@@ -981,8 +978,7 @@ function JSC$parser_parse_logical_or_expr(stream)
 {
     var expr, expr2;
 
-    if (typeof(expr = JSC$parser_parse_logical_and_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_logical_and_expr(stream)) == "boolean")
         return false;
 
     while (JSC$parser_peek_token(stream) == JSC$tOR) {
@@ -1004,8 +1000,7 @@ function JSC$parser_parse_logical_and_expr(stream)
 {
     var expr, expr2;
 
-    if (typeof(expr = JSC$parser_parse_bitwise_or_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_bitwise_or_expr(stream)) == "boolean")
         return false;
 
     while (JSC$parser_peek_token(stream) == JSC$tAND) {
@@ -1027,8 +1022,7 @@ function JSC$parser_parse_bitwise_or_expr(stream)
 {
     var expr, expr2;
 
-    if (typeof(expr = JSC$parser_parse_bitwise_xor_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_bitwise_xor_expr(stream)) == "boolean")
         return false;
 
     while (JSC$parser_peek_token(stream) == '|'.charCodeAt(0)) {
@@ -1050,8 +1044,7 @@ function JSC$parser_parse_bitwise_xor_expr(stream)
 {
     var expr, expr2;
 
-    if (typeof(expr = JSC$parser_parse_bitwise_and_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_bitwise_and_expr(stream)) == "boolean")
         return false;
 
     while (JSC$parser_peek_token(stream) == '^'.charCodeAt(0)) {
@@ -1073,8 +1066,7 @@ function JSC$parser_parse_bitwise_and_expr(stream)
 {
     var expr, expr2;
 
-    if (typeof(expr = JSC$parser_parse_equality_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_equality_expr(stream)) == "boolean")
         return false;
 
     while (JSC$parser_peek_token(stream) == '&'.charCodeAt(0)) {
@@ -1096,8 +1088,7 @@ function JSC$parser_parse_equality_expr(stream)
 {
     var expr, expr2, token;
 
-    if (typeof(expr = JSC$parser_parse_relational_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_relational_expr(stream)) == "boolean")
         return false;
 
     token = JSC$parser_peek_token(stream);
@@ -1122,8 +1113,7 @@ function JSC$parser_parse_relational_expr(stream)
 {
     var expr, expr2, token;
 
-    if (typeof(expr = JSC$parser_parse_shift_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_shift_expr(stream)) == "boolean")
         return false;
 
     token = JSC$parser_peek_token(stream);
@@ -1148,8 +1138,7 @@ function JSC$parser_parse_shift_expr(stream)
 {
     var expr, expr2, token;
 
-    if (typeof(expr = JSC$parser_parse_additive_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_additive_expr(stream)) == "boolean")
         return false;
 
     token = JSC$parser_peek_token(stream);
@@ -1174,8 +1163,7 @@ function JSC$parser_parse_additive_expr(stream)
 {
     var expr, expr2, token;
 
-    if (typeof(expr = JSC$parser_parse_multiplicative_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_multiplicative_expr(stream)) == "boolean")
         return false;
 
     token = JSC$parser_peek_token(stream);
@@ -1249,8 +1237,7 @@ function JSC$parser_parse_postfix_expr(stream)
 {
     var expr, token;
 
-    if (typeof(expr = JSC$parser_parse_left_hand_side_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_left_hand_side_expr(stream)) == "boolean")
         return false;
 
     token = JSC$parser_peek_token(stream);
@@ -1276,8 +1263,7 @@ function JSC$parser_parse_left_hand_side_expr(stream)
 {
     var expr, args, token, expr2;
 
-    if (typeof(expr = JSC$parser_parse_member_expr(stream))
-        == "boolean")
+    if (typeof(expr = JSC$parser_parse_member_expr(stream)) == "boolean")
         return false;
 
     /* Parse the possible first pair of arguments. */
@@ -1328,8 +1314,7 @@ function JSC$parser_parse_member_expr(stream)
 {
     var expr, args, token, expr2;
 
-    if (typeof(expr = JSC$parser_parse_primary_expr(stream))
-        == "boolean") {
+    if (typeof(expr = JSC$parser_parse_primary_expr(stream)) == "boolean") {
         token = JSC$parser_peek_token(stream);
 
         if (token == JSC$tNEW) {
@@ -1387,6 +1372,14 @@ function JSC$parser_parse_primary_expr(stream)
 
     token = JSC$parser_peek_token(stream);
     var ln = JSC$parser_peek_token_linenum;
+
+    if (JSC$parser_parse_function_declaration(stream)) {
+        var f = JSC$functions[JSC$functions.length - 1];
+        var function_id = f.name;
+		// avoid get_token before return, we return now.
+		// see the end of JSC$parser_parse_primary_expr
+        return new JSC$expr_identifier(ln, function_id);
+	} else
 
     if (token == JSC$tTHIS)
         val = new JSC$expr_this(ln);
@@ -1498,8 +1491,9 @@ function JSC$parser_parse_primary_expr(stream)
         val = JSC$parser_parse_expr(stream);
         if (typeof val == "boolean" || JSC$parser_peek_token(stream) != ')'.charCodeAt(0))
             JSC$parser_syntax_error();
-    } else
+	} else {
         return false;
+	}
 
     JSC$parser_get_token(stream);
     return val;
