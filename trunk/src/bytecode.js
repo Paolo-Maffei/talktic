@@ -37,17 +37,27 @@ for(var i=0; i<1000; i++) {
 }
 */
 var h = 0;
+var b = true;
 
 function onr(seq,src,pan,pay,rss) {
 	debug(pay);
 	debug(h++);
+	dps(1, false);
+}
+
+if(dpi(0,false)) {
+	debug("init port0");
+}
+if(dpi(1,true)) {
+	debug("init port1");
 }
 
 while(true) {
-	debug(".");
+	if(dpg(0)) {
+		h++;
+	}
+	dps(1, (h % 2) == 0);
 	if(srd) {
 		srd(0xFFFF, "muchmorebigpacket");
 	}
-	var x = new Hello("Hello World!\r\n");
-	x.show();
 }

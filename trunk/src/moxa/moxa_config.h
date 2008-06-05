@@ -48,7 +48,7 @@
 
 #include "include.h"
 #include "error.h"
-#include "device_proto.h"
+//#include "device_proto.h"
 
 /**************************************************************************************
   Target board settings

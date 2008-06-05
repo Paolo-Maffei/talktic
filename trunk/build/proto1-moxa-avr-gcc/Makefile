@@ -23,6 +23,8 @@ SRC_DIR = ../../src
 ## Build options
 # MOXA_SERIAL = 1
 RADIO = 1
+DIGITALIO = 1
+ANALOGIO = 1
 
 
 
@@ -116,31 +118,30 @@ OBJECTS +=		\
 
 ### MOXA libraries
 
-## C macro flags
-ifdef MOXA_SERIAL
-CFLAGS += -D_PROTO1_MOXA_SERIAL
-endif # MOXA_SERIAL
-ifdef RADIO
-CFLAGS += -D_PROTO1_RADIO
-endif # RADIO
-
 ## Includes
 INCLUDES += -I$(SRC_DIR)/moxa
 
 ## Objects
 OBJECTS += 		\
 	$(NULL)
-ifdef MOXA_SERIAL
-OBJECTS += serial.o
-endif # MOXA_SERIAL
-ifdef RADIO
-OBJECTS += radio.o chip_cc2420.o
-endif # RADIO
 
 ## Compile
 %.o: $(SRC_DIR)/moxa/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 
+## Libraries
+ifdef MOXA_SERIAL
+CFLAGS += -D_PROTO1_MOXA_SERIAL
+OBJECTS += serial.o
+endif # MOXA_SERIAL
+
+ifdef RADIO
+OBJECTS += radio.o chip_cc2420.o
+endif # RADIO
+
+ifdef ANALOGIO
+OBJECTS += device_ad.o
+endif
 
 
 ### PROTO1 ext libraries
@@ -153,14 +154,26 @@ OBJECTS +=		\
 	init1.o		\
 	stdio.o		\
 	$(NULL)
-ifdef RADIO
-OBJECTS += b_radio.o
-endif
 
 ## Compile
 %.o: $(SRC_DIR)/proto1/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 
+## Libraries
+ifdef RADIO
+CFLAGS += -D_PROTO1_RADIO
+OBJECTS += b_radio.o
+endif # RADIO
+
+ifdef DIGITALIO
+CFLAGS += -D_PROTO1_DIGITALIO
+OBJECTS += b_digitalio.o
+endif
+
+ifdef ANALOGIO
+CFLAGS += -D_PROTO1_ANALOGIO
+OBJECTS += b_analogio.o
+endif
 
 
 ### Common
