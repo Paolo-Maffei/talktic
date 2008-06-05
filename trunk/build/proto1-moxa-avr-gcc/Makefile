@@ -113,8 +113,8 @@ OBJECTS +=		\
 
 
 
-### MOXA libraries
 ifdef MOXA
+### MOXA libraries
 
 ## C macro flags
 CFLAGS += -D_MOXA
@@ -142,11 +142,29 @@ endif # MOXA_RADIO
 %.o: $(SRC_DIR)/moxa/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 
+
+
+### PROTO1 ext libraries
+
+## Includes
+INCLUDES += -I$(SRC_DIR)/proto1
+
+## Objects
+OBJECTS +=		\
+	b_radio.o	\
+	init1.o		\
+	stdio.o		\
+	$(NULL)
+
+## Compile
+%.o: $(SRC_DIR)/proto1/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+
 endif # MOXA
 
 
 
-## Common
+### Common
 
 ## Build
 all: $(TARGET) size

@@ -6,17 +6,6 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-#ifdef _MOXA_SERIAL
-#include "serial.h"
-#endif							/* _MOXA_SERIAL */
-
-#ifdef _MOXA_RADIO
-#include "radio.h"
-#define RADIO_CHANNEL 11
-#define RADIO_PANID   0x2420
-#define RADIO_ADDRESS 0x0002
-#endif							/* _MOXA_RADIO */
-
 #else							/* __AVR__ */
 
 #define EEMEM
@@ -24,15 +13,6 @@
 #endif							/* not __AVR__ */
 
 #include "bytecode.h"
-
-/* Linker Option Memo
- * Allocate heap to ext. memory
- *   -Wl,--defsym=__heap_start=0x801100,--defsym=__heap_end=0x8090FF
- * Allocate .data and .bss and heap to ext. memory
- *   -Wl,-Tdata=0x801100,--defsym=__heap_end=0x80ffff
- */
-
-
 
 /* ---------------------------------------------------------------------------------------------- */
 /*
@@ -120,40 +100,6 @@ static JSByteCode *js_bc_read_eeprom(unsigned char *data)
 
 /* ---------------------------------------------------------------------------------------------- */
 /*
- * STDIN/OUT handler for Serial
- */
-#ifdef __AVR__
-
-static int serial_stdio_putchar(char c, FILE * stream)
-{
-#ifdef _MOXA_SERIAL
-	SERIAL_putchar(1, c);
-#else
-	loop_until_bit_is_set(UCSR1A, UDRE);
-	UDR1 = c;
-#endif
-	return 0;
-}
-
-static int serial_stdio_getchar(FILE * stream)
-{
-#ifdef _MOXA_SERIAL
-	return SERIAL_getchar(1);
-#else
-	loop_until_bit_is_set(UCSR1A, RXC);
-	return (int) UDR1;
-#endif
-}
-
-static FILE serial_stdio = FDEV_SETUP_STREAM(serial_stdio_putchar, serial_stdio_getchar,
-											 _FDEV_SETUP_RW);
-
-#endif							/* __AVR__ */
-
-
-
-/* ---------------------------------------------------------------------------------------------- */
-/*
  * Global Method
  */
 
@@ -208,20 +154,6 @@ led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 }
 #endif							/* _MOXA */
 
-#ifdef _MOXA_RADIO
-static void
-sendwi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
-					 void *instance_context, JSNode * result_return, JSNode * args)
-{
-	if (args->u.vinteger == 2) {
-		if (args[1].type == JS_INTEGER && args[2].type == JS_STRING) {
-			unsigned short addr = args[1].u.vinteger;
-			RADIO_sendPacket(addr, args[2].u.vstring->data, args[2].u.vstring->len);
-		}
-	}
-	result_return->type = JS_UNDEFINED;
-}
-#endif							/* _MOXA_RADIO */
 #endif							/* __AVR__ */
 
 static void add_global_method(JSVirtualMachine * vm)
@@ -241,9 +173,6 @@ static void add_global_method(JSVirtualMachine * vm)
 #ifdef _MOXA
 		{"led", led_global_method},
 #endif							/* _MOXA */
-#ifdef _MOXA_RADIO
-		{"sendRadio", sendwi_global_method},
-#endif							/* _MOXA_RADIO */
 #endif							/* __AVR__ */
 		{NULL, NULL}
 	};
@@ -354,7 +283,7 @@ static void add_hello_class(JSVirtualMachine * vm)
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static volatile JSVirtualMachine *s_vm = 0;
+volatile JSVirtualMachine *s_vm = 0;
 
 #ifdef _MOXA
 /*
@@ -384,108 +313,16 @@ ISR(SIG_INTERRUPT4)
 */
 #endif							/* _MOXA */
 
-#ifdef _MOXA_RADIO
-static int receiveVMHandler(JSVirtualMachine * vm, void *data)
-{
-	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *) data;
-//	printf("RECEIVE: %d %x %x %d %s %d\r\n", pRRI->seqNumber, pRRI->srcAddr, pRRI->srcPanId,
-//		   pRRI->nLength, pRRI->pPayload, pRRI->rssi);
-	JSNode argv[3];
-	argv[0].type = JS_INTEGER;
-	argv[0].u.vinteger = 1;
-	js_vm_make_string(vm, &argv[1], pRRI->pPayload, pRRI->nLength);
-	js_vm_apply(vm, "onRadio", NULL, 2, argv);
-//	js_vm_apply(vm, "onRadio", NULL, 0, NULL);
-	js_free(data);
-	return 0;
-}
-
-static MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
-{
-	if (s_vm) {
-		if (!(s_vm->interrupt_table[0].fired)) {
-			void *data;
-			if (data = js_malloc(s_vm, sizeof(RADIO_PACKET_RX_INFO))) {
-				memcpy(data, pRRI, sizeof(RADIO_PACKET_RX_INFO));
-				s_vm->interrupt_table[0].data = data;
-				s_vm->interrupt_table[0].fired = 1;
-			}
-		}
-	}
-	return 0;
-}
-#endif							/* _MOXA_RADIO */
-
 /* ---------------------------------------------------------------------------------------------- */
 /*
  * Entry Point
  */
-#ifdef __AVR__ 
-void extmem_init (void) __attribute__ ((naked)) __attribute__ ((section (".init1")));
-void extmem_init (void) {
-	MCUCR |= (1 << SRE);
-	XMCRA = 0x00;
-	XMCRB |= (1 << XMM0);
-}
-#endif
-
-#ifdef __H8300H__
-//#include <lwip/sys.h>
-//#include <lwip/sockets.h>
-//#include <lwip/inet.h>
-#include <lwip/api.h>
-#endif							/* __H8300H__ */
+extern void init_stdio();
+extern void init_builtin_radio();
 
 int main()
 {
-#ifdef __H8300H__
-	lwip_init();
-
-	printf("wait...\n");
-	while (1) {
-		u32_t a = netif_default->ip_addr.addr;
-		if (a) {
-			printf("ip_addr %d.%d.%d.%d\n",
-				   ((a >> 24) & 0xff), ((a >> 16) & 0xff), ((a >> 8) & 0xff), (a & 0xff));
-			break;
-		}
-	}
-
-	{
-		char httpreq[] = "GET /\r\n\r\n";
-		struct netconn *conn;
-		struct ip_addr addr;
-		struct netbuf *buf;
-		void *data;
-		u16_t len;
-		char char_buf[256];
-
-		conn = netconn_new(NETCONN_TCP);
-		IP4_ADDR(&addr, 133, 27, 4, 127);	// www.sfc.keio.ac.jp
-		netconn_connect(conn, &addr, 80);
-		printf("connect\n");
-		netconn_write(conn, httpreq, sizeof(httpreq), NETCONN_COPY);
-		printf("write\n");
-		while ((buf = netconn_recv(conn)) != NULL) {
-			do {
-				netbuf_data(buf, &data, &len);
-				memcpy(char_buf, data, len < 256 ? len : 256);
-				printf(char_buf);
-			} while (netbuf_next(buf) >= 0);
-		}
-		netconn_close(conn);
-		printf("close\n");
-		netconn_delete(conn);
-	}
-#endif							/* __H8300H__ */
-
 #ifdef __AVR__
-/*
-	// enable extrenal ram
-	MCUCR |= (1 << SRE);
-	XMCRA = 0x00;
-	XMCRB |= (1 << XMM0);
-*/
 #ifdef _MOXA
 	DDRB |= (1 << 7) | (1 << 4);
 //  PORTB &= ~((1 << 7) | (1 << 4));
@@ -499,21 +336,8 @@ int main()
 	sei();
 */
 #endif							/* _MOXA */
-
-#ifdef _MOXA_SERIAL
-	SERIAL_init(1, 9600);
-#else							/* not _MOXA_SERIAL */
-	UBRR1L = 51 & 0xff;			// 9600bps, 8Mhz
-	UBRR1H = 51 >> 8;
-	UCSR1A = 0x00;
-	UCSR1B = 0x18;				// no interrupt, allow to send, recv
-	UCSR1C = 0x06;
-#endif							/* _MOXA_SERIAL */
-
-	// define stdio as serial
-	stdin = stderr = stdout = &serial_stdio;
+	init_stdio();
 #endif							/* __AVR __ */
-
 	JSIOStream *s_stdin = NULL;
 	JSIOStream *s_stdout = NULL;
 	JSIOStream *s_stderr = NULL;
@@ -538,15 +362,10 @@ int main()
 #endif							/* not __AVR__ */
 		add_global_method(vm);
 		add_hello_class(vm);
-
 #ifdef _MOXA_RADIO
-		RADIO_init(RADIO_CHANNEL, RADIO_PANID, RADIO_ADDRESS, 31);
-		RADIO_setRecvHandler(&receiveHandler);
-		vm->interrupt_table[0].handler = receiveVMHandler;
-		vm->interrupt_table[0].enable = 1;
-//		vm->interrupt_table[1].handler = interrupt5VMHandler;
-//		vm->interrupt_table[1].enable = 1;
-#endif							/* _MOXA_RADIO */
+		init_builtin_radio(vm);
+#endif
+		vm->enable_interrupt = 1;
 		js_vm_execute(vm, bc);
 
 		js_bc_free(bc);
