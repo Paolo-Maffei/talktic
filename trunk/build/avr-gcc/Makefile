@@ -28,7 +28,6 @@ ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf2
 LDFLAGS = $(COMMON)
 LDFLAGS += -Wl,--defsym=__heap_start=0x801100,--defsym=__heap_end=0x8090FF
 LDFLAGS += -Wl,-Map=$(PROJECT).map
-#LDFLAGS += -Wl,--section-start=.bootloader=0x1F800 
 
 ## Intel Hex file production flags
 HEX_FLASH_FLAGS = -R .eeprom
@@ -47,11 +46,8 @@ LIBS = -lc
 MAIN_OBJECTS = 	\
 	main.o 		\
 	$(NULL)
-# MAIN_OBJECTS += js_class.o 
-# MAIN_OBJECTS += iostream_serial.o
-# MAIN_OBJECTS += serial.o
-# MAIN_OBJECTS += radio.o chip_cc2420.o
-# MAIN_OBJECTS += bootloader.o
+# MAIN_OBJECTS += serial.o              # _MOXA_SERIAL
+# MAIN_OBJECTS += radio.o chip_cc2420.o # _MOXA_RADIO
 JS_OBJCETS =	\
 	alloc.o		\
 	heap.o		\
