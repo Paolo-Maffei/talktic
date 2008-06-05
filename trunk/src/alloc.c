@@ -100,15 +100,19 @@ void js_alloc_dump_blocks()
 {
     MemDebug *b;
     unsigned int bytes = 0;
+	unsigned int i = 0;
 
-    fprintf(stderr, "js_alloc_dump_blocks(): #blocks=%d\n", mem_debug_balance);
+    fprintf(stderr, "js_alloc_dump_blocks(): #blocks=%d\r\n", mem_debug_balance);
 
     for (b = mem_debug_blocks; b; b = b->next) {
-        fprintf(stderr, "%s:%d: %lu\n", b->file, b->line, b->size);
+		if(i<3) {
+        	fprintf(stderr, "%s:%d: %lu\r\n", b->file, b->line, b->size);
+			i++;
+		}
         bytes += b->size;
     }
 
-    fprintf(stderr, "leaks=%u\n", bytes);
+    fprintf(stderr, "leaks=%u\r\n", bytes);
 }
 
 

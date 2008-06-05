@@ -234,23 +234,18 @@ void add_global_method(JSVirtualMachine * vm)
 		JSBuiltinGlobalMethod method;
 	} global_methods[] = {
 #if JS_DEBUG_MEMORY_LEAKS
-		{
-		"dump", dump_global_method},
+		{"dump", dump_global_method},
 #endif							/* JS_DEBUG_MEMORY_LEAKS */
 #ifdef __AVR__
-		{
-		"sei", sei_global_method},
+		{"sei", sei_global_method},
 #ifdef _MOXA
-		{
-		"led", led_global_method},
+		{"led", led_global_method},
 #endif							/* _MOXA */
 #ifdef _MOXA_RADIO
-		{
-		"sendRadio", sendwi_global_method},
+		{"sendRadio", sendwi_global_method},
 #endif							/* _MOXA_RADIO */
-#endif
-		{
-		NULL, NULL}
+#endif							/* __AVR__ */
+		{NULL, NULL}
 	};
 
 	for (i = 0; global_methods[i].name; i++) {

@@ -45,14 +45,19 @@ function wait(t) {
 
 while(true) {
 	debug(".");
-  sendRadio(0xFFFF, "hogehoge?");
+//  sendRadio(0xFFFF, "aaa");
+/*
   led(1, true);
   wait(50);
   led(1, false);
   wait(50);
+*/
+  sei(true);
+  sei(false);
 }
 
 function onRadio() {
+  dump();
 	debug(h);
   h++;
 }
