@@ -31,6 +31,9 @@
 
 #include "jsint.h"
 
+#undef _ENABLE_STRING_CRC32
+#undef _ENABLE_STRING_REGEXP
+
 /*
  * Types and definitions.
  */
