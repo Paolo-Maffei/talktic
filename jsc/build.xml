@@ -1,11 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<project default="jar"  basedir=".">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="jsc">
+	<path id="project.classpath">
+		<pathelement location="bin"/>
+		<pathelement location="js.jar"/>
+	</path>
 	<property name="jar_name" value="jsc.jar"/>
 	<property name="rhino_jar_name" value="js.jar"/>
 	<property name="jscjs_name" value="jsc.js"/>
 	<property name="main_class" value="com.talktic.JavaScriptCompiler"/>
-	
+
 	<target name="jsc">
 		<concat destfile="${jscjs_name}">
 			<fileset dir="lib" includes="jsc/*.js" />
@@ -13,7 +16,7 @@
 		</concat>
 	</target>
 
-	<target name="jar" depends="jsc">
+	<target name="jar" depends="jsc,build">
 		<jar jarfile="${jar_name}" basedir="bin">
 			<manifest>
 				<attribute name="Main-Class" value="${main_class}"/>
@@ -23,8 +26,34 @@
 		</jar>
 	</target>
 
+	<target name="init">
+		<mkdir dir="bin"/>
+	</target>
+
 	<target name="clean">
+		<delete dir="bin"/>
 		<delete file="${jar_name}" />
 		<delete file="${jscjs_name}" />
+	</target>
+
+	<target depends="init" name="build">
+		<echo message="${ant.project.name}: ${ant.file}"/>
+		<javac destdir="bin">
+			<src path="src"/>
+			<classpath refid="project.classpath"/>
+		</javac>
+	</target>
+
+	<target name="test">
+		<java classname="com.talktic.JavaScriptCompiler" failonerror="true" fork="yes">
+			<arg value="-n"/>
+			<arg value="-Llib/jsc"/>
+			<arg value="-Llib/support"/>
+			<arg value="-Aasm"/>
+			<arg value="-Bbc.bin"/>
+			<arg value="-Ccheader"/>
+			<arg value="../src/bytecode.js"/>
+			<classpath refid="project.classpath"/>
+		</java>
 	</target>
 </project>
