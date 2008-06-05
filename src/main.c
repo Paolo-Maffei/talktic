@@ -6,26 +6,22 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-#ifdef _MOXA
-
 #ifdef _MOXA_SERIAL
 #include "serial.h"
-#endif
+#endif                          /* _MOXA_SERIAL */
 
 #ifdef _MOXA_RADIO
 #include "radio.h"
 #define RADIO_CHANNEL 11
 #define RADIO_PANID   0x2420
 #define RADIO_ADDRESS 0x0002
-#endif
+#endif                          /* _MOXA_RADIO */
 
-#endif
-
-#else							/* __AVR__ */
+#else                           /* __AVR__ */
 
 #define EEMEM
 
-#endif							/* not __AVR__ */
+#endif                          /* not __AVR__ */
 
 #include "bytecode.h"
 
@@ -64,63 +60,63 @@
 
 JSByteCode *js_bc_read_eeprom(unsigned char *data)
 {
-	JSUInt32 ui = 0;
-	JSUInt8 ub = 0;
-	unsigned int pos = 0;
-	int i, j;
-	JSByteCode *bc = NULL;
+    JSUInt32 ui = 0;
+    JSUInt8 ub = 0;
+    unsigned int pos = 0;
+    int i, j;
+    JSByteCode *bc = NULL;
 
-	while (!eeprom_is_ready()) {
-	};
+    while (!eeprom_is_ready()) {
+    };
 
-	pos += 4;
+    pos += 4;
 
-	bc = js_calloc(NULL, 1, sizeof(*bc));
-	if (bc == NULL)
-		return NULL;
+    bc = js_calloc(NULL, 1, sizeof(*bc));
+    if (bc == NULL)
+        return NULL;
 
-	JS_BC_EEPROM_READ_INT32(data + pos, ui);
-	bc->num_sects = (unsigned int) ui;
-	pos += 4;
+    JS_BC_EEPROM_READ_INT32(data + pos, ui);
+    bc->num_sects = (unsigned int) ui;
+    pos += 4;
 
-	bc->sects = js_calloc(NULL, bc->num_sects, sizeof(JSBCSect));
-	if (bc->sects == NULL) {
-		js_free(bc);
-		return NULL;
-	}
+    bc->sects = js_calloc(NULL, bc->num_sects, sizeof(JSBCSect));
+    if (bc->sects == NULL) {
+        js_free(bc);
+        return NULL;
+    }
 
-	/* Read sections. */
-	for (i = 0; i < bc->num_sects; i++) {
-		/* Get type. */
-		JS_BC_EEPROM_READ_INT32(data + pos, ui);
-		bc->sects[i].type = (int) ui;
-		pos += 4;
+    /* Read sections. */
+    for (i = 0; i < bc->num_sects; i++) {
+        /* Get type. */
+        JS_BC_EEPROM_READ_INT32(data + pos, ui);
+        bc->sects[i].type = (int) ui;
+        pos += 4;
 
-		/* Get section length. */
-		JS_BC_EEPROM_READ_INT32(data + pos, ui);
-		bc->sects[i].length = (unsigned int) ui;
-		pos += 4;
+        /* Get section length. */
+        JS_BC_EEPROM_READ_INT32(data + pos, ui);
+        bc->sects[i].length = (unsigned int) ui;
+        pos += 4;
 
-		bc->sects[i].data = js_malloc(NULL, bc->sects[i].length + 1
-									  /* +1 to avoid zero allocations */ );
-		if (bc->sects[i].data == NULL) {
-			for (i--; i >= 0; i--)
-				js_free(bc->sects[i].data);
+        bc->sects[i].data = js_malloc(NULL, bc->sects[i].length + 1
+                                      /* +1 to avoid zero allocations */ );
+        if (bc->sects[i].data == NULL) {
+            for (i--; i >= 0; i--)
+                js_free(bc->sects[i].data);
 
-			js_free(bc->sects);
-			js_free(bc);
-			return NULL;
-		}
+            js_free(bc->sects);
+            js_free(bc);
+            return NULL;
+        }
 
-		for (j = 0; j < bc->sects[i].length; j++) {
-			JS_BC_EEPROM_READ_INT8(data + pos + j, ub);
-			*(JSUInt8 *) (bc->sects[i].data + j) = ub;
-		}
-		pos += bc->sects[i].length;
-	}
-	return bc;
+        for (j = 0; j < bc->sects[i].length; j++) {
+            JS_BC_EEPROM_READ_INT8(data + pos + j, ub);
+            *(JSUInt8 *) (bc->sects[i].data + j) = ub;
+        }
+        pos += bc->sects[i].length;
+    }
+    return bc;
 }
-#endif							/* __AVR__ */
+#endif                          /* __AVR__ */
 
 /* ---------------------------------------------------------------------------------------------- */
 /*
@@ -131,28 +127,29 @@ JSByteCode *js_bc_read_eeprom(unsigned char *data)
 static int serial_stdio_putchar(char c, FILE * stream)
 {
 #ifdef _MOXA_SERIAL
-	SERIAL_putchar(0, c);
+    SERIAL_putchar(0, c);
 #else
-	loop_until_bit_is_set(UCSR0A, UDRE);
-	UDR0 = c;
+    loop_until_bit_is_set(UCSR0A, UDRE);
+    UDR0 = c;
 #endif
-	return 0;
+    return 0;
 }
 
 static int serial_stdio_getchar(FILE * stream)
 {
 #ifdef _MOXA_SERIAL
-	return SERIAL_getchar(0);
+    return SERIAL_getchar(0);
 #else
-	loop_until_bit_is_set(UCSR0A, RXC);
-	return (int)UDR0;
+    loop_until_bit_is_set(UCSR0A, RXC);
+    return (int) UDR0;
 #endif
 }
 
-static FILE serial_stdio = FDEV_SETUP_STREAM(serial_stdio_putchar, serial_stdio_getchar,
-											 _FDEV_SETUP_RW);
+static FILE serial_stdio =
+FDEV_SETUP_STREAM(serial_stdio_putchar, serial_stdio_getchar,
+                  _FDEV_SETUP_RW);
 
-#endif							/* __AVR__ */
+#endif                          /* __AVR__ */
 
 
 
@@ -160,12 +157,13 @@ static FILE serial_stdio = FDEV_SETUP_STREAM(serial_stdio_putchar, serial_stdio_
 /*
  * Global Method
  */
-
 #ifdef __AVR__
+
+#ifdef _MOXA
 static void
 led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
-                    void *instance_context, JSNode * result_return,
-                    JSNode * args)
+                  void *instance_context, JSNode * result_return,
+                  JSNode * args)
 {
 /*
 	int pin;
@@ -191,29 +189,29 @@ led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 end:
     result_return->type = JS_UNDEFINED;
 */
-	if (args->u.vinteger == 1) {
-		if (args[1].type == JS_BOOLEAN) {
-			if( args[1].u.vboolean ) {
-				PORTB &= ~(1 << 7);
-			} else {
-				PORTB |= (1 << 7);
-			}
-		}
-	}
+    if (args->u.vinteger == 1) {
+        if (args[1].type == JS_BOOLEAN) {
+            if (args[1].u.vboolean) {
+                PORTB &= ~(1 << 7);
+            } else {
+                PORTB |= (1 << 7);
+            }
+        }
+    }
     result_return->type = JS_UNDEFINED;
 }
+#endif                          /* _MOXA */
 
 #ifdef _MOXA_RADIO
 static void
 sendwi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
-                    void *instance_context, JSNode * result_return,
-                    JSNode * args)
+                     void *instance_context, JSNode * result_return,
+                     JSNode * args)
 {
-    RADIO_sendPacket(0xFFFF, "test", 5); // ブロードキャスト
+    RADIO_sendPacket(0xFFFF, "test", 5);    // ブロードキャスト
     result_return->type = JS_UNDEFINED;
 }
-#endif
-#endif
+#endif                          /* _MOXA_RADIO */
 
 void add_global_method(JSVirtualMachine * vm)
 {
@@ -224,13 +222,13 @@ void add_global_method(JSVirtualMachine * vm)
         char *name;
         JSBuiltinGlobalMethod method;
     } global_methods[] = {
-#ifdef __AVR__
-        { "led", led_global_method },
+#ifdef _MOXA
+        {"led", led_global_method},
+#endif                          /* _MOXA */
 #ifdef _MOXA_RADIO
-        { "sendRedio", sendwi_global_method },
-#endif
-#endif
-		{ NULL, NULL }
+        {"sendRedio", sendwi_global_method},
+#endif                          /* _MOXA_RADIO */
+        {NULL, NULL}
     };
 
     for (i = 0; global_methods[i].name; i++) {
@@ -243,7 +241,7 @@ void add_global_method(JSVirtualMachine * vm)
         js_vm_builtin_create(vm, n, info, NULL);
     }
 }
-
+#endif                          /* __AVR__ */
 
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -252,86 +250,92 @@ void add_global_method(JSVirtualMachine * vm)
  */
 
 typedef struct hello_ctx_st {
-	JSSymbol s_show;
-	JSSymbol s_msg;
+    JSSymbol s_show;
+    JSSymbol s_msg;
 } HelloCtx;
 
-static int hello_class_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
-							  void *instance_context, JSSymbol method, JSNode * result_return,
-							  JSNode * args)
+static int hello_class_method(JSVirtualMachine * vm,
+                              JSBuiltinInfo * builtin_info,
+                              void *instance_context, JSSymbol method,
+                              JSNode * result_return, JSNode * args)
 {
-	HelloCtx *ctx = builtin_info->obj_context;
-	if (method == ctx->s_show) {
-		printf(instance_context);
-	} else {
-		return JS_PROPERTY_UNKNOWN;
-	}
-	return JS_PROPERTY_FOUND;
+    HelloCtx *ctx = builtin_info->obj_context;
+    if (method == ctx->s_show) {
+        printf(instance_context);
+    } else {
+        return JS_PROPERTY_UNKNOWN;
+    }
+    return JS_PROPERTY_FOUND;
 }
 
 static int
-hello_class_property(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info, void *instance_context,
-					 JSSymbol property, int set, JSNode * node)
+hello_class_property(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+                     void *instance_context, JSSymbol property, int set,
+                     JSNode * node)
 {
-	HelloCtx *ctx = builtin_info->obj_context;
+    HelloCtx *ctx = builtin_info->obj_context;
 
-	if (instance_context && property == ctx->s_msg) {
-		if (set)
-			return 0;
-		js_vm_make_string(vm, node, instance_context, strlen(instance_context));
-	} else {
-		if (!set)
-			node->type = JS_UNDEFINED;
-		return JS_PROPERTY_UNKNOWN;
-	}
-	return JS_PROPERTY_FOUND;
+    if (instance_context && property == ctx->s_msg) {
+        if (set)
+            return 0;
+        js_vm_make_string(vm, node, instance_context,
+                          strlen(instance_context));
+    } else {
+        if (!set)
+            node->type = JS_UNDEFINED;
+        return JS_PROPERTY_UNKNOWN;
+    }
+    return JS_PROPERTY_FOUND;
 }
 
-static void hello_class_new_proc(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info, JSNode * args,
-								 JSNode * result_return)
+static void hello_class_new_proc(JSVirtualMachine * vm,
+                                 JSBuiltinInfo * builtin_info,
+                                 JSNode * args, JSNode * result_return)
 {
-	char *ictx;
-	if (args->u.vinteger == 1) {
-		if (args[1].type == JS_STRING) {
-			int len = args[1].u.vstring->len;
-			if ((ictx = js_malloc(vm, len + 1)) != NULL) {
-				memcpy(ictx, args[1].u.vstring->data, len);
-				ictx[len] = '\0';
-				js_vm_builtin_create(vm, result_return, builtin_info, ictx);
-				return;
-			}
-		}
-	}
-	js_vm_error(vm);
+    char *ictx;
+    if (args->u.vinteger == 1) {
+        if (args[1].type == JS_STRING) {
+            int len = args[1].u.vstring->len;
+            if ((ictx = js_malloc(vm, len + 1)) != NULL) {
+                memcpy(ictx, args[1].u.vstring->data, len);
+                ictx[len] = '\0';
+                js_vm_builtin_create(vm, result_return, builtin_info,
+                                     ictx);
+                return;
+            }
+        }
+    }
+    js_vm_error(vm);
 }
 
-static void hello_class_delete_proc(JSBuiltinInfo * builtin_info, void *instance_context)
+static void hello_class_delete_proc(JSBuiltinInfo * builtin_info,
+                                    void *instance_context)
 {
-	if (instance_context) {
-		js_free(instance_context);
-	}
+    if (instance_context) {
+        js_free(instance_context);
+    }
 }
 
 void add_hello_class(JSVirtualMachine * vm)
 {
-	HelloCtx *ctx;
-	JSNode *n;
-	JSBuiltinInfo *info;
+    HelloCtx *ctx;
+    JSNode *n;
+    JSBuiltinInfo *info;
 
-	ctx = js_calloc(vm, 1, sizeof(*ctx));
-	ctx->s_show = js_vm_intern(vm, "show");
-	ctx->s_msg = js_vm_intern(vm, "msg");
+    ctx = js_calloc(vm, 1, sizeof(*ctx));
+    ctx->s_show = js_vm_intern(vm, "show");
+    ctx->s_msg = js_vm_intern(vm, "msg");
 
-	info = js_vm_builtin_info_create(vm);
-	info->method_proc = hello_class_method;
-	info->property_proc = hello_class_property;
-	info->new_proc = hello_class_new_proc;
-	info->delete_proc = hello_class_delete_proc;
-	info->obj_context = ctx;
-	info->obj_context_delete = js_free;
+    info = js_vm_builtin_info_create(vm);
+    info->method_proc = hello_class_method;
+    info->property_proc = hello_class_property;
+    info->new_proc = hello_class_new_proc;
+    info->delete_proc = hello_class_delete_proc;
+    info->obj_context = ctx;
+    info->obj_context_delete = js_free;
 
-	n = &vm->globals[js_vm_intern(vm, "Hello")];
-	js_vm_builtin_create(vm, n, info, NULL);
+    n = &vm->globals[js_vm_intern(vm, "Hello")];
+    js_vm_builtin_create(vm, n, info, NULL);
 }
 
 
@@ -340,37 +344,39 @@ void add_hello_class(JSVirtualMachine * vm)
 
 static JSVirtualMachine *s_vm = 0;
 
-#ifdef __AVR__
+#ifdef _MOXA
 ISR(SIG_INTERRUPT5)
 {
-	if(s_vm) {
-		js_vm_apply(s_vm, "onDigitalIo", NULL, 0, NULL);
-	}
+    if (s_vm) {
+        js_vm_apply(s_vm, "onDigitalIo", NULL, 0, NULL);
+    }
 }
+
 ISR(SIG_INTERRUPT4)
 {
-	if(s_vm) {
-		js_vm_apply(s_vm, "onDigitalIo2", NULL, 0, NULL);
-	}
+    if (s_vm) {
+        js_vm_apply(s_vm, "onDigitalIo2", NULL, 0, NULL);
+    }
 }
+#endif                          /* _MOXA */
+
 #ifdef _MOXA_RADIO
-MRESULT receiveHandler(RADIO_PACKET_RX_INFO *pRRI)
+MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
 {
-	/*
-    printf("RECEIVE: %d %x %x %d %s %d\r\n"
-		, pRRI->seqNumber
-		, pRRI->srcAddr, pRRI->srcPanId
-		, pRRI->nLength, pRRI->pPayload
-		, pRRI->rssi
-	);
-	*/
-	if(s_vm) {
-		js_vm_apply(s_vm, "onRedio", NULL, 0, NULL);
-	}
-	return 0;
+    /*
+       printf("RECEIVE: %d %x %x %d %s %d\r\n"
+       , pRRI->seqNumber
+       , pRRI->srcAddr, pRRI->srcPanId
+       , pRRI->nLength, pRRI->pPayload
+       , pRRI->rssi
+       );
+     */
+    if (s_vm) {
+        js_vm_apply(s_vm, "onRedio", NULL, 0, NULL);
+    }
+    return 0;
 }
-#endif
-#endif
+#endif                          /* _MOXA_RADIO */
 
 /* ---------------------------------------------------------------------------------------------- */
 /*
@@ -386,123 +392,126 @@ MRESULT receiveHandler(RADIO_PACKET_RX_INFO *pRRI)
 int main()
 {
 #ifdef __H8300H__
-	lwip_init();
+    lwip_init();
 
-	printf("wait...\n");
-	while(1) {
-		u32_t a = netif_default->ip_addr.addr;
-		if(a) {
-			printf("ip_addr %d.%d.%d.%d\n",
-				((a >> 24) & 0xff), ((a >> 16) & 0xff), ((a >> 8) & 0xff), (a & 0xff));
-			break;
-		}
-	}
+    printf("wait...\n");
+    while (1) {
+        u32_t a = netif_default->ip_addr.addr;
+        if (a) {
+            printf("ip_addr %d.%d.%d.%d\n",
+                   ((a >> 24) & 0xff), ((a >> 16) & 0xff),
+                   ((a >> 8) & 0xff), (a & 0xff));
+            break;
+        }
+    }
 
-	{
-		char httpreq[] = "GET /\r\n\r\n";
-		struct netconn *conn;
-		struct ip_addr addr;
-		struct netbuf *buf;
-		void *data;
-		u16_t len;
-		char char_buf[256];
+    {
+        char httpreq[] = "GET /\r\n\r\n";
+        struct netconn *conn;
+        struct ip_addr addr;
+        struct netbuf *buf;
+        void *data;
+        u16_t len;
+        char char_buf[256];
 
-		conn = netconn_new(NETCONN_TCP);
-		IP4_ADDR(&addr, 133, 27, 4, 127); // www.sfc.keio.ac.jp
-		netconn_connect(conn, &addr, 80);
-		printf("connect\n");
-		netconn_write(conn, httpreq, sizeof(httpreq), NETCONN_COPY);
-		printf("write\n");
-		while((buf = netconn_recv(conn)) != NULL) {
-			do {
-				netbuf_data(buf, &data, &len);
-				memcpy(char_buf, data, len < 256 ? len : 256);
-				printf(char_buf);
-			} while(netbuf_next(buf) >= 0);
-		}
-		netconn_close(conn);
-		printf("close\n");
-		netconn_delete(conn);
-	}
+        conn = netconn_new(NETCONN_TCP);
+        IP4_ADDR(&addr, 133, 27, 4, 127);   // www.sfc.keio.ac.jp
+        netconn_connect(conn, &addr, 80);
+        printf("connect\n");
+        netconn_write(conn, httpreq, sizeof(httpreq), NETCONN_COPY);
+        printf("write\n");
+        while ((buf = netconn_recv(conn)) != NULL) {
+            do {
+                netbuf_data(buf, &data, &len);
+                memcpy(char_buf, data, len < 256 ? len : 256);
+                printf(char_buf);
+            } while (netbuf_next(buf) >= 0);
+        }
+        netconn_close(conn);
+        printf("close\n");
+        netconn_delete(conn);
+    }
 #endif
 
 #ifdef __AVR__
-	// enable extrenal ram
-	MCUCR |= (1 << SRE);
-	XMCRA = 0x00;
-	XMCRB |= (1 << XMM0);
+    // enable extrenal ram
+    MCUCR |= (1 << SRE);
+    XMCRA = 0x00;
+    XMCRB |= (1 << XMM0);
 
-//	DDRB |= (1 << 7) | (1 << 4);
-//	PORTB &= ~((1 << 7) | (1 << 4));
-	DDRB |= (1 << 7) | (1 << 4);
-	PORTB |= (1 << 7) | (1 << 4);
+#ifdef _MOXA
+    DDRB |= (1 << 7) | (1 << 4);
+//  PORTB &= ~((1 << 7) | (1 << 4));
+    PORTB |= (1 << 7) | (1 << 4);
 
-	// enable interrupt 5 on up edge
-	EICRB |= (1 << 2) | (1 << 3);
-	EIMSK |= (1 << 5);
-	EICRB |= (1 << 0) | (1 << 1);
-	EIMSK |= (1 << 4);
-	sei();
+    // enable interrupt 5 on up edge
+    EICRB |= (1 << 2) | (1 << 3);
+    EIMSK |= (1 << 5);
+    EICRB |= (1 << 0) | (1 << 1);
+    EIMSK |= (1 << 4);
+    sei();
+#endif                          /* _MOXA */
 
 #ifdef _MOXA_SERIAL
-	SERIAL_init(0, 9600);
-#else
-	UBRR0L = 51 & 0xff;			// 9600bps, 8Mhz
-	UBRR0H = 51 >> 8;
-	UCSR0A = 0x00;
-	UCSR0B = 0x18;				// 割り込みなし送受信許可
-	UCSR0C = 0x06;
+    SERIAL_init(0, 9600);
+#else                           /* not _MOXA_SERIAL */
+    UBRR0L = 51 & 0xff;         // 9600bps, 8Mhz
+    UBRR0H = 51 >> 8;
+    UCSR0A = 0x00;
+    UCSR0B = 0x18;              // 割り込みなし送受信許可
+    UCSR0C = 0x06;
+#endif                          /* _MOXA_SERIAL */
+
+    // define stdio as serial
+    stdin = stderr = stdout = &serial_stdio;
 #endif
 
-	// define stdio as serial
-	stdin = stderr = stdout = &serial_stdio;
-#endif
-
-	JSIOStream *s_stdin = NULL;
-	JSIOStream *s_stdout = NULL;
-	JSIOStream *s_stderr = NULL;
+    JSIOStream *s_stdin = NULL;
+    JSIOStream *s_stdout = NULL;
+    JSIOStream *s_stderr = NULL;
 
 #if !(__AVR__ || __ICCAVR__)
-	s_stdin = js_iostream_file(stdin, 1, 0, 0);
-	s_stdout = js_iostream_file(stdout, 0, 1, 0);
-	s_stderr = js_iostream_file(stderr, 0, 1, 0);
+    s_stdin = js_iostream_file(stdin, 1, 0, 0);
+    s_stdout = js_iostream_file(stdout, 0, 1, 0);
+    s_stderr = js_iostream_file(stderr, 0, 1, 0);
 #endif
 
-	JSVirtualMachine *vm;
-	vm = js_vm_create(128, JS_VM_DISPATCH_SWITCH_BASIC, 1, 1, s_stdin, s_stdout, s_stderr);
-	if (vm != NULL) {
-		s_vm = vm;
-		JSByteCode *bc;
+    JSVirtualMachine *vm;
+    vm = js_vm_create(128, JS_VM_DISPATCH_SWITCH_BASIC, 1, 1, s_stdin,
+                      s_stdout, s_stderr);
+    if (vm != NULL) {
+        s_vm = vm;
+        JSByteCode *bc;
 
 #ifdef __AVR__
-		bc = js_bc_read_eeprom(0x00);
+        bc = js_bc_read_eeprom(0x00);
 #else
-		bc = js_bc_read_data(_bytecode, _bytecode_size);
+        bc = js_bc_read_data(_bytecode, _bytecode_size);
 #endif
 
         add_global_method(vm);
-		add_hello_class(vm);
+        add_hello_class(vm);
 
 #ifdef _MOXA_RADIO
-    	RADIO_init(RADIO_CHANNEL, RADIO_PANID, RADIO_ADDRESS, 31);
-    	RADIO_setRecvHandler(&receiveHandler);
+        RADIO_init(RADIO_CHANNEL, RADIO_PANID, RADIO_ADDRESS, 31);
+        RADIO_setRecvHandler(&receiveHandler);
 #endif
-		js_vm_execute(vm, bc);
+        js_vm_execute(vm, bc);
 
-		js_bc_free(bc);
-		s_vm = 0;
-		js_vm_destroy(vm);
+        js_bc_free(bc);
+        s_vm = 0;
+        js_vm_destroy(vm);
 
 #if JS_DEBUG_MEMORY_LEAKS
-		js_alloc_dump_blocks();
+        js_alloc_dump_blocks();
 #endif
 
-	}
+    }
 #ifdef __AVR__
-	while (1) {
-		asm("sleep");
-	}
+    while (1) {
+        asm("sleep");
+    }
 #endif
 
-	return 0;
+    return 0;
 }
