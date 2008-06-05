@@ -63,10 +63,6 @@ LINKONLYOBJECTS =
 all: $(TARGET) size
 
 ## Compile
-%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h $(SRC_DIR)/bytecode.h
-	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
-%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
-	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 %.o: $(SRC_DIR)/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
