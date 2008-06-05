@@ -26,6 +26,7 @@ SRC_DIR = ../../src
 RADIO = 1
 DIGITALIO = 1
 ANALOGIO = 1
+SERIAL = 1
 
 
 
@@ -117,6 +118,7 @@ endif # RADIO
 
 ## C macro flags
 CFLAGS += -D_PROTO1
+CFLAGS += -DF_CPU=8000000UL
 
 ## Includes
 INCLUDES += -I$(SRC_DIR)/proto1
@@ -147,6 +149,10 @@ CFLAGS += -D_PROTO1_ANALOGIO
 OBJECTS += b_analogio.o
 endif
 
+ifdef SERIAL
+CFLAGS += -D_PROTO1_SERIAL
+OBJECTS += b_serial.o
+endif
 
 
 ### JavaScript libraries

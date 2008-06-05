@@ -14,6 +14,9 @@ extern void init_builtin_digitalio();
 #ifdef _PROTO1_ANALOGIO
 extern void init_builtin_analogio();
 #endif
+#ifdef _PROTO1_SERIAL
+extern void init_builtin_serial();
+#endif
 
 #ifdef _AKI3068NET_NET
 extern void init_builtin_net_class();
@@ -70,6 +73,9 @@ int main()
 
 #ifdef _PROTO1_RADIO
 		init_builtin_radio(vm);
+#endif
+#ifdef _PROTO1_SERIAL
+		init_builtin_serial(vm);
 #endif
 #ifdef _PROTO1_DIGITALIO
 		init_builtin_digitalio(vm);
