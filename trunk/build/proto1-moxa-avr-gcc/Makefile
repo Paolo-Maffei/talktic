@@ -1,20 +1,33 @@
-## General Options
+### Build options
+
+## General options
 PROJECT = talktic
 MCU = atmega128
-TARGET = $(PROJECT).elf $(PROJECT).hex $(PROJECT).eep $(PROJECT).lst
+TARGET = $(PROJECT).elf $(PROJECT).hex $(PROJECT).eep
+
+## Commands
 CC = avr-gcc
 SIZE = avr-size
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
 NM = avr-nm
+
+## Testing enviroment
 AVRDUDE = avrdude
 AVRDUDE_COMPORT = com6
 TEST_COMPORT = com5
+
+## Source path
 SRC_DIR = ../../src
 
+## Build options
 MOXA = 1
 # MOXA_SERIAL = 1
 MOXA_RADIO = 1
+
+
+
+### Build enviroment
 
 ## Options common to compile, link and assembly rules
 COMMON = -mmcu=$(MCU)
@@ -26,16 +39,6 @@ CFLAGS = $(COMMON)
 #CFLAGS += -gdwarf-2
 CFLAGS += -Wall -Os -mcall-prologues
 CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d 
-
-ifdef MOXA
-CFLAGS += -D_MOXA
-endif
-ifdef MOXA_SERIAL
-CFLAGS += -D_MOXA_SERIAL
-endif
-ifdef MOXA_RADIO
-CFLAGS += -D_MOXA_RADIO
-endif
 
 ## Assembly specific flags
 ASMFLAGS = $(COMMON)
@@ -56,7 +59,6 @@ LDFLAGS += -Wl,--defsym=__heap_start=0x801100,--defsym=__heap_end=0x8090FF
 # |            <--stack|data,bss,heap            |
 #LDFLAGS += -Wl,-section-start=.data=0x801100,--defsym=__heap_end=0x8090FF
 
-
 ## Intel Hex file production flags
 HEX_FLASH_FLAGS = -R .eeprom
 HEX_EEPROM_FLAGS = -j .eeprom
@@ -66,23 +68,27 @@ HEX_EEPROM_FLAGS += --change-section-lma .eeprom=0
 ## Include Directories
 INCLUDES = -I$(SRC_DIR)
 
-## Libraries
+## Common Libraries
 LIBDIRS =
 LIBS = -lc
 
 ## Objects that must be built in order to link
-MAIN_OBJECTS = 	\
+OBJECTS = 		\
 	main.o 		\
 	$(NULL)
 
-ifdef MOXA_SERIAL
-MAIN_OBJECTS += serial.o
-endif
-ifdef MOXA_RADIO
-MAIN_OBJECTS += radio.o chip_cc2420.o
-endif
+## Objects explicitly added by the user
+LINKONLYOBJECTS = 
 
-JS_OBJCETS =	\
+
+
+### JavaScript libraries
+
+## Includes
+INCLUDES += -I$(SRC_DIR)/js
+
+## Objects
+OBJECTS +=		\
 	alloc.o		\
 	heap.o		\
 	object.o	\
@@ -101,10 +107,46 @@ JS_OBJCETS =	\
 	iostream.o	\
 	$(NULL)
 
-OBJECTS = $(MAIN_OBJECTS) $(JS_OBJCETS) $(BOOTLOADER_OBJECTS)
+## Compile
+%.o: $(SRC_DIR)/js/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 
-## Objects explicitly added by the user
-LINKONLYOBJECTS = 
+
+
+### MOXA libraries
+ifdef MOXA
+
+## C macro flags
+CFLAGS += -D_MOXA
+ifdef MOXA_SERIAL
+CFLAGS += -D_MOXA_SERIAL
+endif # MOXA_SERIAL
+ifdef MOXA_RADIO
+CFLAGS += -D_MOXA_RADIO
+endif # MOXA_RADIO
+
+## Includes
+INCLUDES += -I$(SRC_DIR)/moxa
+
+## Objects
+OBJECTS += 		\
+	$(NULL)
+ifdef MOXA_SERIAL
+OBJECTS += serial.o
+endif # MOXA_SERIAL
+ifdef MOXA_RADIO
+OBJECTS += radio.o chip_cc2420.o
+endif # MOXA_RADIO
+
+## Compile
+%.o: $(SRC_DIR)/moxa/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+
+endif # MOXA
+
+
+
+## Common
 
 ## Build
 all: $(TARGET) size
@@ -117,7 +159,7 @@ $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
 
 ##Link
 %.elf: $(OBJECTS)
-	 $(CC) $(LDFLAGS) $(OBJECTS) $(LINKONLYOBJECTS) $(LIBDIRS) $(LIBS) -o $@
+	$(CC) $(LDFLAGS) $(OBJECTS) $(LINKONLYOBJECTS) $(LIBDIRS) $(LIBS) -o $@
 %.cof: %.elf 
 	$(OBJCOPY) --debugging -O coff-ext-avr $< $@
 %.hex: %.elf
@@ -154,4 +196,3 @@ clean:
 
 ## Other dependencies
 -include $(shell mkdir dep 2>/dev/null) $(wildcard dep/*)
-
