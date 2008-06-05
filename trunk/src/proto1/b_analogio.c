@@ -13,14 +13,14 @@ analogRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
 	unsigned int val;
+	JSInt32 pin;
 
 	result_return->type = JS_FLOAT;
 	result_return->u.vfloat = 0;
 
-	if (args->u.vinteger == 1
-		&& args[1].type == JS_INTEGER && args[1].u.vinteger < 8)
-	{
-		if(args[1].u.vinteger < 0) {
+	if (args->u.vinteger == 1) {
+		pin = js_vm_to_int32(vm, &args[1]);
+		if(pin < 0 || pin > 7) {
 			DEVICE_ADC_UNINIT();
 			return;
 		}
@@ -31,7 +31,7 @@ analogRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		}
 
 		// チャンネルを変更したときは最低7us待つ必要がある
-    	DEVICE_ADC_SET_CHANNEL(args[1].u.vinteger);
+    	DEVICE_ADC_SET_CHANNEL(pin);
 		delay_us(7);
 
 		DEVICE_ADC_SAMPLE_SINGLE();
@@ -45,21 +45,26 @@ static void
 analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
+	unsigned char d;
+	JSInt32 pin;
+	JSNode n;
+
 	result_return->type = JS_BOOLEAN;
 	result_return->u.vboolean = 0;
-	if (args->u.vinteger == 2
-		&& args[1].type == JS_INTEGER && args[1].u.vinteger >= 0 && args[1].u.vinteger < 2)
-	{
-		unsigned char d;		
-		if(args[2].type == JS_INTEGER) {
-			d = args[2].u.vinteger;
-		} else if (args[2].type == JS_FLOAT) {
-			d = (int)(args[2].u.vfloat * 0xff);
+
+	if (args->u.vinteger == 2) {
+		pin = js_vm_to_int32(vm, &args[1]);
+		js_vm_to_number(vm, &args[2], &n);
+
+		if(n.type == JS_INTEGER) {
+			d = n.u.vinteger;
+		} else if (n.type == JS_FLOAT) {
+			d = (int)(n.u.vfloat * 0xff);
 		} else {
 			return;
 		}
 
-		switch(args[1].u.vinteger) {
+		switch(pin) {
 		case 0:
 			if(! PWM_is_inited(0)) {
 				PWM_init(0);
@@ -72,6 +77,8 @@ analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 			}
 			PWM_out(1,d);
 			break;
+		default:
+			return;
 		}
 		result_return->u.vboolean = 1;
 	}
@@ -81,27 +88,35 @@ static void
 soundWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
+	JSNode n;
+	JSInt32 pin;
+	JSFloat f;
+
 	result_return->type = JS_BOOLEAN;
 	result_return->u.vboolean = 0;
-	if (args->u.vinteger == 2
-		&& args[1].type == JS_INTEGER && args[1].u.vinteger >= 0 && args[1].u.vinteger < 2)
-	{
-		JSFloat f;
-		if(args[2].type == JS_INTEGER) {
-			f = (JSFloat)args[2].u.vinteger;
-		} else if (args[2].type == JS_FLOAT) {
-			f = args[2].u.vfloat;
+
+	if (args->u.vinteger == 2) {
+		pin = js_vm_to_int32(vm, &args[1]);
+		js_vm_to_number(vm, &args[2], &n);
+
+		if(n.type == JS_INTEGER) {
+			f = (JSFloat)n.u.vinteger;
+		} else if (n.type == JS_FLOAT) {
+			f = n.u.vfloat;
 		} else {
 			return;
 		}
+
 		if(f == 0) {
-			switch(args[1].u.vinteger) {
+			switch(pin) {
 			case 0:
 				SOUND_off(0);
 				break;
 			case 1:
 				SOUND_off(1);
 				break;
+			default:
+				return;
 			}
 		} else {
 			if(f<245) {
@@ -120,6 +135,8 @@ soundWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				}
 				SOUND_out(1,f);
 				break;
+			default:
+				return;
 			}
 		}
 		result_return->u.vboolean = 1;

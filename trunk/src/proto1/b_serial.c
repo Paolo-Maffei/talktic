@@ -103,7 +103,7 @@ static void serialInit_global_method(JSVirtualMachine * vm, JSBuiltinInfo * buil
 	result_return->type = JS_UNDEFINED;
 
 	if (args->u.vinteger > 0) {
-		baud = args[1].u.vinteger;
+		baud = js_vm_to_int32(vm, &args[1]);
 	}
 	baud_reg = (unsigned short)((F_CPU)/(16*baud) -1);
 
