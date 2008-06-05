@@ -11,6 +11,7 @@ SIZE = size
 OBJCOPY = objcopy
 OBJDUMP = objdump
 NM = nm
+JSC = ../../jsc/jsc
 
 ## Source path
 SRC_DIR = ../../src
@@ -100,10 +101,12 @@ INCLUDES += -I$(SRC_DIR)
 all: $(TARGET) size
 
 ## Compile
+%.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 %.o: $(SRC_DIR)/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
-	cd ../bytecodeh && $(MAKE)
+	$(JSC) -C$@ $<
 
 ##Link
 $(PROJECT): $(OBJECTS)
