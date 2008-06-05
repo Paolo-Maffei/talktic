@@ -915,7 +915,7 @@ extern void js_builtin_String(JSVirtualMachine * vm);
 //extern void js_builtin_Date(JSVirtualMachine * vm);
 //extern void js_builtin_Directory(JSVirtualMachine * vm);
 //extern void js_builtin_File(JSVirtualMachine * vm);
-//extern void js_builtin_Math(JSVirtualMachine * vm);
+extern void js_builtin_Math(JSVirtualMachine * vm);
 //extern void js_builtin_RegExp(JSVirtualMachine * vm);
 //extern void js_builtin_System(JSVirtualMachine * vm);
 //extern void js_builtin_VM(JSVirtualMachine * vm);
@@ -932,7 +932,7 @@ static void intern_builtins(JSVirtualMachine * vm)
 //    js_builtin_Date(vm);
 //    js_builtin_Directory(vm);
 //    js_builtin_File(vm);
-//    js_builtin_Math(vm);
+    js_builtin_Math(vm);
 //    js_builtin_RegExp(vm);
 //    js_builtin_System(vm);
 //    js_builtin_VM(vm);

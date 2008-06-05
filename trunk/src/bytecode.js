@@ -83,6 +83,7 @@ debug("f="+f+"\r\n");
 while(1) {
 }
 */
+/*
 var hogehoge = 1;
 while(hogehoge < 2000) {
 	hogehoge++;
@@ -101,6 +102,7 @@ for(var i=0; i<k.length; i++) {
 snd(0,0);
 while(true) {
 }
+*/
 /*
 while(true) {
 	var f = adc(0);
@@ -109,3 +111,6 @@ while(true) {
 	debug("f="+f+"\r\n");
 }
 */
+for(var i=0; i<100; i++) {
+	print(int(Math.random()*10000));
+}
