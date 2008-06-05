@@ -229,7 +229,8 @@ size_t js_iostream_read(JSIOStream * stream, void *ptr, size_t size)
 
             stream->bufpos += got;
             size -= got;
-            (unsigned char *) ptr += got;
+            //(unsigned char *) ptr += got;
+            ptr = (unsigned char*)ptr + got;
             total += got;
         } else {
             if (stream->at_eof)
@@ -281,7 +282,8 @@ size_t js_iostream_write(JSIOStream * stream, void *ptr, size_t size)
         stream->data_in_buf += space;
         total += space;
         size -= space;
-        (unsigned char *) ptr += space;
+        //(unsigned char *) ptr += space;
+        ptr = (unsigned char *) ptr + space;
 
         /* Now the buffer contains buffered write data. */
         stream->writep = 1;
