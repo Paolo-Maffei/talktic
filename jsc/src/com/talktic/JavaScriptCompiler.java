@@ -87,12 +87,14 @@ public class JavaScriptCompiler {
 		}
 
 		if (sourcePath == null) {
-			System.out.println("java -jar jsc.jar [-n] [-Lpath] [-Afile] [-Bfile] [-] source");
+			System.out.println("java -jar jsc.jar [-n] [-Lpath] [-Afile] [-Bfile] [-Cfile] [-Xhex] [-] source");
 			System.out.println("\t-               put compiled bytecode to stdout");
 			System.out.println("\t-n              don't load system library");
 			System.out.println("\t-Llibrary_path  additional library dir/file path");
-			System.out.println("\t-Lasm_file      asm output file path");
-			System.out.println("\t-Lbc_file       bytecode ouput file path");
+			System.out.println("\t-Aasm_file      asm output file path");
+			System.out.println("\t-Bbc_file       bytecode ouput file path");
+			System.out.println("\t-Ccheader_file  .h ouput file path");
+			System.out.println("\t-Xhex_file      .hex ouput file path");
 			return;
 		}
 

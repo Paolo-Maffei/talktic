@@ -10,7 +10,7 @@
 #include <util/delay.h>
 
 static void
-adc_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+analogRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
 	unsigned int val;
@@ -43,7 +43,7 @@ adc_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 }
 
 static void
-pwm_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
 	result_return->type = JS_BOOLEAN;
@@ -79,7 +79,7 @@ pwm_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 }
 
 static void
-snd_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+soundWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
 	result_return->type = JS_BOOLEAN;
@@ -136,9 +136,9 @@ void init_builtin_analogio(JSVirtualMachine *vm) {
 		char *name;
 		JSBuiltinGlobalMethod method;
 	} global_methods[] = {
-		{"adc", adc_global_method},
-		{"pwm", pwm_global_method},
-		{"snd", snd_global_method},
+		{"analogRead", analogRead_global_method},
+		{"analogWrite", analogWrite_global_method},
+		{"soundWrite", soundWrite_global_method},
 		{NULL, NULL}
 	};
 

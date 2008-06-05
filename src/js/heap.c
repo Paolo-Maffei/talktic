@@ -345,7 +345,7 @@ void js_vm_free(JSVirtualMachine * vm, void *ptr)
 }
 
 
-int js_vm_mark_ptr(void *ptr)
+inline int js_vm_mark_ptr(void *ptr)
 {
     JSHeapMemoryBlock *b;
 
@@ -481,7 +481,9 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
 #endif
 #endif
 
+#if GC_TIMES
     vm->gc.count++;
+#endif
 
     /* Mark */
 

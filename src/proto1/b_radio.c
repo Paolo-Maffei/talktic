@@ -1,13 +1,9 @@
 #include "jsint.h"
 #include "radio.h"
 
-#define RADIO_CHANNEL 11
-#define RADIO_PANID   0x2420
-#define RADIO_ADDRESS 0x0002
-
 extern JSVirtualMachine *s_vm;
 
-static void srd_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+static void radioSend_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 					 void *instance_context, JSNode * result_return, JSNode * args)
 {
 	if (args->u.vinteger == 2) {
@@ -19,10 +15,11 @@ static void srd_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_inf
 	result_return->type = JS_UNDEFINED;
 }
 
-static int onr_global_vm_interrupt(JSVirtualMachine * vm, void *data)
+static int onRadioReceive_global_vm_interrupt(JSVirtualMachine * vm, void *data)
 {
 	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *) data;
 	JSNode argv[6];
+
 	argv[0].type = JS_INTEGER;
 	argv[0].u.vinteger = 5;
 	argv[1].type = JS_INTEGER;
@@ -34,8 +31,10 @@ static int onr_global_vm_interrupt(JSVirtualMachine * vm, void *data)
 	js_vm_make_string(vm, &argv[4], pRRI->pPayload, pRRI->nLength);
 	argv[5].type = JS_INTEGER;
 	argv[5].u.vinteger = pRRI->rssi;
-	js_vm_apply(vm, "onr", NULL, 6, argv);
+
+	js_vm_apply(vm, "onRedioReceive", NULL, 6, argv);
 	js_free(data);
+
 	return 0;
 }
 
@@ -54,17 +53,57 @@ static MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
 	return 0;
 }
 
+static void radioInit_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+					 void *instance_context, JSNode * result_return, JSNode * args)
+{
+	result_return->type = JS_BOOLEAN;
+	result_return->u.vboolean = 0;
+	if (args->u.vinteger >= 2) {
+		if (args[1].type == JS_INTEGER
+			&& args[2].type == JS_INTEGER
+		) {
+			UINT8 channel = 11;
+			UINT8 powerAmpLevel = 31;
+			if(args->u.vinteger >= 3) {
+				channel = (UINT8)args[3].u.vinteger;
+			}
+			if(args->u.vinteger >= 4) {
+				powerAmpLevel = (UINT8)args[4].u.vinteger;
+			}
+			RADIO_init(channel, (WORD)args[1].u.vinteger, (WORD)args[2].u.vinteger, powerAmpLevel);
+			RADIO_setRecvHandler(&receiveHandler);
+			vm->interrupt_table[0].enable = 1;
+
+			result_return->u.vboolean = 1;
+		}
+	}
+}
+
 void init_builtin_radio(JSVirtualMachine *vm) {
 	JSBuiltinInfo *info;
 	JSNode *n;
+	unsigned char i;
 
-	info = js_vm_builtin_info_create(vm);
-	info->global_method_proc = srd_global_method;
-	n = &vm->globals[js_vm_intern(vm, "srd")];
-	js_vm_builtin_create(vm, n, info, NULL);
+	struct {
+		char *name;
+		JSBuiltinGlobalMethod method;
+	} global_methods[] = {
+		{"radioInit", radioInit_global_method},
+		{"radioSend", radioSend_global_method},
+		{NULL, NULL}
+	};
 
-	RADIO_init(RADIO_CHANNEL, RADIO_PANID, RADIO_ADDRESS, 31);
-	RADIO_setRecvHandler(&receiveHandler);
-	vm->interrupt_table[0].handler = onr_global_vm_interrupt;
-	vm->interrupt_table[0].enable = 1;
+	for (i = 0; global_methods[i].name; i++) {
+		info = js_vm_builtin_info_create(vm);
+		info->global_method_proc = global_methods[i].method;
+
+		n = &vm->globals[js_vm_intern(vm, global_methods[i].name)];
+		js_vm_builtin_create(vm, n, info, NULL);
+	}
+
+	n = &vm->globals[js_vm_intern(vm, "RADIO_BROADCAST")];
+	n->type = JS_INTEGER;
+	n->u.vinteger = 0xffff;
+
+	vm->interrupt_table[0].handler = onRadioReceive_global_vm_interrupt;
 }
