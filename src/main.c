@@ -358,13 +358,23 @@ static volatile JSVirtualMachine *s_vm = 0;
 
 #ifdef _MOXA
 /*
+static int interrupt5VMHandler(JSVirtualMachine * vm, void *data)
+{
+	printf("interrupt5");
+	js_vm_apply(vm, "onDigitalIO", NULL, 0, NULL);
+	return 0;
+}
+
 ISR(SIG_INTERRUPT5)
 {
 	if (s_vm) {
-		js_vm_apply(s_vm, "onDigitalIo", NULL, 0, NULL);
+		if (!(s_vm->interrupt_table[1].fired)) {
+			s_vm->interrupt_table[1].fired = 1;
+		}
 	}
 }
-
+*/
+/*
 ISR(SIG_INTERRUPT4)
 {
 	if (s_vm) {
@@ -378,9 +388,14 @@ ISR(SIG_INTERRUPT4)
 static int receiveVMHandler(JSVirtualMachine * vm, void *data)
 {
 	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *) data;
-	printf("RECEIVE: %d %x %x %d %s %d\r\n", pRRI->seqNumber, pRRI->srcAddr, pRRI->srcPanId,
-		   pRRI->nLength, pRRI->pPayload, pRRI->rssi);
-	js_vm_apply(vm, "onRadio", NULL, 0, NULL);
+//	printf("RECEIVE: %d %x %x %d %s %d\r\n", pRRI->seqNumber, pRRI->srcAddr, pRRI->srcPanId,
+//		   pRRI->nLength, pRRI->pPayload, pRRI->rssi);
+	JSNode argv[3];
+	argv[0].type = JS_INTEGER;
+	argv[0].u.vinteger = 1;
+	js_vm_make_string(vm, &argv[1], pRRI->pPayload, pRRI->nLength);
+	js_vm_apply(vm, "onRadio", NULL, 2, argv);
+//	js_vm_apply(vm, "onRadio", NULL, 0, NULL);
 	js_free(data);
 	return 0;
 }
@@ -475,13 +490,14 @@ int main()
 	DDRB |= (1 << 7) | (1 << 4);
 //  PORTB &= ~((1 << 7) | (1 << 4));
 	PORTB |= (1 << 7) | (1 << 4);
-
+/*
 	// enable interrupt 5 on up edge
 	EICRB |= (1 << 2) | (1 << 3);
 	EIMSK |= (1 << 5);
 	EICRB |= (1 << 0) | (1 << 1);
 	EIMSK |= (1 << 4);
 	sei();
+*/
 #endif							/* _MOXA */
 
 #ifdef _MOXA_SERIAL
@@ -528,6 +544,8 @@ int main()
 		RADIO_setRecvHandler(&receiveHandler);
 		vm->interrupt_table[0].handler = receiveVMHandler;
 		vm->interrupt_table[0].enable = 1;
+//		vm->interrupt_table[1].handler = interrupt5VMHandler;
+//		vm->interrupt_table[1].enable = 1;
 #endif							/* _MOXA_RADIO */
 		js_vm_execute(vm, bc);
 

@@ -38,15 +38,13 @@ for(var i=0; i<1000; i++) {
 */
 var h = 0;
 
-function onRadio() {
-//	dump();
-	debug(h);
-	h++;
+function onRadio(a) {
+	debug(a);
+	debug(h++);
 }
 
+sei(true);
 while(true) {
 	debug(".");
 	sendRadio(0xFFFF, "muchmorebigpacket");
-sei(true);
-sei(false);
 }
