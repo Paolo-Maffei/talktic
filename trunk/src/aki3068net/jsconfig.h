@@ -1,14 +1,14 @@
 /* Define if you have the ANSI C header files.  */
-/* #undef STDC_HEADERS */
+/* #define STDC_HEADERS */
 
 /* Do we want to profile byte-code operands. */
-/* #undef JS_PROFILING */
+/* #define JS_PROFILING */
 
 /*
  * Unconditionall disable the jumps byte-code instruction dispatch
  * method.
  */
-/* #undef DISABLE_JUMPS */
+/* #define DISABLE_JUMPS */
 
 /* The number of bytes in a types  */
 #define SIZEOF_INT 4
@@ -32,14 +32,14 @@
 #define HAVE_UNISTD_H 1
 
 /* Define if don't remove runtime warning message formatted in sprintf */
-/* #undef JS_IOSTREAM */
-/* #undef JS_RUNTIME_DEBUG */
-/* #undef JS_EVENT_HOOK */
-/* #undef JS_HEAP_DEBUG */
-/* #undef JS_RUNTIME_WARNING */
-/* #undef JS_DEBUG_MEMORY_LEAKS */
-/* #undef JS_ENABLE_STRING_LOWERUPPER */
-/* #undef JS_ENABLE_STRING_PACKUNPACK */
+/* #define JS_RUNTIME_DEBUG 1 */
+/* #define JS_RUNTIME_WARNING 1 */
+/* #define JS_IOSTREAM 1 */
+/* #define JS_EVENT_HOOK 1 */
+/* #define JS_HEAP_DEBUG 1 */
+/* #define JS_DEBUG_MEMORY_LEAKS 1 */
+/* #define JS_ENABLE_STRING_LOWERUPPER */
+/* #define JS_ENABLE_STRING_PACKUNPACK */
 
 /* vm.c */
 #define GC_TRIGGER 1024L
