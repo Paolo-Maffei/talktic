@@ -106,3 +106,7 @@ while(true) {
 	debug("f="+f+"\r\n");
 }
 */
+var hogehoge = 3.14;
+while(1) {
+print("hoge is", hogehoge , ". I mean, you are ",hogehoge);
+}

@@ -389,10 +389,7 @@ debug_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
      * prompt.
      */
     js_vm_to_string(vm, &args[1], &sitem);
-#ifdef __ICCAVR__
-#else
     fwrite(sitem.u.vstring->data, sitem.u.vstring->len, 1, stderr);
-#endif
 
     result_return->type = JS_UNDEFINED;
 }

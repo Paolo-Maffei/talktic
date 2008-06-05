@@ -60,134 +60,6 @@ JSIOStream *js_iostream_new()
 }
 
 
-/* The `FILE *' stream. */
-static int file_read(void *context, unsigned char *buffer, unsigned int todo, int *error_return)
-{
-    int got;
-
-    errno = 0;
-    got = fread(buffer, 1, todo, (FILE *) context);
-    *error_return = errno;
-
-    return got;
-}
-
-
-static int file_write(void *context, unsigned char *buffer, unsigned int todo, int *error_return)
-{
-    int wrote;
-
-    errno = 0;
-    wrote = fwrite(buffer, 1, todo, (FILE *) context);
-    *error_return = errno;
-
-    return wrote;
-}
-
-
-static int file_seek(void *context, long offset, int whence)
-{
-    return fseek((FILE *) context, offset, whence);
-}
-
-
-static long file_get_position(void *context)
-{
-    return ftell((FILE *) context);
-}
-
-
-static long file_get_length(void *context)
-{
-    FILE *fp = (FILE *) context;
-    long cpos;
-    long result = -1;
-
-    // Save current position.
-    cpos = ftell(fp);
-    if (cpos >= 0) {
-        // Seek to the end of the file.
-        if (fseek(fp, 0, SEEK_END) >= 0) {
-            // Fetch result.
-            result = ftell(fp);
-
-            // Seek back.
-            if (fseek(fp, cpos, SEEK_SET) < 0)
-                // Couldn't revert the fp to the original position.
-                result = -1;
-        }
-    }
-
-    return result;
-}
-
-static void file_close(void *context)
-{
-    fclose((FILE *) context);
-}
-
-JSIOStream *js_iostream_file(FILE * fp, int readp, int writep, int do_close)
-{
-    JSIOStream *stream;
-
-    if (fp == NULL)
-        return NULL;
-
-    stream = js_iostream_new();
-    if (stream == NULL)
-        return NULL;
-
-    if (readp)
-        stream->read = file_read;
-    if (writep)
-        stream->write = file_write;
-
-    stream->seek = file_seek;
-    stream->get_position = file_get_position;
-    stream->get_length = file_get_length;
-
-    if (do_close)
-        stream->close = file_close;
-
-    stream->context = fp;
-
-    return stream;
-}
-
-/*
-static void close_pipe(void *context)
-{
-    pclose((FILE *) context);
-}
-
-
-JSIOStream *js_iostream_pipe(FILE * fp, int readp)
-{
-    JSIOStream *stream;
-
-    if (fp == NULL)
-        return NULL;
-
-    stream = js_iostream_new();
-
-    if (stream == NULL)
-        return NULL;
-
-    if (readp)
-        stream->read = file_read;
-    else
-        stream->write = file_write;
-
-    stream->seek = file_seek;
-    stream->get_position = file_get_position;
-    stream->get_length = file_get_length;
-    stream->close = close_pipe;
-    stream->context = fp;
-
-    return stream;
-}
-*/
-
 size_t js_iostream_read(JSIOStream * stream, void *ptr, size_t size)
 {
     size_t total = 0;
@@ -234,7 +106,7 @@ size_t js_iostream_write(JSIOStream * stream, void *ptr, size_t size)
     size_t total = 0;
 
     if (stream->write == NULL) {
-        stream->error = EBADF;
+        //stream->error = EBADF;
         return 0;
     }
 
@@ -346,6 +218,7 @@ int js_iostream_unget(JSIOStream * stream, int byte)
 
 
 int js_iostream_close(JSIOStream * stream)
+
 {
     int result = 0;
 
