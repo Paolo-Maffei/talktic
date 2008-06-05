@@ -441,7 +441,7 @@ float_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                     void *instance_context, JSNode * result_return,
                     JSNode * args)
 {
-    double fval;
+    JSFloat fval;
     char *cp, *end;
 
     if (args->u.vinteger != 1) {
@@ -453,11 +453,11 @@ float_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 
     switch (args[1].type) {
     case JS_BOOLEAN:
-        fval = (double) (args[1].u.vboolean != 0);
+        fval = (JSFloat) (args[1].u.vboolean != 0);
         break;
 
     case JS_INTEGER:
-        fval = (double) args[1].u.vinteger;
+        fval = (JSFloat) args[1].u.vinteger;
         break;
 
     case JS_STRING:
@@ -474,7 +474,7 @@ float_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         break;
 
     case JS_ARRAY:
-        fval = (double) args[1].u.varray->length;
+        fval = (JSFloat) args[1].u.varray->length;
         break;
 
     default:

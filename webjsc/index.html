@@ -149,7 +149,7 @@ String.pack = function(s) {
 			break;
 		case 'd':
 			var bp = new BinaryParser(false, false);
-			r += bp.fromDouble(arguments[j++]);
+			r += bp.fromFloat(arguments[j++]);
 			break;
 /* // something wrong for 64bit...
 			var v = arguments[j++];

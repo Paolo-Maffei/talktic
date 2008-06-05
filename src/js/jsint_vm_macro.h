@@ -191,17 +191,17 @@
                 JS_SP1->type = JS_BOOLEAN; \
                 JS_SP1->u.vboolean = l.u.vinteger _OP_ r.u.vinteger; \
             } else { \
-                double ld, rd; \
+                JSFloat ld, rd; \
  \
                 if (l.type == JS_FLOAT) \
                     ld = l.u.vfloat; \
                 else \
-                    ld = (double) l.u.vinteger; \
+                    ld = (JSFloat) l.u.vinteger; \
  \
                 if (r.type == JS_FLOAT) \
                     rd = r.u.vfloat; \
                 else \
-                    rd = (double) r.u.vinteger; \
+                    rd = (JSFloat) r.u.vinteger; \
  \
                 JS_SP1->type = JS_BOOLEAN; \
                 JS_SP1->u.vboolean = ld _OP_ rd; \
@@ -266,10 +266,10 @@
                     res = !_VAL_; \
                 else if (JS_SP2->type == JS_INTEGER) \
                     /* Integer-integer was already handled. */ \
-                    res = (double) JS_SP2->u.vinteger _OP_ JS_SP1->u.vfloat; \
+                    res = (JSFloat) JS_SP2->u.vinteger _OP_ JS_SP1->u.vfloat; \
                 else \
                     /* Integer-integer was already handled. */ \
-                    res = JS_SP2->u.vfloat _OP_ (double) JS_SP1->u.vinteger; \
+                    res = JS_SP2->u.vfloat _OP_ (JSFloat) JS_SP1->u.vinteger; \
             } else { \
                 JSNode l, r; \
  \
@@ -286,10 +286,10 @@
                         if (r.type == JS_INTEGER) \
                             res = l.u.vinteger _OP_ r.u.vinteger; \
                         else \
-                            res = (double) l.u.vinteger _OP_ r.u.vfloat; \
+                            res = (JSFloat) l.u.vinteger _OP_ r.u.vfloat; \
                     } else { \
                         if (r.type == JS_INTEGER) \
-                            res = l.u.vfloat _OP_ (double) r.u.vinteger; \
+                            res = l.u.vfloat _OP_ (JSFloat) r.u.vinteger; \
                         else \
                             res = l.u.vfloat _OP_ r.u.vfloat; \
                     } \
@@ -373,9 +373,9 @@
                     /* 11.9.6: cases 3 and 4 */ \
                     res = !_VAL_; \
                 else if (JS_SP2->type == JS_INTEGER) \
-                    res = (double) JS_SP2->u.vinteger _OP_ JS_SP1->u.vfloat; \
+                    res = (JSFloat) JS_SP2->u.vinteger _OP_ JS_SP1->u.vfloat; \
                 else \
-                    res = JS_SP2->u.vfloat _OP_ (double) JS_SP1->u.vinteger; \
+                    res = JS_SP2->u.vfloat _OP_ (JSFloat) JS_SP1->u.vinteger; \
             } else \
                 res = !_VAL_; \
         } \

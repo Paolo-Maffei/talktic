@@ -36,6 +36,7 @@ for(var i=0; i<1000; i++) {
 	x.show();
 }
 */
+/*
 var h = 0;
 
 function onr(seq,src,pan,pay,rss) {
@@ -72,4 +73,11 @@ while(true) {
 	if(srd) {
 		srd(0xFFFF, "muchmorebigpacket");
 	}
+}
+*/
+var f = 3.1415926535897932384;
+var i = 4;
+f = f * i;
+debug("f="+f+"\r\n");
+while(1) {
 }

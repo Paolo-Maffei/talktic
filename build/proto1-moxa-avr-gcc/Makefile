@@ -48,6 +48,8 @@ ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf-2
 ## Linker flags
 LDFLAGS = $(COMMON)
 LDFLAGS += -Wl,-Map=$(PROJECT).map
+# We use vfprintf with float format
+LDFLAGS += -Wl,-u,vfprintf -lprintf_flt
 
 ## Memory map
 # |internal SRAM       |extrenal SRAM(32K)       |

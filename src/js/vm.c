@@ -384,8 +384,8 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 						break;
 
 					case JS_FLOAT:
-						memcpy(&c->u.vfloat, cp + ui, 8);
-						ui += 8;
+						memcpy(&c->u.vfloat, cp + ui, sizeof(JSFloat));
+						ui += sizeof(JSFloat);
 						break;
 
 					case JS_SYMBOL:
