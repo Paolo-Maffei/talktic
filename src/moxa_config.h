@@ -48,7 +48,6 @@
 
 #include "include.h"
 #include "error.h"
-#include "moxa_driver.h"
 #include "device_proto.h"
 
 /**************************************************************************************
@@ -156,8 +155,5 @@
 ***************************************************************************************/
 
 #define MOXA_TEMP_USE_LM61   //!< 温度センサーとしてLM61を使用するとき有効にしてください
-
-// hook delay_XX
-#include "delay.h"
 
 #endif // __MOXA_CONFIG_H__
