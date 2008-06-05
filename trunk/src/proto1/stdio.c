@@ -1,26 +1,30 @@
 #include <avr/io.h>
 #include <stdio.h>
 
+#define BAUD_REG 51		// 9600bps
+#define _(a,b) a##1##b	// define port number
+
+
 #ifdef _PROTO1_MOXA_SERIAL
 #include "serial.h"
 #endif							/* _PROTO1_MOXA_SERIAL */
 
 static int serial_stdio_putchar(char c, FILE * stream) {
 #ifdef _PROTO1_MOXA_SERIAL
-	SERIAL_putchar(1, c);
+	SERIAL_putchar(UART, c);
 #else
-	loop_until_bit_is_set(UCSR1A, UDRE);
-	UDR1 = c;
+	loop_until_bit_is_set(_(UCSR,A), UDRE);
+	_(UDR,) = c;
 #endif
 	return 0;
 }
 
 static int serial_stdio_getchar(FILE * stream) {
 #ifdef _PROTO1_MOXA_SERIAL
-	return SERIAL_getchar(1);
+	return SERIAL_getchar(UART);
 #else
-	loop_until_bit_is_set(UCSR1A, RXC);
-	return (int) UDR1;
+	loop_until_bit_is_set(_(UCSR,A), RXC);
+	return (int) _(UDR,);
 #endif
 }
 
@@ -28,13 +32,13 @@ static FILE serial_stdio = FDEV_SETUP_STREAM(serial_stdio_putchar, serial_stdio_
 
 void init_stdio() {
 #ifdef _PROTO1_MOXA_SERIAL
-	SERIAL_init(1, 9600);
+	SERIAL_init(UART, BAUD_RATE);
 #else							/* not _PROTO1_MOXA_SERIAL */
-	UBRR1L = 51 & 0xff;			// 9600bps, 8Mhz
-	UBRR1H = 51 >> 8;
-	UCSR1A = 0x00;
-	UCSR1B = 0x18;				// no interrupt, allow to send, recv
-	UCSR1C = 0x06;
+	_(UBRR,L) = BAUD_REG & 0xff;			// 9600bps, 8Mhz
+	_(UBRR,H) = BAUD_REG >> 8;
+	_(UCSR,A) = 0x00;
+	_(UCSR,B) = 0x18;				// no interrupt, allow to send, recv
+	_(UCSR,C) = 0x06;
 #endif							/* _PROTO1_MOXA_SERIAL */
 	stdin = stderr = stdout = &serial_stdio;
 }

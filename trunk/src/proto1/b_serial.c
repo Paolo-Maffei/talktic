@@ -6,6 +6,8 @@ extern JSVirtualMachine *s_vm;
 
 #define BUF_SIZE 64
 
+#define BAUD_RATE 9600		// impossible at 115200bps
+#define UART 0
 #define _(a,b) a##0##b
 
 #define FRAMING_ERROR        (1 << FE)
@@ -95,7 +97,7 @@ static int onSerialReceive_global_vm_interrupt(JSVirtualMachine * vm, void *data
 static void serialInit_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 					 void *instance_context, JSNode * result_return, JSNode * args)
 {
-	unsigned long baud = 9600;
+	unsigned long baud = BAUD_RATE;
 	unsigned short baud_reg;
 
 	result_return->type = JS_UNDEFINED;
