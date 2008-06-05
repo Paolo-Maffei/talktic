@@ -26,7 +26,6 @@ ECOS_DIR = ecos
 
 ## Build options
 NET = 1
-#DNS = 1
 DIGITALIO = 1
 ANALOGIO = 1
 
@@ -93,35 +92,6 @@ endif
 ifdef ANALOGIO
 CFLAGS += -D_AKI3068NET_ANALOGIO
 OBJECTS += b_analogio.o
-endif
-
-ifdef DNS
-INCLUDES += -I$(SRC_DIR)/aki3068net/ares
-CFLAGS += -D_AKI3068NET_DNS
-OBJECTS +=		\
-	ares__close_sockets.o	\
-	ares_compat.o	\
-	ares_destroy.o	\
-	ares_expand_name.o	\
-	ares_fds.o	\
-	ares_free_errmem.o	\
-	ares_free_hostent.o	\
-	ares_free_string.o	\
-	ares_gethostbyaddr.o	\
-	ares_gethostbyname.o	\
-	ares_init.o	\
-	ares_mkquery.o	\
-	ares_parse_a_reply.o	\
-	ares_parse_ptr_reply.o	\
-	ares_process.o	\
-	ares_query.o	\
-	ares_search.o	\
-	ares_send.o	\
-	ares_strerror.o	\
-	ares_timeout.o	\
-	$(NULL)
-%.o: $(SRC_DIR)/aki3068net/ares/%.c
-	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 endif
 
 
