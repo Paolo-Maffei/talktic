@@ -21,7 +21,7 @@ TEST_COMPORT = com6
 SRC_DIR = ../../src
 
 ## ecos Options
-ECOS_REPOSITORY = ecos_cvshead/packages
+ECOS_REPOSITORY = /usr/local/ecos/repository/packages
 ECOS_DIR = ecos
 
 ## Build options
@@ -146,7 +146,7 @@ $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
 
 ## ecos configure
 ecostree: $(ECOS_DIR)/ecos.ecc
-	cd $(ECOS_DIR); ../$(ECOS_CONFIG) --srcdir="`cd ../$(ECOS_REPOSITORY); pwd`" tree
+	cd $(ECOS_DIR); $(ECOS_CONFIG) --srcdir="$(ECOS_REPOSITORY)" tree
 
 ## Link
 %.elf: $(OBJECTS)
