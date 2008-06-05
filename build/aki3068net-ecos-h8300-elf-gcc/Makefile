@@ -13,6 +13,9 @@ SIZE = h8300-elf-size
 OBJCOPY = h8300-elf-objcopy
 ECOS_CONFIG = ecosconfig
 
+## Testing enviroment
+TEST_COMPORT = com6
+
 ## Source path
 SRC_DIR = ../../src
 
@@ -20,7 +23,9 @@ SRC_DIR = ../../src
 ECOS_REPOSITORY = ecos_cvshead/packages
 ECOS_DIR = ecos
 
-
+## Build options
+NET = 1
+#DNS = 1
 
 ### Build enviroment
 
@@ -89,17 +94,54 @@ OBJECTS +=		\
 
 ### aki3086net ext libraries
 
+## C macro flags
+ifdef NET
+CFLAGS += -D_AKI3068NET_NET
+endif # NET
+
 ## Includes
 INCLUDES += -I$(SRC_DIR)/aki3068net
+ifdef DNS
+INCLUDES += -I$(SRC_DIR)/aki3068net/ares
+endif
 
 ## Objects
 OBJECTS += 		\
-	net.o		\
 	$(NULL)
-
+ifdef NET
+OBJECTS += b_net.o netbytecode.o base64.o
+endif # NET
+ifdef DNS
+OBJECTS +=		\
+	ares__close_sockets.o	\
+	ares_compat.o	\
+	ares_destroy.o	\
+	ares_expand_name.o	\
+	ares_fds.o	\
+	ares_free_errmem.o	\
+	ares_free_hostent.o	\
+	ares_free_string.o	\
+	ares_gethostbyaddr.o	\
+	ares_gethostbyname.o	\
+	ares_init.o	\
+	ares_mkquery.o	\
+	ares_parse_a_reply.o	\
+	ares_parse_ptr_reply.o	\
+	ares_process.o	\
+	ares_query.o	\
+	ares_search.o	\
+	ares_send.o	\
+	ares_strerror.o	\
+	ares_timeout.o	\
+	$(NULL)
+endif
 ## Compile
 %.o: $(SRC_DIR)/aki3068net/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+ifdef DNS
+%.o: $(SRC_DIR)/aki3068net/ares/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+endif
 
 
 
@@ -129,6 +171,13 @@ ecostree: $(ECOS_DIR)/ecos.ecc
 	$(OBJCOPY) -O binary $< $@
 size: $(PROJECT).elf
 	$(SIZE) -A $<
+
+## Testing target
+test: console
+init_console:
+	mode.com $(TEST_COMPORT): BAUD=38400 PARITY=N DATA=8 STOP=1
+console: init_console
+	cat /dev/$(TEST_COMPORT)
 
 ## Clean target
 .PHONY: clean
