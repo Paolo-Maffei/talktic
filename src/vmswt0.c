@@ -34,11 +34,11 @@
  */
 
 struct function_st {
-    JSHeapDestroyableCB destroy;
+	JSHeapDestroyableCB destroy;
 
-    char *name;
-    unsigned char *code;
-    unsigned int length;
+	char *name;
+	unsigned char *code;
+	unsigned int length;
 };
 
 typedef struct function_st Function;
@@ -51,10 +51,10 @@ typedef struct function_st Function;
 static void function_destroy(void *ptr);
 
 static void link_code(JSVirtualMachine * vm, unsigned char *code,
-                      unsigned int code_len, unsigned int consts_offset);
+					  unsigned int code_len, unsigned int consts_offset);
 
 static void execute_code(JSVirtualMachine * vm, JSNode * object,
-                         Function * f, unsigned int argc, JSNode * argv);
+						 Function * f, unsigned int argc, JSNode * argv);
 
 
 /*
@@ -63,156 +63,149 @@ static void execute_code(JSVirtualMachine * vm, JSNode * object,
 
 int
 js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
-                   JSSymtabEntry * symtab,
-                   unsigned int num_symtab_entries,
-                   unsigned int consts_offset,
-                   unsigned int anonymous_function_offset,
-                   unsigned char *debug_info, unsigned int debug_info_len,
-                   JSNode * object, JSNode * func,
-                   unsigned int argc, JSNode * argv)
+				   JSSymtabEntry * symtab,
+				   unsigned int num_symtab_entries,
+				   unsigned int consts_offset,
+				   unsigned int anonymous_function_offset,
+				   unsigned char *debug_info, unsigned int debug_info_len,
+				   JSNode * object, JSNode * func, unsigned int argc, JSNode * argv)
 {
-    int i;
-    unsigned int ui;
-    Function *global_f = NULL;
-    Function *f;
-    unsigned char *code = NULL;
-#ifdef _RUNTIME_WARNING  
+	int i;
+	unsigned int ui;
+	Function *global_f = NULL;
+	Function *f;
+	unsigned char *code = NULL;
+#ifdef _RUNTIME_WARNING
 	char buf[512];
 #endif
 
-    if (bc) {
-        /* Executing byte-code. */
+	if (bc) {
+		/* Executing byte-code. */
 
-        /* Find the code section. */
-        for (i = 0; i < bc->num_sects; i++)
-            if (bc->sects[i].type == JS_BCST_CODE)
-                code = bc->sects[i].data;
-        assert(code != NULL);
+		/* Find the code section. */
+		for (i = 0; i < bc->num_sects; i++)
+			if (bc->sects[i].type == JS_BCST_CODE)
+				code = bc->sects[i].data;
+		assert(code != NULL);
 
-        /* Enter all functions to the known functions of the VM. */
-        for (i = 0; i < num_symtab_entries; i++) {
-            /* Need one function. */
-            f = js_vm_alloc_destroyable(vm, sizeof(*f));
-            f->destroy = function_destroy;
-            f->name = js_strdup(vm, symtab[i].name);
+		/* Enter all functions to the known functions of the VM. */
+		for (i = 0; i < num_symtab_entries; i++) {
+			/* Need one function. */
+			f = js_vm_alloc_destroyable(vm, sizeof(*f));
+			f->destroy = function_destroy;
+			f->name = js_strdup(vm, symtab[i].name);
 
-            f->length = symtab[i + 1].offset - symtab[i].offset + 1;
-            f->code = js_malloc(vm, f->length);
-            memcpy(f->code, code + symtab[i].offset, f->length - 1);
-            f->code[f->length - 1] = 1; /* op `done' */
+			f->length = symtab[i + 1].offset - symtab[i].offset + 1;
+			f->code = js_malloc(vm, f->length);
+			memcpy(f->code, code + symtab[i].offset, f->length - 1);
+			f->code[f->length - 1] = 1;	/* op `done' */
 
-            /* Link the code to our environment. */
-            link_code(vm, f->code, f->length, consts_offset);
+			/* Link the code to our environment. */
+			link_code(vm, f->code, f->length, consts_offset);
 
-            if (strcmp(symtab[i].name, JS_GLOBAL_NAME) == 0)
-                global_f = f;
-            else {
-                int is_anonymous = 0;
+			if (strcmp(symtab[i].name, JS_GLOBAL_NAME) == 0)
+				global_f = f;
+			else {
+				int is_anonymous = 0;
 
-                /* Check for the anonymous function. */
-                if (symtab[i].name[0] == '.' && symtab[i].name[1] == 'F'
-                    && symtab[i].name[2] == ':')
-                    is_anonymous = 1;
+				/* Check for the anonymous function. */
+				if (symtab[i].name[0] == '.' && symtab[i].name[1] == 'F'
+					&& symtab[i].name[2] == ':')
+					is_anonymous = 1;
 #ifdef _RUNTIME_WARNING
-                if (vm->verbose > 3) {
-                    sprintf(buf, "VM: link: %s(): start=%d, length=%d",
-                            symtab[i].name, symtab[i].offset,
-                            symtab[i + 1].offset - symtab[i].offset);
-                    if (is_anonymous)
-                        sprintf(buf + strlen(buf),
-                                ", relocating with offset %u",
-                                anonymous_function_offset);
-                    strcat(buf, JS_HOST_LINE_BREAK);
-                    js_iostream_write(vm->s_stderr, buf, strlen(buf));
-                }
+				if (vm->verbose > 3) {
+					sprintf(buf, "VM: link: %s(): start=%d, length=%d",
+							symtab[i].name, symtab[i].offset,
+							symtab[i + 1].offset - symtab[i].offset);
+					if (is_anonymous)
+						sprintf(buf + strlen(buf),
+								", relocating with offset %u", anonymous_function_offset);
+					strcat(buf, JS_HOST_LINE_BREAK);
+					js_iostream_write(vm->s_stderr, buf, strlen(buf));
+				}
 #endif
 
-                if (is_anonymous) {
+				if (is_anonymous) {
 #ifndef _RUNTIME_WARNING
-					char buf[16]; // CHANGE buffer size, see above code "buf[256]"
+					char buf[16];	// CHANGE buffer size, see above code "buf[256]"
 #endif
-                    sprintf(buf, ".F:%u",
-                            (unsigned int) atoi(symtab[i].name + 3)
-                            + anonymous_function_offset);
-                    ui = js_vm_intern(vm, buf);
-                } else
-                    ui = js_vm_intern(vm, symtab[i].name);
+					sprintf(buf, ".F:%u", (unsigned int) atoi(symtab[i].name + 3)
+							+ anonymous_function_offset);
+					ui = js_vm_intern(vm, buf);
+				} else
+					ui = js_vm_intern(vm, symtab[i].name);
 
-                vm->globals[ui].type = JS_FUNC;
-                vm->globals[ui].u.vfunction = js_vm_make_function(vm, f);
-            }
-        }
-    } else {
-        /* Applying arguments to function. */
-        if (func->type != JS_FUNC) {
+				vm->globals[ui].type = JS_FUNC;
+				vm->globals[ui].u.vfunction = js_vm_make_function(vm, f);
+			}
+		}
+	} else {
+		/* Applying arguments to function. */
+		if (func->type != JS_FUNC) {
 #ifdef _RUNTIME_WARNING
-            sprintf(vm->error, "illegal function in apply");
+			sprintf(vm->error, "illegal function in apply");
 #endif
-            return 0;
-        }
-
+			return 0;
+		}
 #ifdef _RUNTIME_WARNING
-        if (vm->verbose > 1) {
-            sprintf(buf, "VM: calling function%s", JS_HOST_LINE_BREAK);
-            js_iostream_write(vm->s_stderr, buf, strlen(buf));
-        }
+		if (vm->verbose > 1) {
+			sprintf(buf, "VM: calling function%s", JS_HOST_LINE_BREAK);
+			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+		}
 #endif
-        f = func->u.vfunction->implementation;
+		f = func->u.vfunction->implementation;
 
-        execute_code(vm, object, f, argc, argv);
-    }
+		execute_code(vm, object, f, argc, argv);
+	}
 
-    if (global_f) {
+	if (global_f) {
 #ifdef _RUNTIME_WARNING
-        if (vm->verbose > 1) {
-            sprintf(buf, "VM: exec: %s%s", global_f->name,
-                    JS_HOST_LINE_BREAK);
-            js_iostream_write(vm->s_stderr, buf, strlen(buf));
-        }
+		if (vm->verbose > 1) {
+			sprintf(buf, "VM: exec: %s%s", global_f->name, JS_HOST_LINE_BREAK);
+			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+		}
 #endif
 
-        /* Execute. */
-        execute_code(vm, NULL, global_f, 0, NULL);
-    }
+		/* Execute. */
+		execute_code(vm, NULL, global_f, 0, NULL);
+	}
 
-    return 1;
+	return 1;
 }
 
 
-const char *js_vm_switch0_func_name(JSVirtualMachine * vm,
-                                    void *program_counter)
+const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *program_counter)
 {
-    int i;
-    Function *f;
-    unsigned char *pc = program_counter;
-    JSNode *sp = vm->sp;
+	int i;
+	Function *f;
+	unsigned char *pc = program_counter;
+	JSNode *sp = vm->sp;
 
-    /* Check the globals. */
-    for (i = 0; i < vm->num_globals; i++)
-        if (vm->globals[i].type == JS_FUNC) {
-            f = (Function *) vm->globals[i].u.vfunction->implementation;
-            if (f->code < pc && pc < f->code + f->length)
-                return f->name;
-        }
+	/* Check the globals. */
+	for (i = 0; i < vm->num_globals; i++)
+		if (vm->globals[i].type == JS_FUNC) {
+			f = (Function *) vm->globals[i].u.vfunction->implementation;
+			if (f->code < pc && pc < f->code + f->length)
+				return f->name;
+		}
 
-    /* No luck.  Let's try the stack. */
-    for (sp++; sp < vm->stack + vm->stack_size; sp++)
-        if (sp->type == JS_FUNC) {
-            f = (Function *) sp->u.vfunction->implementation;
-            if (f->code < pc && pc < f->code + f->length)
-                return f->name;
-        }
+	/* No luck.  Let's try the stack. */
+	for (sp++; sp < vm->stack + vm->stack_size; sp++)
+		if (sp->type == JS_FUNC) {
+			f = (Function *) sp->u.vfunction->implementation;
+			if (f->code < pc && pc < f->code + f->length)
+				return f->name;
+		}
 
-    /* Still no matches.  This shouldn't be reached... ok, who cares? */
-    return JS_GLOBAL_NAME;
+	/* Still no matches.  This shouldn't be reached... ok, who cares? */
+	return JS_GLOBAL_NAME;
 }
 
 
-const char *js_vm_switch0_debug_position(JSVirtualMachine * vm,
-                                         unsigned int *linenum_return)
+const char *js_vm_switch0_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return)
 {
-    /* XXX */
-    return NULL;
+	/* XXX */
+	return NULL;
 }
 
 
@@ -222,30 +215,30 @@ const char *js_vm_switch0_debug_position(JSVirtualMachine * vm,
 
 static void function_destroy(void *ptr)
 {
-    Function *f = ptr;
+	Function *f = ptr;
 
-    js_free(f->name);
-    js_free(f->code);
+	js_free(f->name);
+	js_free(f->code);
 }
 
 
 static void
 link_code(JSVirtualMachine * vm, unsigned char *code,
-          unsigned int code_len, unsigned int consts_offset)
+		  unsigned int code_len, unsigned int consts_offset)
 {
-    unsigned char *cp, *end;
-    JSInt32 i;
+	unsigned char *cp, *end;
+	JSInt32 i;
 
-    cp = code;
-    end = code + code_len;
+	cp = code;
+	end = code + code_len;
 
-    while (cp < end) {
-        switch (*cp++) {
-            /* include c1swt0.h */
+	while (cp < end) {
+		switch (*cp++) {
+			/* include c1swt0.h */
 #include "c1swt0.h"
-            /* end include c1swt0.h */
-        }
-    }
+			/* end include c1swt0.h */
+		}
+	}
 }
 
 
@@ -264,7 +257,7 @@ link_code(JSVirtualMachine * vm, unsigned char *code,
 
 #define DONE() goto done
 
-#ifdef _RUNTIME_WARNING  
+#ifdef _RUNTIME_WARNING
 #define ERROR(...) \
   	do { \
     	JS_SAVE_REGS (); \
@@ -282,82 +275,81 @@ link_code(JSVirtualMachine * vm, unsigned char *code,
 #endif
 
 static void
-execute_code(JSVirtualMachine * vm, JSNode * object, Function * f,
-             unsigned int argc, JSNode * argv)
+execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int argc, JSNode * argv)
 {
-    JSNode *sp;
-    JSNode *fp;
-    JSNode *function;
-    JSNode builtin_result;
-    unsigned char *pc;
-    JSInt32 i, j;
-    JSInt8 i8;
+	JSNode *sp;
+	JSNode *fp;
+	JSNode *function;
+	JSNode builtin_result;
+	unsigned char *pc;
+	JSInt32 i, j;
+	JSInt8 i8;
 #ifdef _RUNTIME_WARNING
-    char buf[512];
+	char buf[512];
 #endif
 
-    /* Create the initial stack frame by hand. */
-    sp = vm->sp;
+	/* Create the initial stack frame by hand. */
+	sp = vm->sp;
 
-    /* Protect the function from gc. */
-    JS_SP0->type = JS_FUNC;
-    JS_SP0->u.vfunction = js_vm_make_function(vm, f);
-    JS_PUSH();
+	/* Protect the function from gc. */
+	JS_SP0->type = JS_FUNC;
+	JS_SP0->u.vfunction = js_vm_make_function(vm, f);
+	JS_PUSH();
 
-    /* Push arguments to the stack. */
-    i = argc;
-    for (i--; i >= 0; i--) {
-        JS_COPY(JS_SP0, &argv[i]);
-        JS_PUSH();
-    }
+	/* Push arguments to the stack. */
+	i = argc;
+	for (i--; i >= 0; i--) {
+		JS_COPY(JS_SP0, &argv[i]);
+		JS_PUSH();
+	}
 
-    /* This pointer. */
-    if (object)
-        JS_COPY(JS_SP0, object);
-    else
-        JS_SP0->type = JS_NULL;
-    JS_PUSH();
+	/* This pointer. */
+	if (object)
+		JS_COPY(JS_SP0, object);
+	else
+		JS_SP0->type = JS_NULL;
+	JS_PUSH();
 
-    /* Init fp and pc so our SUBROUTINE_CALL will work. */
-    fp = NULL;
-    pc = NULL;
+	/* Init fp and pc so our SUBROUTINE_CALL will work. */
+	fp = NULL;
+	pc = NULL;
 
-    JS_SUBROUTINE_CALL(f);
+	JS_SUBROUTINE_CALL(f);
 
-    /* Ok, now we are ready to run. */
-    while (1) {
-        switch (*pc++) {
-            /* include eswt0.h */
+	/* Ok, now we are ready to run. */
+	while (1) {
+		switch (*(pc++)) {
+			/* include eswt0.h */
 #include "eswt0.h"
-            /* end include eswt0.h */
+			/* end include eswt0.h */
 
-        default:
+		default:
 #ifdef _RUNTIME_WARNING
-            sprintf(buf, "execute_code: unknown opcode %d%s", *(pc - 1),
-                    JS_HOST_LINE_BREAK);
-            js_iostream_write(vm->s_stderr, buf, strlen(buf));
-            js_iostream_flush(vm->s_stderr);
+			sprintf(buf, "execute_code: unknown opcode %d%s", *(pc - 1), JS_HOST_LINE_BREAK);
+			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+			js_iostream_flush(vm->s_stderr);
 #endif
-            abort();
-            break;
-        }
-        if(vm->enable_interrupt) {
-          unsigned char i;
-          vm->enable_interrupt = 0;
-          for(i=0; i<8; i++) {
-              if(vm->interrupt_table[i].enable && vm->interrupt_table[i].fired) {
-                vm->interrupt_table[i].fired = 0;
-                (vm->interrupt_table[i].handler)(vm->interrupt_table[i].data);
-              }
-          }
-          vm->enable_interrupt = 1;
-        }
-    }
+			abort();
+			break;
+		}
+		if (vm->enable_interrupt) {
+			unsigned char k;
+			vm->enable_interrupt = 0;
+			for (k = 0; k < 8; k++) {
+				if (vm->interrupt_table[k].enable) {
+					if (vm->interrupt_table[k].fired) {
+						JS_SAVE_REGS();
+						(vm->interrupt_table[k].handler) (vm, vm->interrupt_table[k].data);
+						vm->interrupt_table[k].fired = 0;
+						JS_MAYBE_GC();
+					}
+				}
+			}
+			vm->enable_interrupt = 1;
+		}
+	}
 
-
-  done:
-
-    /* All done. */
-
-    JS_COPY(&vm->exec_result, JS_SP1);
+done:
+	/* All done. */
+	JS_COPY(&vm->exec_result, JS_SP1);
 }

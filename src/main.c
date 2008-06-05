@@ -378,13 +378,14 @@ ISR(SIG_INTERRUPT4)
 #endif							/* _MOXA */
 
 #ifdef _MOXA_RADIO
-void receiveVMHandler(JSVirtualMachine * vm, void *data)
+int receiveVMHandler(JSVirtualMachine * vm, void *data)
 {
 	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *) data;
 	printf("RECEIVE: %d %x %x %d %s %d\r\n", pRRI->seqNumber, pRRI->srcAddr, pRRI->srcPanId,
 		   pRRI->nLength, pRRI->pPayload, pRRI->rssi);
 	js_vm_apply(vm, "onRadio", NULL, 0, NULL);
 	js_free(data);
+	return 0;
 }
 
 MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)

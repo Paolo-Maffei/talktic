@@ -239,6 +239,9 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
     }
 #endif
+//    printf("VM: heap: malloc(%u): needed=%u, size=%lu, free=%lu, allocated=%lu\r\n",
+//          to_alloc, alloc_size, vm->heap_size, vm->gc.bytes_free,
+//          vm->gc.bytes_allocated);
 
     hb = js_malloc(vm, to_alloc);
 
@@ -463,12 +466,13 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
 
 #ifdef _RUNTIME_WARNING
     if (vm->verbose > 1) {
-        sprintf(buf,
-                "VM: heap: garbage collect: num_consts=%u, num_globals=%u%s",
+        sprintf(buf, "VM: heap: garbage collect: num_consts=%u, num_globals=%u%s",
                 vm->num_consts, vm->num_globals, JS_HOST_LINE_BREAK);
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
     }
 #endif
+//    printf("VM: heap: garbage collect: num_consts=%u, num_globals=%u\r\n",
+//                vm->num_consts, vm->num_globals);
 
     vm->gc.count++;
 
