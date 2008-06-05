@@ -36,12 +36,28 @@ int main()
 	s_stdin = js_iostream_file(stdin, 1, 0, 0);
 	s_stdout = js_iostream_file(stdout, 0, 1, 0);
 	s_stderr = js_iostream_file(stderr, 0, 1, 0);
-
-	vm = js_vm_create(256, 1, 1, s_stdin, s_stdout, s_stderr);
+#define JS_VM_CREATE_IOSTREAM , s_stdin, s_stdout, s_stderr
 #else
-	vm = js_vm_create(256, 1, 1);
+#define JS_VM_CREATE_IOSTREAM
 #endif
 
+#ifdef JS_RUNTIME_WARNING
+#define JS_VM_CREATE_VERBOSE , 9
+#else
+#define JS_VM_CREATE_VERBOSE
+#endif
+#ifdef JS_RUNTIME_DEBUG
+#define JS_VM_CREATE_STACKTRACE , 1
+#else
+#define JS_VM_CREATE_STACKTRACE
+#endif
+
+	vm = js_vm_create(
+		256
+		JS_VM_CREATE_VERBOSE
+		JS_VM_CREATE_STACKTRACE
+		JS_VM_CREATE_IOSTREAM
+	);
 
 	if (vm != NULL) {
 		s_vm = vm;
@@ -66,7 +82,7 @@ int main()
 #endif
 
 		vm->enable_interrupt = 1;
-		printf("exit=%d", js_vm_execute(vm, bc));
+		printf("exit=%d\r\n", js_vm_execute(vm, bc));
 
 		js_bc_free(bc);
 		s_vm = 0;
