@@ -608,7 +608,40 @@ print_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
     result_return->type = JS_UNDEFINED;
 }
 
+static void
+gc_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+                    void *instance_context, JSNode * result_return,
+                    JSNode * args)
+{
+    // Ok, let's trigger a garbage collection
+    vm->gc.bytes_allocated = vm->gc.trigger + 1;
+    result_return->type = JS_UNDEFINED;
+}
 
+static void
+exit_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+                    void *instance_context, JSNode * result_return,
+                    JSNode * args)
+{
+	JSErrorHandlerFrame *f;
+
+	// exit back to top level
+	while(vm->error_handler->next != 0) {
+		f = vm->error_handler;
+		vm->error_handler = f->next;
+		js_free(f);
+	}
+
+	if(args->u.vinteger == 1
+		&& args[1].type == JS_INTEGER) {
+		JS_COPY(&vm->error_handler->thrown, &args[1]);
+	}
+
+	longjmp(vm->error_handler->error_jmp, 1);
+
+	// not reached
+	abort();
+}
 /*
  * Global functions.
  */
@@ -630,6 +663,8 @@ static struct {
 	{"isFloat", isFloat_global_method},
 	{"isInt", isInt_global_method},
 	{"print", print_global_method},
+	{"gc", gc_global_method},
+	{"exit", exit_global_method},
 	{NULL, NULL}
 };
 

@@ -66,7 +66,7 @@ int main()
 #endif
 
 		vm->enable_interrupt = 1;
-		js_vm_execute(vm, bc);
+		printf("exit=%d", js_vm_execute(vm, bc));
 
 		js_bc_free(bc);
 		s_vm = 0;
