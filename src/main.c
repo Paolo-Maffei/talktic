@@ -20,8 +20,6 @@ dump_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 }
 #endif							/* JS_DEBUG_MEMORY_LEAKS */
 
-#ifdef __AVR__
-
 static void
 sei_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
@@ -36,7 +34,7 @@ sei_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 	result_return->type = JS_UNDEFINED;
 }
 
-#ifdef _MOXA
+#ifdef __AVR__
 static void
 led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
@@ -59,8 +57,6 @@ led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 	}
 	result_return->type = JS_UNDEFINED;
 }
-#endif							/* _MOXA */
-
 #endif							/* __AVR__ */
 
 static void add_global_method(JSVirtualMachine * vm)
@@ -72,14 +68,12 @@ static void add_global_method(JSVirtualMachine * vm)
 		char *name;
 		JSBuiltinGlobalMethod method;
 	} global_methods[] = {
+		{"sei", sei_global_method},
 #if JS_DEBUG_MEMORY_LEAKS
 		{"dump", dump_global_method},
 #endif							/* JS_DEBUG_MEMORY_LEAKS */
 #ifdef __AVR__
-		{"sei", sei_global_method},
-#ifdef _MOXA
 		{"led", led_global_method},
-#endif							/* _MOXA */
 #endif							/* __AVR__ */
 		{NULL, NULL}
 	};
@@ -192,7 +186,7 @@ static void add_hello_class(JSVirtualMachine * vm)
 
 volatile JSVirtualMachine *s_vm = 0;
 
-#ifdef _MOXA
+#ifdef __AVR__
 /*
 static int interrupt5VMHandler(JSVirtualMachine * vm, void *data)
 {
@@ -209,8 +203,7 @@ ISR(SIG_INTERRUPT5)
 		}
 	}
 }
-*/
-/*
+
 ISR(SIG_INTERRUPT4)
 {
 	if (s_vm) {
@@ -218,7 +211,7 @@ ISR(SIG_INTERRUPT4)
 	}
 }
 */
-#endif							/* _MOXA */
+#endif							/* __AVR__ */
 
 /* ---------------------------------------------------------------------------------------------- */
 /*
@@ -227,6 +220,8 @@ ISR(SIG_INTERRUPT4)
 
 #ifdef __AVR__
 extern void init_stdio();
+#endif
+#ifdef _PROTO1_RADIO
 extern void init_builtin_radio();
 #endif
 extern JSByteCode *init_bytecode();
@@ -234,9 +229,7 @@ extern JSByteCode *init_bytecode();
 int main()
 {
 #ifdef __AVR__
-#ifdef _MOXA
 	DDRB |= (1 << 7) | (1 << 4);
-//  PORTB &= ~((1 << 7) | (1 << 4));
 	PORTB |= (1 << 7) | (1 << 4);
 /*
 	// enable interrupt 5 on up edge
@@ -246,9 +239,9 @@ int main()
 	EIMSK |= (1 << 4);
 	sei();
 */
-#endif							/* _MOXA */
 	init_stdio();
 #endif							/* __AVR __ */
+
 	JSIOStream *s_stdin = NULL;
 	JSIOStream *s_stdout = NULL;
 	JSIOStream *s_stderr = NULL;
@@ -271,7 +264,7 @@ int main()
 		add_global_method(vm);
 		add_hello_class(vm);
 
-#ifdef _MOXA_RADIO
+#ifdef _PROTO1_RADIO
 		init_builtin_radio(vm);
 #endif
 		vm->enable_interrupt = 1;
