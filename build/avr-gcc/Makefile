@@ -8,6 +8,10 @@ OBJCOPY = avr-objcopy.exe
 OBJDUMP = avr-objdump.exe
 SRC_DIR = ../../src
 
+MOXA = 1
+# MOXA_RADIO = 1
+MOXA_RADIO = 1
+
 ## Options common to compile, link and assembly rules
 COMMON = -mmcu=$(MCU)
 
@@ -16,9 +20,15 @@ CFLAGS = $(COMMON)
 CFLAGS += -Wall -Os -fsigned-char  -gstabs
 CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d 
 
-# CFLAGS += -D_MOXA
-# CFLAGS += -D_MOXA_SERIAL
-# CFLAGS += -D_MOXA_RADIO
+ifdef MOXA
+CFLAGS += -D_MOXA
+endif
+ifdef MOXA_SERIAL
+CFLAGS += -D_MOXA_SERIAL
+endif
+ifdef MOXA_RADIO
+CFLAGS += -D_MOXA_RADIO
+endif
 
 ## Assembly specific flags
 ASMFLAGS = $(COMMON)
@@ -46,8 +56,14 @@ LIBS = -lc
 MAIN_OBJECTS = 	\
 	main.o 		\
 	$(NULL)
-# MAIN_OBJECTS += serial.o              # _MOXA_SERIAL
-# MAIN_OBJECTS += radio.o chip_cc2420.o # _MOXA_RADIO
+
+ifdef MOXA_SERIAL
+MAIN_OBJECTS += serial.o
+endif
+ifdef MOXA_RADIO
+MAIN_OBJECTS += radio.o chip_cc2420.o
+endif
+
 JS_OBJCETS =	\
 	alloc.o		\
 	heap.o		\
@@ -66,6 +82,7 @@ JS_OBJCETS =	\
 	bc.o		\
 	iostream.o	\
 	$(NULL)
+
 OBJECTS = $(MAIN_OBJECTS) $(JS_OBJCETS) $(BOOTLOADER_OBJECTS)
 
 ## Objects explicitly added by the user
@@ -75,8 +92,6 @@ LINKONLYOBJECTS =
 all: $(TARGET) size
 
 ## Compile
-chip_cc2420.o: $(SRC_DIR)/chip_cc2420.c
-	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -O0 -c $<
 %.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h $(SRC_DIR)/bytecode.h
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 %.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
