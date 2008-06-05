@@ -31,12 +31,10 @@
 
 #include "jsint.h"
 
-#undef _ENABLE_REGEXP
-#undef _ENABLE_CRC32
-
 /*
  * Types and definitions.
  */
+#ifdef _ENABLE_STRING_PACKUNPACK
 #ifdef _RUNTIME_WARNING
 #define UNPACK_NEED(n) \
     do { \
@@ -60,6 +58,7 @@
         rnode = &result_return->u.varray->data[result_len]; \
         result_len++; \
     } while (0)
+#endif
 
 /* Class context. */
 struct string_ctx_st {
@@ -69,26 +68,32 @@ struct string_ctx_st {
     JSSymbol s_charAt;
     JSSymbol s_charCodeAt;
     JSSymbol s_concat;
-#ifdef _ENABLE_CRC32
+#ifdef _ENABLE_STRING_CRC32
     JSSymbol s_crc32;
 #endif
     JSSymbol s_fromCharCode;
     JSSymbol s_indexOf;
     JSSymbol s_lastIndexOf;
-    JSSymbol s_match;
+#ifdef _ENABLE_STRING_PACKUNPACK
     JSSymbol s_pack;
+    JSSymbol s_unpack;
+#endif
+#ifdef _ENABLE_STRING_REGEXP
+    JSSymbol s_match;
     JSSymbol s_replace;
     JSSymbol s_search;
+#endif
     JSSymbol s_slice;
     JSSymbol s_split;
     JSSymbol s_substr;
     JSSymbol s_substring;
+#ifdef _ENABLE_STRING_LOWERUPPER
     JSSymbol s_toLowerCase;
     JSSymbol s_toUpperCase;
-    JSSymbol s_unpack;
+#endif
 
     /* Data we need to implement the RegExp related stuffs. */
-#ifdef _ENABLE_REGEXP
+#ifdef _ENABLE_STRING_REGEXP
     JSBuiltinInfo *regexp_info;
 #endif
 };
@@ -145,6 +150,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         }
     }
     /* ********************************************************************** */
+#ifdef _ENABLE_STRING_PACKUNPACK
     else if (method == ctx->s_pack) {
         unsigned int op;
         unsigned int arg = 2;
@@ -231,6 +237,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         js_vm_make_static_string(vm, result_return, buffer, bufpos);
         result_return->u.vstring->staticp = 0;
     }
+#endif
     /* ********************************************************************** */
     else if (method == vm->syms.s_toString) {
         if (n)
@@ -353,7 +360,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
             }
         }
         /* ***************************************************************** */
-#ifdef _ENABLE_CRC32
+#ifdef _ENABLE_STRING_CRC32
         else if (method == ctx->s_crc32) {
             if (args->u.vinteger != 0)
                 goto argument_error;
@@ -431,7 +438,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
             }
         }
         /* ***************************************************************** */
-#ifdef _ENABLE_REGEXP
+#ifdef _ENABLE_STRING_REGEXP
         else if (method == ctx->s_match) {
             if (args->u.vinteger != 1)
                 goto argument_error;
@@ -576,7 +583,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                                           n->u.vstring->len - start);
                     }
 				}
-#ifdef _ENABLE_REGEXP
+#ifdef _ENABLE_STRING_REGEXP
                 else if (args[1].type == JS_BUILTIN
                            && args[1].u.vbuiltin->info == ctx->regexp_info)
                 {
@@ -663,6 +670,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                               n->u.vstring->data + start, end - start);
         }
         /* ***************************************************************** */
+#ifdef _ENABLE_STRING_LOWERUPPER
         else if (method == ctx->s_toLowerCase) {
             if (args->u.vinteger != 0)
                 goto argument_type_error;
@@ -686,7 +694,9 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                 result_return->u.vstring->data[i]
                     = js_latin1_toupper[result_return->u.vstring->data[i]];
         }
+#endif
         /* ***************************************************************** */
+#ifdef _ENABLE_STRING_PACKUNPACK
         else if (method == ctx->s_unpack) {
             unsigned int op;
             unsigned char *buffer;
@@ -758,6 +768,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                 }
             }
         }
+#endif
         /* ***************************************************************** */
         else
             return JS_PROPERTY_UNKNOWN;
@@ -879,23 +890,29 @@ void js_builtin_String(JSVirtualMachine * vm)
     ctx->s_charAt = js_vm_intern(vm, "charAt");
     ctx->s_charCodeAt = js_vm_intern(vm, "charCodeAt");
     ctx->s_concat = js_vm_intern(vm, "concat");
-#ifdef _ENABLE_CRC32
+#ifdef _ENABLE_STRING_CRC32
     ctx->s_crc32 = js_vm_intern(vm, "crc32");
 #endif
     ctx->s_fromCharCode = js_vm_intern(vm, "fromCharCode");
     ctx->s_indexOf = js_vm_intern(vm, "indexOf");
     ctx->s_lastIndexOf = js_vm_intern(vm, "lastIndexOf");
-    ctx->s_match = js_vm_intern(vm, "match");
+#ifdef _ENABLE_STRING_PACKUNPACK
     ctx->s_pack = js_vm_intern(vm, "pack");
+    ctx->s_unpack = js_vm_intern(vm, "unpack");
+#endif
+#ifdef _ENABLE_STRING_REGEXP
+    ctx->s_match = js_vm_intern(vm, "match");
     ctx->s_replace = js_vm_intern(vm, "replace");
     ctx->s_search = js_vm_intern(vm, "search");
+#endif
     ctx->s_slice = js_vm_intern(vm, "slice");
     ctx->s_split = js_vm_intern(vm, "split");
     ctx->s_substr = js_vm_intern(vm, "substr");
     ctx->s_substring = js_vm_intern(vm, "substring");
+#ifdef _ENABLE_STRING_LOWERUPPER
     ctx->s_toLowerCase = js_vm_intern(vm, "toLowerCase");
     ctx->s_toUpperCase = js_vm_intern(vm, "toUpperCase");
-    ctx->s_unpack = js_vm_intern(vm, "unpack");
+#endif
 
     info = js_vm_builtin_info_create(vm);
     vm->prim[JS_STRING] = info;
@@ -911,7 +928,7 @@ void js_builtin_String(JSVirtualMachine * vm)
     n = &vm->globals[js_vm_intern(vm, "String")];
     js_vm_builtin_create(vm, n, info, NULL);
 
-#ifdef _ENABLE_REGEXP
+#ifdef _ENABLE_STRING_REGEXP
     /* Fetch the JSBuiltinInfo of the RegExp object. */
     n = &vm->globals[js_vm_intern(vm, "RegExp")];
     ctx->regexp_info = n->u.vbuiltin->info;
