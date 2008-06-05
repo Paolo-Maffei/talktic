@@ -38,13 +38,12 @@ for(var i=0; i<1000; i++) {
 */
 var h = 0;
 
-function onRadio(a) {
-	debug(a);
+function onr(seq,src,pan,pay,rss) {
+	debug(pay);
 	debug(h++);
 }
 
-sei(true);
 while(true) {
 	debug(".");
-	sendRadio(0xFFFF, "muchmorebigpacket");
+	srd(0xFFFF, "muchmorebigpacket");
 }
