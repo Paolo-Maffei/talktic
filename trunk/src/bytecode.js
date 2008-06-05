@@ -1,20 +1,8 @@
-function a() {
-	print("a");
-	function b() {
-		print("b");
+print((function(){
+	return function(a) {
+		return a;
 	}
-	function c() {
-		print("c");
-	}
-}
-function d() {
-	function e() {
-		print("e");
-	}
-}
-var x = new d();
-x.e();
-
+})()(1));
 /*
 // class methods
 function put() {

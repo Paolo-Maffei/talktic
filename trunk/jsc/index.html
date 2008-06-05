@@ -109,6 +109,7 @@ File.prototype.writeln = function(a) {
 //<![CDATA[
 var error = function(a) {
 	$('message').innerHTML += "<span class='error'>error: " + a + "</span><br />";
+	exit(); // trap
 	throw(a);
 }
 var warning = function(a) {
@@ -171,7 +172,7 @@ small {
 <div>
 <input type="button" onclick="make();" value="make" />
 <input type="button" onclick="Element.toggle($('out'))" value="Toggle Output" />
-<input type="button" onclick="eval($('source').value);" value="eval here!" />
+<input type="button" onclick="message(eval($('source').value));" value="eval here!" />
 </div>
 <div>
 script:<textarea id="source" onkeydown="return catchTab(this,event)">

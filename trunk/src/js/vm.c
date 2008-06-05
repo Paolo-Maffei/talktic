@@ -372,7 +372,8 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 						ui++;
 
 						if (buf[0] == '.' && buf[1] == 'F' && buf[2] == ':')
-							sprintf(buf + 3, "%u", vm->anonymous_function_next_id++);
+							//sprintf(buf + 3, "%u", vm->anonymous_function_next_id++);
+							vm->anonymous_function_next_id++;
 
 						/* Intern symbol. */
 						c->u.vsymbol = js_vm_intern(vm, buf);

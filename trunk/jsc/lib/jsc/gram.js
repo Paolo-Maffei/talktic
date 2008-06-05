@@ -1181,7 +1181,7 @@ function JSC$stmt_do_while_asm()
 	if (JSC$optimize_type && this.expr.lang_type && this.expr.lang_type == JSC$JS_BOOLEAN)
 		new JSC$ASM_iftrue_b(this.linenum, l1).link();
 	else
-	new JSC$ASM_iftrue(this.linenum, l1).link();
+		new JSC$ASM_iftrue(this.linenum, l1).link();
 
 	/* Break label. */
 	l3.link();
@@ -1223,7 +1223,7 @@ function JSC$stmt_while_asm()
 	if (JSC$optimize_type && this.expr.lang_type && this.expr.lang_type == JSC$JS_BOOLEAN)
 		new JSC$ASM_iffalse_b(this.linenum, l2).link();
 	else
-	new JSC$ASM_iffalse(this.linenum, l2).link();
+		new JSC$ASM_iffalse(this.linenum, l2).link();
 
 	/* Body. */
 	JSC$cont_break.push(l2, l1, false, null);
@@ -1316,7 +1316,7 @@ function JSC$stmt_for_asm()
 	if (type_op)
 		new JSC$ASM_iffalse_b(this.linenum, l3).link();
 	else
-	new JSC$ASM_iffalse(this.linenum, l3).link();
+		new JSC$ASM_iffalse(this.linenum, l3).link();
 
 	JSC$cont_break.push(l3, l2, false, null);
 	/* Body. */
@@ -1418,7 +1418,7 @@ function JSC$stmt_for_in_asm()
 	if (this.vars)
 		new JSC$ASM_store_local(this.linenum, local_id).link();
 	else
-	JSC$asm_expr_lvalue_store_asm(this.expr1);
+		JSC$asm_expr_lvalue_store_asm(this.expr1);
 
 	/* Body. */
 	JSC$cont_break.push(l_break, l_cont, false, null);
@@ -1597,17 +1597,14 @@ function JSC$expr_integer_asm()
 {
 	if (this.value == 0)
 		new JSC$ASM_const_i0(this.linenum).link();
+	else if (this.value == 1)
+		new JSC$ASM_const_i1(this.linenum).link();
+	else if (this.value == 2)
+		new JSC$ASM_const_i2(this.linenum).link();
+	else if (this.value == 3)
+		new JSC$ASM_const_i3(this.linenum).link();
 	else
-if (this.value == 1)
-	new JSC$ASM_const_i1(this.linenum).link();
-	else
-if (this.value == 2)
-	new JSC$ASM_const_i2(this.linenum).link();
-	else
-if (this.value == 3)
-	new JSC$ASM_const_i3(this.linenum).link();
-	else
-	new JSC$ASM_const_i(this.linenum, this.value).link();
+		new JSC$ASM_const_i(this.linenum, this.value).link();
 }
 
 /* String. */
@@ -1820,11 +1817,10 @@ function JSC$expr_multiplicative_asm()
 	this.e2.asm();
 	if (this.type == '*'.charCodeAt(0))
 		new JSC$ASM_mul(this.linenum).link();
+	else if (this.type == '/'.charCodeAt(0))
+		new JSC$ASM_div(this.linenum).link();
 	else
-if (this.type == '/'.charCodeAt(0))
-	new JSC$ASM_div(this.linenum).link();
-	else
-	new JSC$ASM_mod(this.linenum).link();
+		new JSC$ASM_mod(this.linenum).link();
 }
 
 
@@ -1907,11 +1903,12 @@ function JSC$expr_shift_asm()
 
 	if (this.type == JSC$tLSHIFT)
 		new JSC$ASM_shift_left(this.linenum).link();
-	else
-if (this.type == JSC$tRSHIFT)
-	new JSC$ASM_shift_right(this.linenum).link();
-	else
-	new JSC$ASM_shift_rright(this.linenum).link();
+	else {
+		if (this.type == JSC$tRSHIFT)
+			new JSC$ASM_shift_right(this.linenum).link();
+		else
+			new JSC$ASM_shift_rright(this.linenum).link();
+	}
 }
 
 
@@ -1935,12 +1932,10 @@ function JSC$expr_relational_asm()
 
 	if (this.type == '<'.charCodeAt(0))
 		new JSC$ASM_cmp_lt(this.linenum).link();
-	else
-if (this.type == '>'.charCodeAt(0))
-	new JSC$ASM_cmp_gt(this.linenum).link();
-	else
-if (this.type == JSC$tLE)
-	new JSC$ASM_cmp_le(this.linenum).link();
+	else if (this.type == '>'.charCodeAt(0))
+		new JSC$ASM_cmp_gt(this.linenum).link();
+	else if (this.type == JSC$tLE)
+		new JSC$ASM_cmp_le(this.linenum).link();
 	else
 	new JSC$ASM_cmp_ge(this.linenum).link();
 }
@@ -2074,7 +2069,7 @@ function JSC$expr_logical_and_asm()
 	if (JSC$optimize_type && this.e1.lang_type && this.e1.lang_type == JSC$JS_BOOLEAN)
 		new JSC$ASM_iffalse_b(this.linenum, l).link();
 	else
-	new JSC$ASM_iffalse(this.linenum, l).link();
+		new JSC$ASM_iffalse(this.linenum, l).link();
 
 	new JSC$ASM_pop(this.linenum).link();
 
@@ -2111,7 +2106,7 @@ function JSC$expr_logical_or_asm()
 	if (JSC$optimize_type && this.e1.lang_type && this.e1.lang_type == JSC$JS_BOOLEAN)
 		new JSC$ASM_iftrue_b(this.linenum, l).link();
 	else
-	new JSC$ASM_iftrue(this.linenum, l).link();
+		new JSC$ASM_iftrue(this.linenum, l).link();
 
 	new JSC$ASM_pop(this.linenum).link();
 
@@ -2229,17 +2224,14 @@ function JSC$expr_call_asm()
 
 	if (this.args.length == 0)
 		new JSC$ASM_const_i0(this.linenum).link();
+	else if (this.args.length == 1)
+		new JSC$ASM_const_i1(this.linenum).link();
+	else if (this.args.length == 2)
+		new JSC$ASM_const_i2(this.linenum).link();
+	else if (this.args.length == 3)
+		new JSC$ASM_const_i3(this.linenum).link();
 	else
-if (this.args.length == 1)
-	new JSC$ASM_const_i1(this.linenum).link();
-	else
-if (this.args.length == 2)
-	new JSC$ASM_const_i2(this.linenum).link();
-	else
-if (this.args.length == 3)
-	new JSC$ASM_const_i3(this.linenum).link();
-	else
-	new JSC$ASM_const(this.linenum, this.args.length).link();
+		new JSC$ASM_const(this.linenum, this.args.length).link();
 
 	/* Check the function type. */
 	if (this.expr.etype == JSC$EXPR_IDENTIFIER) {
@@ -2362,6 +2354,8 @@ function JSC$asm_expr_lvalue_load_asm(expr)
 		expr.expr1.asm();
 		expr.expr2.asm();
 		new JSC$ASM_load_array(expr.linenum).link();
+	} else if (expr.etype == JSC$EXPR_CALL ) {
+		expr.asm();
 	} else
 		error(JSC$filename + ":" + expr.linenum.toString() + ": syntax error");
 }
