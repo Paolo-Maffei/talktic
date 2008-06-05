@@ -83,7 +83,7 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 
     /* Resolve the dispatch method. */
 //    vm->dispatch_method = dispatch_method;
-    vm->dispatch_method_name = "switch-basic";
+//    vm->dispatch_method_name = "switch-basic";
     vm->dispatch_execute = js_vm_switch0_exec;
     vm->dispatch_func_name = js_vm_switch0_func_name;
     vm->dispatch_debug_position = js_vm_switch0_debug_position;

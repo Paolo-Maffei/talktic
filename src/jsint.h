@@ -702,7 +702,7 @@ extern "C" {
 
         /* The byte-code instruction dispatcher. */
 //        JSVMDispatchMethod dispatch_method;
-        const char *dispatch_method_name;
+//        const char *dispatch_method_name;
         JSVMExecute dispatch_execute;
         JSVMFuncName dispatch_func_name;
         JSVMDebugPosition dispatch_debug_position;
