@@ -676,7 +676,6 @@ void js_builtin_core(JSVirtualMachine * vm)
     JSBuiltinInfo *info;
 
     /* Properties. */
-
     n = &vm->globals[js_vm_intern(vm, "NaN")];
     n->type = JS_NAN;
 

@@ -705,13 +705,13 @@ extern "C" {
         /* Options for the virtual machine. */
 #ifdef JS_RUNTIME_WARNING
         unsigned int verbose; /* verbosity has different levels. */
+        unsigned int warn_undef:1;
 #endif
 
 #ifdef JS_RUNTIME_DEBUG
         unsigned int stacktrace_on_error:1;
         unsigned int verbose_stacktrace:1;
 #endif
-        unsigned int warn_undef:1;
 
         /* Security flags. */
         unsigned long security;
@@ -724,8 +724,6 @@ extern "C" {
 #endif
 
         /* The byte-code instruction dispatcher. */
-//        JSVMDispatchMethod dispatch_method;
-//        const char *dispatch_method_name;
         JSVMExecute dispatch_execute;
         JSVMFuncName dispatch_func_name;
         JSVMDebugPosition dispatch_debug_position;
@@ -873,7 +871,6 @@ extern "C" {
     /* Allocate one I/O stream handle. */
     JSIOStream *js_iostream_new();
     JSIOStream *js_iostream_file(FILE * fp, int readp, int writep, int do_close);
-    //JSIOStream *js_iostream_pipe(FILE * fp, int readp);
     size_t js_iostream_read(JSIOStream * stream, void *ptr, size_t size);
     size_t js_iostream_write(JSIOStream * stream, void *ptr, size_t size);
     int js_iostream_flush(JSIOStream * stream);
@@ -886,14 +883,19 @@ extern "C" {
 #endif
 
 /* Virtual machine. */
-    JSVirtualMachine *js_vm_create(unsigned int stack_size,
-//                                   JSVMDispatchMethod dispatch_method,
-                                   unsigned int verbose,
-                                   int stacktrace_on_error
-#ifdef JS_IOSTREAM
-                                   ,JSIOStream * s_stdin, JSIOStream * s_stdout, JSIOStream * s_stderr
+    JSVirtualMachine *js_vm_create(
+		unsigned int stack_size
+#ifdef JS_RUNTIME_WARNING
+		, unsigned int verbose
 #endif
-								   );
+#ifdef JS_RUNTIME_DEBUG
+		, int stacktrace_on_error
+#endif
+#ifdef JS_IOSTREAM
+		, JSIOStream * s_stdin, JSIOStream * s_stdout, JSIOStream * s_stderr
+#endif
+	);
+
     void js_vm_destroy(JSVirtualMachine * vm);
 
     /*
@@ -992,9 +994,6 @@ extern "C" {
 
 
 /* Prototypes for the different instruction dispatcher implementations. */
-
-/* #if ALL_DISPATCHERS */
-
     int js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
                            JSSymtabEntry * symtab,
                            unsigned int num_symtab_entries,
@@ -1007,31 +1006,6 @@ extern "C" {
     const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *pc);
     const char *js_vm_switch0_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return);
 #endif
-
-/* #endif */
-/*
-    int js_vm_switch_exec(JSVirtualMachine * vm, JSByteCode * bc,
-                          JSSymtabEntry * symtab,
-                          unsigned int num_symtab_entries,
-                          unsigned int consts_offset,
-                          unsigned int anonymous_function_offset,
-                          unsigned char *debug_info,
-                          unsigned int debug_info_len, JSNode * object,
-                          JSNode * func, unsigned int argc, JSNode * argv);
-    const char *js_vm_switch_func_name(JSVirtualMachine * vm, void *pc);
-    const char *js_vm_switch_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return);
-
-    int js_vm_jumps_exec(JSVirtualMachine * vm, JSByteCode * bc,
-                         JSSymtabEntry * symtab,
-                         unsigned int num_symtab_entries,
-                         unsigned int consts_offset,
-                         unsigned int anonymous_function_offset,
-                         unsigned char *debug_info,
-                         unsigned int debug_info_len, JSNode * object,
-                         JSNode * func, unsigned int argc, JSNode * argv);
-    const char *js_vm_jumps_func_name(JSVirtualMachine * vm, void *pc);
-    const char *js_vm_jumps_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return);
-*/
 
 /* Heap. */
     void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size);
@@ -1084,11 +1058,6 @@ extern "C" {
                 n->u.varray->data[n->u.varray->length].type = JS_UNDEFINED;
         }
     }
-
-///* File. */
-//    /* Enter file <fp> to the system. */
-//    void js_builtin_File_new(JSVirtualMachine * vm, JSNode * result_return,
-//                             char *path, JSIOStream * stream, int dont_close);
 
 ///* RegExp. */
 //    /*
@@ -1212,68 +1181,7 @@ extern "C" {
         return cp;
     }
 
-///* Dynamic loading. */
-//    /*
-//     * Try to open shared library <filename>.  If the opening was
-//     * successful, a handle to the library is returned.  Otherwise, the
-//     * function returns NULL, and an error message is returned in
-//     * <error_return>.  The argument <error_return_len> specifies the
-//     * maximum length of the error message the function should return.
-//     */
-//    void *js_dl_open(const char *filename, char *error_return, unsigned int error_return_len);
-//
-//    /*
-//     * Try to fetch the address of the symbol <symbol> from shared library
-//     * <library>.
-//     */
-//    void *js_dl_sym(void *library, char *symbol, char *error_return, unsigned int error_return_len);
-//
-//    /* Misc helper functions. */
-//    unsigned long js_crc32(const unsigned char *s, unsigned int len);
-
-
 	void js_alloc_dump_blocks();
-/* ---------------------------------------------------------------------------------------------- */
-/*
- * Definitions for the JavaScript part of the JavaScript interp.
- */
-/*
-// Flags for the compiler.  See `jsc/entry.js'.
-
-#define JSC_FLAG_VERBOSE                        0x00000001
-#define JSC_FLAG_ANNOTATE_ASSEMBLER             0x00000002
-#define JSC_FLAG_GENERATE_DEBUG_INFO            0x00000004
-#define JSC_FLAG_GENERATE_EXECUTABLE_BC_FILES   0x00000008
-
-#define JSC_FLAG_OPTIMIZE_PEEPHOLE              0x00000020
-#define JSC_FLAG_OPTIMIZE_JUMPS                 0x00000040
-#define JSC_FLAG_OPTIMIZE_BC_SIZE               0x00000080
-#define JSC_FLAG_OPTIMIZE_HEAVY                 0x00000100
-
-#define JSC_FLAG_OPTIMIZE_MASK                  0x0000fff0
-
-#define JSC_FLAG_WARN_UNUSED_ARGUMENT           0x00010000
-#define JSC_FLAG_WARN_UNUSED_VARIABLE           0x00020000
-#define JSC_FLAG_WARN_SHADOW                    0x00040000
-#define JSC_FLAG_WARN_WITH_CLOBBER              0x00080000
-#define JSC_FLAG_WARN_MISSING_SEMICOLON         0x00100000
-#define JSC_FLAG_WARN_STRICT_ECMA               0x00200000
-#define JSC_FLAG_WARN_DEPRECATED                0x00400000
-
-#define JSC_FLAG_WARN_MASK                      0xffff0000
-
-// JavaScript interpreter handle.
-    struct js_interp_st {
-        JSInterpOptions options;
-        JSVirtualMachine *vm;
-    };
-
-// Declaration for the JS compiler byte-code.
-    extern unsigned char js_compiler_bytecode[];
-    extern unsigned int js_compiler_bytecode_len;
-*/
-
-/* ---------------------------------------------------------------------------------------------- */
 #ifdef __cplusplus
 }
 #endif

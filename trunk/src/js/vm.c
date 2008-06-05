@@ -56,27 +56,29 @@ static void intern_builtins(JSVirtualMachine * vm);
  * Global functions.
  */
 
-JSVirtualMachine *js_vm_create(unsigned int stack_size,
-//                               JSVMDispatchMethod dispatch_method,
-							   unsigned int verbose,
-							   int stacktrace_on_error
-#ifdef JS_IOSTREAM
-							   ,JSIOStream * s_stdin, JSIOStream * s_stdout, JSIOStream * s_stderr
+JSVirtualMachine *js_vm_create(
+	unsigned int stack_size
+#ifdef JS_RUNTIME_WARNING
+	, unsigned int verbose
 #endif
-							   )
-{
-	unsigned char i;
+#ifdef JS_RUNTIME_DEBUG
+	, int stacktrace_on_error
+#endif
+#ifdef JS_IOSTREAM
+	, JSIOStream * s_stdin, JSIOStream * s_stdout, JSIOStream * s_stderr
+#endif
+) {
 	JSVirtualMachine *vm;
 	vm = js_calloc(NULL, 1, sizeof(*vm));
 	if (vm == NULL)
 		return NULL;
 #ifdef JS_RUNTIME_WARNING
 	vm->verbose = verbose;
+	vm->warn_undef = 1;
 #endif
 #ifdef JS_RUNTIME_DEBUG
 	vm->stacktrace_on_error = stacktrace_on_error;
 #endif
-	vm->warn_undef = 1;
 
 	/* Set the system streams. */
 #ifdef JS_IOSTREAM
@@ -86,49 +88,12 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 #endif
 
 	/* Resolve the dispatch method. */
-//    vm->dispatch_method = dispatch_method;
-//    vm->dispatch_method_name = "switch-basic";
 	vm->dispatch_execute = js_vm_switch0_exec;
 #ifdef JS_RUNTIME_DEBUG
 	vm->dispatch_func_name = js_vm_switch0_func_name;
 	vm->dispatch_debug_position = js_vm_switch0_debug_position;
 #endif
-/*
-    switch (dispatch_method) {
-    case JS_VM_DISPATCH_SWITCH_BASIC:
-#if ALL_DISPATCHERS
-        vm->dispatch_method = dispatch_method;
-        vm->dispatch_method_name = "switch-basic";
-        vm->dispatch_execute = js_vm_switch0_exec;
-        vm->dispatch_func_name = js_vm_switch0_func_name;
-        vm->dispatch_debug_position = js_vm_switch0_debug_position;
-#endif
-        break;
 
-    case JS_VM_DISPATCH_JUMPS:
-#if __GNUC__ && !DISABLE_JUMPS
-        vm->dispatch_method = dispatch_method;
-        vm->dispatch_method_name = "jumps";
-        vm->dispatch_execute = js_vm_jumps_exec;
-        vm->dispatch_func_name = js_vm_jumps_func_name;
-        vm->dispatch_debug_position = js_vm_jumps_debug_position;
-#endif                          // not (__GNUC__ && !DISABLE_JUMPS)
-        break;
-
-    case JS_VM_DISPATCH_SWITCH:
-        // This is the default, let the default catcher handle us.
-        break;
-    }
-
-    if (vm->dispatch_execute == NULL) {
-        // Set the default that is the optimized switch.
-        vm->dispatch_method = JS_VM_DISPATCH_SWITCH;
-        vm->dispatch_method_name = "switch";
-        vm->dispatch_execute = js_vm_switch_exec;
-        vm->dispatch_func_name = js_vm_switch_func_name;
-        vm->dispatch_debug_position = js_vm_switch_debug_position;
-    }
-*/
 	vm->stack_size = stack_size;
 	vm->stack = js_malloc(NULL, vm->stack_size * sizeof(*vm->stack));
 	if (vm->stack == NULL) {
@@ -173,12 +138,6 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 			js_vm_destroy(vm);
 			return NULL;
 		}
-	}
-
-	vm->enable_interrupt = 0;
-	for (i = 0; i < 8; i++) {
-		vm->interrupt_table[i].enable = 0;
-		vm->interrupt_table[i].fired = 0;
 	}
 
 	return vm;
@@ -924,10 +883,6 @@ extern void js_builtin_Function(JSVirtualMachine * vm);
 extern void js_builtin_Number(JSVirtualMachine * vm);
 extern void js_builtin_Object(JSVirtualMachine * vm);
 extern void js_builtin_String(JSVirtualMachine * vm);
-
-//extern void js_builtin_Date(JSVirtualMachine * vm);
-//extern void js_builtin_Directory(JSVirtualMachine * vm);
-//extern void js_builtin_File(JSVirtualMachine * vm);
 extern void js_builtin_Math(JSVirtualMachine * vm);
 //extern void js_builtin_RegExp(JSVirtualMachine * vm);
 //extern void js_builtin_System(JSVirtualMachine * vm);
@@ -942,13 +897,10 @@ static void intern_builtins(JSVirtualMachine * vm)
 	js_builtin_core(vm);
 
 	// Our builtin extensions.
-//    js_builtin_Date(vm);
-//    js_builtin_Directory(vm);
-//    js_builtin_File(vm);
     js_builtin_Math(vm);
-//    js_builtin_RegExp(vm);
-//    js_builtin_System(vm);
-//    js_builtin_VM(vm);
+    //js_builtin_RegExp(vm);
+    //js_builtin_System(vm);
+    //js_builtin_VM(vm);
 
 	// Language objects.
 	js_builtin_Array(vm);

@@ -116,6 +116,7 @@ for(var i=0; i<100; i++) {
 	print(int(Math.random()*10000));
 }
 */
+/*
 try {
 	print("go...");
 	try{
@@ -131,3 +132,15 @@ try {
 print("rescue");
 hogehoge();
 print("norescue");
+*/
+function a() {
+	try{
+	print("a");
+	function b() {
+		print("b");
+	}
+	b();
+	}catch(e){}
+}
+var x = new a();
+x.b();
