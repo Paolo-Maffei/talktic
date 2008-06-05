@@ -47,6 +47,7 @@ LIBS =
 OBJECTS = 		\
 	main.o 		\
 	bytecode.o	\
+	b_globals.o	\
 	b_hello.o	\
 	$(NULL)
 
