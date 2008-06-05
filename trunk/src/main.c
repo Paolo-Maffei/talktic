@@ -1,101 +1,8 @@
 #include "jsint.h"
 
 #ifdef __AVR__
-
 #include <avr/io.h>
-#include <avr/eeprom.h>
 #include <avr/interrupt.h>
-
-#else							/* __AVR__ */
-
-#define EEMEM
-
-#endif							/* not __AVR__ */
-
-#include "bytecode.h"
-
-/* ---------------------------------------------------------------------------------------------- */
-/*
- * Bytecode Reading from EEPROM
- */
-
-#ifdef __AVR__
-
-#define JS_BC_EEPROM_READ_INT32(cp, var) \
-    (var) = eeprom_read_byte(cp); \
-    (var) <<= 8; \
-    (var) |= eeprom_read_byte(cp+1); \
-    (var) <<= 8; \
-    (var) |= eeprom_read_byte(cp+2); \
-    (var) <<= 8; \
-    (var) |= eeprom_read_byte(cp+3)
-
-#define JS_BC_EEPROM_READ_INT16(cp, var) \
-    (var) = eeprom_read_byte(cp); \
-    (var) <<= 8; \
-    (var) |= eeprom_read_byte(cp+1)
-
-#define JS_BC_EEPROM_READ_INT8(cp, var) \
-    (var) = eeprom_read_byte(cp)
-
-static JSByteCode *js_bc_read_eeprom(unsigned char *data)
-{
-	JSUInt32 ui = 0;
-	JSUInt8 ub = 0;
-	unsigned int pos = 0;
-	int i, j;
-	JSByteCode *bc = NULL;
-
-	while (!eeprom_is_ready()) {
-	};
-
-	pos += 4;
-
-	bc = js_calloc(NULL, 1, sizeof(*bc));
-	if (bc == NULL)
-		return NULL;
-
-	JS_BC_EEPROM_READ_INT32(data + pos, ui);
-	bc->num_sects = (unsigned int) ui;
-	pos += 4;
-
-	bc->sects = js_calloc(NULL, bc->num_sects, sizeof(JSBCSect));
-	if (bc->sects == NULL) {
-		js_free(bc);
-		return NULL;
-	}
-
-	/* Read sections. */
-	for (i = 0; i < bc->num_sects; i++) {
-		/* Get type. */
-		JS_BC_EEPROM_READ_INT32(data + pos, ui);
-		bc->sects[i].type = (int) ui;
-		pos += 4;
-
-		/* Get section length. */
-		JS_BC_EEPROM_READ_INT32(data + pos, ui);
-		bc->sects[i].length = (unsigned int) ui;
-		pos += 4;
-
-		bc->sects[i].data = js_malloc(NULL, bc->sects[i].length + 1
-									  /* +1 to avoid zero allocations */ );
-		if (bc->sects[i].data == NULL) {
-			for (i--; i >= 0; i--)
-				js_free(bc->sects[i].data);
-
-			js_free(bc->sects);
-			js_free(bc);
-			return NULL;
-		}
-
-		for (j = 0; j < bc->sects[i].length; j++) {
-			JS_BC_EEPROM_READ_INT8(data + pos + j, ub);
-			*(JSUInt8 *) (bc->sects[i].data + j) = ub;
-		}
-		pos += bc->sects[i].length;
-	}
-	return bc;
-}
 #endif							/* __AVR__ */
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -317,8 +224,12 @@ ISR(SIG_INTERRUPT4)
 /*
  * Entry Point
  */
+
+#ifdef __AVR__
 extern void init_stdio();
 extern void init_builtin_radio();
+#endif
+extern JSByteCode *init_bytecode();
 
 int main()
 {
@@ -355,13 +266,11 @@ int main()
 		s_vm = vm;
 		JSByteCode *bc;
 
-#ifdef __AVR__
-		bc = js_bc_read_eeprom(0x00);
-#else							/* __AVR__ */
-		bc = js_bc_read_data(_bytecode, _bytecode_size);
-#endif							/* not __AVR__ */
+		bc = init_bytecode();
+
 		add_global_method(vm);
 		add_hello_class(vm);
+
 #ifdef _MOXA_RADIO
 		init_builtin_radio(vm);
 #endif

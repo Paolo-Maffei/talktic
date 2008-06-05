@@ -47,6 +47,7 @@ LIBS =
 ## Objects that must be built in order to link
 OBJECTS = 		\
 	main.o 		\
+	bytecode.o	\
 	$(NULL)
 
 ## Objects explicitly added by the user
