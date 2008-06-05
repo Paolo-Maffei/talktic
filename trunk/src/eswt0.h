@@ -244,8 +244,9 @@ if (JS_SP1->type == JS_BUILTIN) {
             }
         }
         JS_COPY(JS_SP1, &builtin_result);
-    } else
+    } else {
         ERROR("illegal builtin object for load_property");
+	}
 } else if (JS_SP1->type == JS_OBJECT) {
     js_vm_object_load_property(vm, JS_SP1->u.vobject, j, JS_SP1);
 } else if (vm->prim[JS_SP1->type]) {
@@ -343,8 +344,9 @@ if (JS_SP1->type == JS_BUILTIN) {
     }
 
     JS_COPY(JS_SP1, &builtin_result);
-} else
+} else {
     ERROR("illegal object for load_property");
+}
 break;
 
 /* operand store_property (26) */
@@ -365,8 +367,9 @@ if (JS_SP1->type == JS_BUILTIN) {
             == JS_PROPERTY_UNKNOWN) {
             if (j == vm->syms.s_prototype) {
                 /* Setting the prototype. */
-                if (JS_SP2->type != JS_OBJECT)
+                if (JS_SP2->type != JS_OBJECT) {
                     ERROR("illegal value for set_property");
+				}
 
                 if (JS_SP1->u.vbuiltin->prototype)
                     /* Setting the instance's prototype. */
@@ -389,8 +392,9 @@ if (JS_SP1->type == JS_BUILTIN) {
                                                 prototype, j, JS_SP2);
             }
         }
-    } else
+    } else {
         ERROR("illegal builtin object for store_property");
+	}
 
     JS_POP();
     JS_POP();
@@ -407,8 +411,9 @@ if (JS_SP1->type == JS_BUILTIN) {
         == JS_PROPERTY_UNKNOWN) {
         if (j == vm->syms.s_prototype) {
             /* Setting the prototype. */
-            if (JS_SP2->type != JS_OBJECT)
+            if (JS_SP2->type != JS_OBJECT) {
                 ERROR("illegal value for set_property");
+			}
 
             switch (JS_SP1->type) {
             case JS_STRING:
@@ -494,8 +499,9 @@ if (JS_SP1->type == JS_BUILTIN) {
     }
     JS_POP();
     JS_POP();
-} else
+} else {
     ERROR("illegal object for store_property");
+}
 
 JS_MAYBE_GC();
 break;
@@ -504,8 +510,7 @@ break;
 case 27:
 if (JS_SP2->type == JS_BUILTIN) {
     if (JS_SP1->type == JS_INTEGER) {
-        ERROR
-            ("integer indexes not implemented yet for BUILTIN in load_array");
+        ERROR("integer indexes not implemented yet for BUILTIN in load_array");
     } else if (JS_SP1->type == JS_STRING) {
         /* Intern the string. */
         j = js_vm_intern_with_len(vm, JS_SP1->u.vstring->data,
@@ -559,13 +564,7 @@ if (JS_SP2->type == JS_BUILTIN) {
             ERROR("illegal builtin object for load_array");
 		}
     } else {
-#ifdef _RUNTIME_WARNING
-        sprintf(buf, "illegal array index in load_array (%d)",
-                JS_SP1->type);
-        ERROR(buf);
-#else
-		ERROR();
-#endif
+		ERROR("illegal array index in load_array (%d)", JS_SP1->type);
     }
 } else if (JS_SP2->type == JS_OBJECT) {
     js_vm_object_load_array(vm, JS_SP2->u.vobject, JS_SP1, JS_SP2);
@@ -581,39 +580,35 @@ if (JS_SP2->type == JS_BUILTIN) {
         }
         JS_POP();
     } else {
-#ifdef _RUNTIME_WARNING  
-        sprintf(buf, "illegal array index in load_array (%d)",
-                JS_SP1->type);
-        ERROR(buf);
-#else
-		ERROR();
-#endif
+        ERROR("illegal array index in load_array (%d)", JS_SP1->type);
     }
 } else if (JS_SP2->type == JS_STRING) {
     if (JS_SP1->type == JS_INTEGER) {
         int ch;
 
         if (JS_SP1->u.vinteger < 0
-            || JS_SP1->u.vinteger >= JS_SP2->u.vstring->len)
+            || JS_SP1->u.vinteger >= JS_SP2->u.vstring->len) {
             ERROR("string index out of range in load_array");
+		}
 
         ch = JS_SP2->u.vstring->data[JS_SP1->u.vinteger];
         JS_SP2->type = JS_INTEGER;
         JS_SP2->u.vinteger = ch;
 
         JS_POP();
-    } else
+    } else {
         ERROR("illegal string index in load_array");
-} else
+	}
+} else {
     ERROR("illegal object for load_array");
+}
 break;
 
 /* operand store_array (28) */
 case 28:
 if (JS_SP2->type == JS_BUILTIN) {
     if (JS_SP1->type == JS_INTEGER) {
-        ERROR
-            ("integer index not implemented yet for BUILTIN in store_array");
+        ERROR("integer index not implemented yet for BUILTIN in store_array");
     } else if (JS_SP1->type == JS_STRING) {
         /* Intern the string. */
         j = js_vm_intern_with_len(vm, JS_SP1->u.vstring->data,
@@ -632,8 +627,9 @@ if (JS_SP2->type == JS_BUILTIN) {
                 == JS_PROPERTY_UNKNOWN) {
                 if (j == vm->syms.s_prototype) {
                     /* Setting the prototype. */
-                    if (JS_SP(3)->type != JS_OBJECT)
+                    if (JS_SP(3)->type != JS_OBJECT) {
                         ERROR("illegal value for prototype");
+					}
 
                     if (JS_SP2->u.vbuiltin->prototype)
                         /* Setting the instance's prototype. */
@@ -659,36 +655,43 @@ if (JS_SP2->type == JS_BUILTIN) {
                                                     JS_SP(3));
                 }
             }
-        } else
+        } else {
             ERROR("illegal builtin object for store_array");
+		}
 
         JS_POP_N(3);
-    } else
+    } else {
         ERROR("illegal array index in store_array");
+	}
 } else if (JS_SP2->type == JS_OBJECT) {
     js_vm_object_store_array(vm, JS_SP2->u.vobject, JS_SP1, JS_SP(3));
     JS_POP_N(3);
 } else if (JS_SP2->type == JS_ARRAY) {
     if (JS_SP1->type == JS_INTEGER) {
-        if (JS_SP1->u.vinteger < 0)
+        if (JS_SP1->u.vinteger < 0) {
             ERROR("negative array index in store_array");
+		}
         if (JS_SP1->u.vinteger >= JS_SP2->u.varray->length)
             js_vm_expand_array(vm, JS_SP2, JS_SP1->u.vinteger + 1);
 
         JS_COPY(&JS_SP2->u.varray->data[JS_SP1->u.vinteger], JS_SP(3));
         JS_POP_N(3);
-    } else
+    } else {
         ERROR("illegal array index in store_array");
+	}
 } else if (JS_SP2->type == JS_STRING) {
     if (JS_SP1->type == JS_INTEGER) {
-        if (JS_SP2->u.vstring->staticp)
+        if (JS_SP2->u.vstring->staticp) {
             ERROR("static string in store_array");
+		}
 
-        if (JS_SP1->u.vinteger < 0)
+        if (JS_SP1->u.vinteger < 0) {
             ERROR("negative string index in store_array");
+		}
 
-        if (JS_SP(3)->type != JS_INTEGER)
+        if (JS_SP(3)->type != JS_INTEGER) {
             ERROR("non-integer value to store into string in store_array");
+		}
 
         if (JS_SP1->u.vinteger >= JS_SP2->u.vstring->len) {
             /* Expand the string. */
@@ -705,10 +708,12 @@ if (JS_SP2->type == JS_BUILTIN) {
         JS_SP2->u.vstring->data[JS_SP1->u.vinteger]
             = (unsigned char) JS_SP(3)->u.vinteger;
         JS_POP_N(3);
-    } else
+    } else {
         ERROR("illegal string index in store_array");
-} else
+	}
+} else {
     ERROR("illegal object for store_array");
+}
 
 JS_MAYBE_GC();
 break;
@@ -748,8 +753,9 @@ if (JS_SP2->type == JS_STRING) {
                          JS_SP2);
     JS_SP1->type = JS_BOOLEAN;
     JS_SP1->u.vboolean = i;
-} else
+} else {
     ERROR("illegal object for nth");
+}
 break;
 
 /* operand cmp_eq (30) */
@@ -1263,10 +1269,12 @@ if (JS_SP1->type == JS_BUILTIN) {
                                                       instance_context, j,
                                                       &builtin_result,
                                                       JS_SP2)
-            == JS_PROPERTY_UNKNOWN)
+            == JS_PROPERTY_UNKNOWN) {
             ERROR("call_method: unknown method");
-    } else
+		}
+    } else {
         ERROR("illegal builtin object for call_method");
+	}
 
     JS_COPY(JS_SP0, &builtin_result);
     JS_PUSH();
@@ -1278,8 +1286,9 @@ if (JS_SP1->type == JS_BUILTIN) {
         == JS_PROPERTY_FOUND) {
         /* The property has been defined in the object. */
 
-        if (method.type != JS_FUNC)
+        if (method.type != JS_FUNC) {
             ERROR("call_method: unknown method");
+		}
 
         /* And once again.  We must do a subroutine call here. */
         JS_SUBROUTINE_CALL(method.u.vfunction->implementation);
@@ -1313,9 +1322,9 @@ if (JS_SP1->type == JS_BUILTIN) {
                                            JS_SP1->u.vfunction->prototype,
                                            j, &method);
 
-        if (result == JS_PROPERTY_UNKNOWN || method.type != JS_FUNC)
+        if (result == JS_PROPERTY_UNKNOWN || method.type != JS_FUNC) {
             ERROR("call_method: unknown method");
-
+		}
         /* Do the subroutine call. */
         JS_SUBROUTINE_CALL(method.u.vfunction->implementation);
     } else {
@@ -1323,8 +1332,9 @@ if (JS_SP1->type == JS_BUILTIN) {
         JS_PUSH();
         JS_MAYBE_GC();
     }
-} else
+} else {
     ERROR("illegal object for call_method");
+}
 break;
 
 /* operand jmp (54) */
@@ -1363,12 +1373,7 @@ case 55:
     } else if (function->type == JS_FUNC) {
         JS_SUBROUTINE_CALL(function->u.vfunction->implementation);
     } else {
-#ifdef _RUNTIME_WARNING  
-        sprintf(buf, "illegal function object in jsr");
-        ERROR(buf);
-#else
-		ERROR();
-#endif
+        ERROR("illegal function object in jsr");
     }
 }
 
@@ -1401,8 +1406,9 @@ if (JS_ARGS_FIXP->u.args_fix.delta) {
 
   /* Set pc to the saved return address. */
 #if 0
-if (fp[-3].type != JS_IPTR)
+if (fp[-3].type != JS_IPTR) {
     ERROR("can't find saved return address");
+}
 #endif
 pc = fp[-3].u.iptr;
 
@@ -1411,8 +1417,9 @@ pc = fp[-3].u.iptr;
 
     /* Save old frame pointer. */
 #if 0
-    if (fp->type != JS_IPTR)
+    if (fp->type != JS_IPTR) {
         ERROR("can't find saved frame pointer");
+	}
 #endif
     old_fp = fp->u.iptr;
 
@@ -1546,8 +1553,9 @@ else if (vm->prim[JS_SP1->type]) {
     (*vm->prim[JS_SP1->type]->new_proc) (vm, vm->prim[JS_SP1->type],
                                          JS_SP2, JS_SP1);
     JS_PUSH();
-} else
+} else {
     ERROR("illegal object for new");
+}
 
 JS_MAYBE_GC();
 break;
@@ -1596,10 +1604,12 @@ if (JS_SP2->type == JS_BUILTIN) {
             && JS_SP1->u.vinteger < JS_SP2->u.varray->length)
             JS_SP2->u.varray->data[JS_SP1->u.vinteger].type = JS_UNDEFINED;
         JS_POP();
-    } else
+    } else {
         ERROR("illegal array index in delete_array");
-} else
+	}
+} else {
     ERROR("illegal object for delete_array");
+}
 
   /* The delete operand returns an undefined value. */
 JS_SP1->type = JS_UNDEFINED;
@@ -1608,8 +1618,9 @@ break;
 /* operand locals (61) */
 case 61:
 READ_INT16(i);
-if (sp - i - JS_RESERVE_STACK_FOR_FUNCTION < vm->stack)
+if (sp - i - JS_RESERVE_STACK_FOR_FUNCTION < vm->stack) {
     ERROR("stack overflow");
+}
 
 for (; i > 0; i--) {
     JS_SP0->type = JS_UNDEFINED;
@@ -1652,9 +1663,9 @@ break;
 
 /* operand with_push (64) */
 case 64:
-if (JS_SP1->type != JS_OBJECT && JS_SP1->type != JS_BUILTIN)
+if (JS_SP1->type != JS_OBJECT && JS_SP1->type != JS_BUILTIN) {
     ERROR("illegal object for with_push");
-
+}
   /* WITHCHAIN */
 
 if (JS_WITHPTR->u.iptr == NULL) {
@@ -1693,9 +1704,9 @@ READ_INT8(i);
 {
     JSUIntAlign *ip = JS_WITHPTR->u.iptr;
 
-    if (ip == NULL || *ip < i)
+    if (ip == NULL || *ip < i) {
         ERROR("with stack underflow in with_pop");
-
+	}
     *ip -= i;
 }
 
@@ -1853,9 +1864,9 @@ READ_INT32(j);
             } else if (w->type == JS_OBJECT) {
                 result = js_vm_object_load_property(vm, w->u.vobject, j,
                                                     &builtin_result);
-            } else
+            } else {
                 ERROR("corrupted with-chain in load_global");
-
+			}
             if (result == JS_PROPERTY_FOUND) {
                 JS_COPY(JS_SP0, &builtin_result);
                 JS_PUSH();
@@ -1935,9 +1946,9 @@ READ_INT32(j);
                     /* Then, do the normal subroutine call. */
                     JS_SUBROUTINE_CALL(method.u.vfunction->implementation);
                 }
-            } else
+            } else {
                 ERROR("corrupted with-chain in jsr_w");
-
+			}
             if (result == JS_PROPERTY_FOUND) {
                 found = 1;
                 break;
@@ -1973,13 +1984,7 @@ READ_INT32(j);
         } else if (function->type == JS_FUNC) {
             JS_SUBROUTINE_CALL(function->u.vfunction->implementation);
         } else {
-#ifdef _RUNTIME_WARNING  
-            sprintf(buf, "symbol `%s' is undefined as function",
-                    js_vm_symname(vm, j));
-            ERROR(buf);
-#else
-			ERROR();
-#endif
+            ERROR("symbol `%s' is undefined as function", js_vm_symname(vm, j));
         }
     }
 }

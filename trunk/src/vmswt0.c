@@ -265,15 +265,15 @@ link_code(JSVirtualMachine * vm, unsigned char *code,
 #define DONE() goto done
 
 #ifdef _RUNTIME_WARNING  
-#define ERROR(msg) \
+#define ERROR(...) \
   	do { \
     	JS_SAVE_REGS (); \
-    	strcpy (vm->error, (msg)); \
+    	sprintf (vm->error, __VA_ARGS__); \
     	js_vm_error (vm); \
     	/* NOTREACHED */ \
   	} while (0)
 #else
-#define ERROR(msg) \
+#define ERROR(...) \
   	do { \
     	JS_SAVE_REGS (); \
     	js_vm_error (vm); \
