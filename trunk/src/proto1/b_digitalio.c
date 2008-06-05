@@ -4,7 +4,7 @@
 #include <avr/io.h>
 
 static void
-dpi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+pinMode_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
 	result_return->type = JS_BOOLEAN;
@@ -55,7 +55,7 @@ dpi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 }
 
 static void
-dps_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+digitalWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
 	result_return->type = JS_BOOLEAN;
@@ -96,7 +96,7 @@ dps_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 }
 
 static void
-dpg_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+digitalRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
 {
 	result_return->type = JS_BOOLEAN;
@@ -143,9 +143,9 @@ void init_builtin_digitalio(JSVirtualMachine *vm) {
 		char *name;
 		JSBuiltinGlobalMethod method;
 	} global_methods[] = {
-		{"dpi", dpi_global_method},
-		{"dps", dps_global_method},
-		{"dpg", dpg_global_method},
+		{"pinMode", pinMode_global_method},
+		{"digitalWrite", digitalWrite_global_method},
+		{"digitalRead", digitalRead_global_method},
 		{NULL, NULL}
 	};
 
