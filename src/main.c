@@ -3,6 +3,7 @@
 JSVirtualMachine *s_vm = 0;
 
 #ifdef _PROTO1
+extern void boot();
 extern void init_stdio();
 #endif
 #ifdef _PROTO1_RADIO
@@ -31,6 +32,7 @@ int main()
 	JSVirtualMachine *vm;
 
 #ifdef _PROTO1
+	boot();
 	init_stdio();
 #endif
 

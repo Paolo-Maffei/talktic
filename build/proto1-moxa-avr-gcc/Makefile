@@ -127,6 +127,7 @@ INCLUDES += -I$(SRC_DIR)/proto1
 OBJECTS +=		\
 	init1.o		\
 	stdio.o		\
+	boot.o		\
 	$(NULL)
 
 ## Compile
@@ -234,6 +235,8 @@ init_console:
 	mode.com $(TEST_COMPORT): BAUD=9600 PARITY=N DATA=8 STOP=1
 console: init_console
 	cat /dev/$(TEST_COMPORT)
+loader: $(PROJECT).eep
+	$(AVRDUDE) -b 9600 -p m128 -c stk500 -v -P $(TEST_COMPORT) -V -U eeprom:w:$<:i
 
 ## Clean target
 .PHONY: clean

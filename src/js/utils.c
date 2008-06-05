@@ -167,7 +167,7 @@ js_vm_to_primitive(JSVirtualMachine * vm, const JSNode * n,
     default:
 #ifdef JS_RUNTIME_WARNING
         sprintf(vm->error, "ToPrimitive(): couldn't convert (%d)",
-                n->type);
+                n->tye);
 #endif
         js_vm_error(vm);
         break;
