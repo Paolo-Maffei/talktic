@@ -151,53 +151,7 @@ String.pack = function(s) {
 			var bp = new BinaryParser(false, false);
 			r += bp.fromFloat(arguments[j++]);
 			break;
-/* // something wrong for 64bit...
-			var v = arguments[j++];
-			var ieee754 = 0;
-			var f = Math.abs(v);
-			var e = 0;
-			var d = true;
-			while (f >= 2.0) {
-				e += 1;
-				f /= 2.0;
-			}
-			while (f < 1.0) {
-				e -= 1;
-				f *= 2.0;
-			}
-			f -= 1.0;
-			f *= 2.0;
-			for(var k=0; k<(d ? 52 : 23); k++) {
-				if(f >= 1.0) {
-					ieee754 = (ieee754 << 1) + 1;
-					f -= 1.0;
-				} else {
-					ieee754 = ieee754 << 1;
-				}
-				f *= 2.0;
-			}
-			if(d) {
-				e = (e + 1023) & 0x7ff;
-				ieee754 = (e << 52) + ieee754;
-				r += String.fromCharCode(ieee754 >> 56 & 0xff + (v < 0.0 ? 0x80 : 0));
-				r += String.fromCharCode(ieee754 >> 48 & 0xff);
-				r += String.fromCharCode(ieee754 >> 40 & 0xff);
-				r += String.fromCharCode(ieee754 >> 32 & 0xff);
-				r += String.fromCharCode(ieee754 >> 24 & 0xff);
-				r += String.fromCharCode(ieee754 >> 16 & 0xff);
-				r += String.fromCharCode(ieee754 >>  8 & 0xff);
-				r += String.fromCharCode(ieee754 >>  0 & 0xff);
-			} else {
-				e = (e + 127) & 0xff;
-				ieee754 = (e << 23) + ieee754;
-				r += String.fromCharCode(ieee754 >> 24 & 0xff + (v < 0.0 ? 0x80 : 0));
-				r += String.fromCharCode(ieee754 >> 16 & 0xff);
-				r += String.fromCharCode(ieee754 >>  8 & 0xff);
-				r += String.fromCharCode(ieee754 >>  0 & 0xff);
-			}
-			System.stdout.write(r);
-*/
-}
+		}
 	}
 	return r;
 }
@@ -211,7 +165,10 @@ var error = function(a) {
 	System.stderr.write(a);
 	exit();
 }
-var System = {stderr: new File('stderr'), stdout: new File('stdout')};
+var System = {
+	stderr: new File('stderr'),
+	stdout: new File('stdout')
+};
 function make() {
 	$('asm').innerHTML = "";
 	$('bc').innerHTML = "";
@@ -276,17 +233,17 @@ function catchTab(item,e) {
 }
 </script>
 
-<script type="text/javascript" src="asm.js"></script>
-<script type="text/javascript" src="defs.js"></script>
-<script type="text/javascript" src="entry.js"></script>
-<script type="text/javascript" src="gram.js"></script>
-<script type="text/javascript" src="lexer.js"></script>
-<script type="text/javascript" src="namespace.js"></script>
-<script type="text/javascript" src="parser.js"></script>
-<script type="text/javascript" src="streams.js"></script>
-<script type="text/javascript" src="prototype.js"></script>
-<script type="text/javascript" src="base64.js"></script>
-<script type="text/javascript" src="binary-parser.js"></script>
+<script type="text/javascript" src="jsc/asm.js"></script>
+<script type="text/javascript" src="jsc/defs.js"></script>
+<script type="text/javascript" src="jsc/entry.js"></script>
+<script type="text/javascript" src="jsc/gram.js"></script>
+<script type="text/javascript" src="jsc/lexer.js"></script>
+<script type="text/javascript" src="jsc/namespace.js"></script>
+<script type="text/javascript" src="jsc/parser.js"></script>
+<script type="text/javascript" src="jsc/streams.js"></script>
+<script type="text/javascript" src="utils/prototype.js"></script>
+<script type="text/javascript" src="utils/base64.js"></script>
+<script type="text/javascript" src="utils/binary-parser.js"></script>
 <!--
 <script type="text/javascript" src="ieerbug/ieerbug.js"></script>
 -->
