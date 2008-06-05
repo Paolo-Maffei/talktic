@@ -122,7 +122,7 @@ function make() {
 	$('asm').innerHTML = "";
 	$('bc').innerHTML = "";
 	$('message').innerHTML = "";
-	var flag = JSC$FLAG_VERBOSE;// | JSC$FLAG_GENERATE_DEBUG_INFO;
+	var flag = JSC$FLAG_VERBOSE | JSC$FLAG_OPTIMIZE_MASK;
 	JSC$compile_file('source', flag, 'asm', 'bc');
 }
 function send(host, param) {
