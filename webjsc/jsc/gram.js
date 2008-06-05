@@ -2339,20 +2339,20 @@ function JSC$asm_expr_lvalue_load_asm(expr)
 			if (JSC$cont_break.top.with_nesting > 0)
 				new JSC$ASM_load_global_w(expr.linenum, expr.value).link();
 			else
-			new JSC$ASM_load_global(expr.linenum, expr.value).link();
+				new JSC$ASM_load_global(expr.linenum, expr.value).link();
 		} else if (i.scope == JSC$SCOPE_ARG) {
-			if (JSC$cont_break.top.with_nesting > 0 && JSC$warn_with_clobber)
+			if (JSC$cont_break.top.with_nesting > 0 && JSC$warn_with_clobber) {
 				JSC$warning(JSC$filename + ":" + expr.linenum.toString()
 							+ ": warning: the with-lookup of symbol `" + i.symbol
 							+ "' is clobbered by the argument definition");
-
+			}
 			new JSC$ASM_load_arg(expr.linenum, i.value).link();
 		} else {
-			if (JSC$cont_break.top.with_nesting > 0 && JSC$warn_with_clobber)
+			if (JSC$cont_break.top.with_nesting > 0 && JSC$warn_with_clobber) {
 				JSC$warning(JSC$filename + ":" + expr.linenum.toString()
 							+ ": warning: the with-lookup of symbol `" + i.symbol
 							+ "' is clobbered by the local variable definition");
-
+			}
 			new JSC$ASM_load_local(expr.linenum, i.value).link();
 		}
 	} else if (expr.etype == JSC$EXPR_OBJECT_PROPERTY) {

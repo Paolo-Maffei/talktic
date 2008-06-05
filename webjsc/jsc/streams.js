@@ -75,9 +75,9 @@ function JSC$StreamFile_read_byte()
 }
 
 
-function JSC$StreamFile_unget_byte(byte)
+function JSC$StreamFile_unget_byte(b)
 {
-	this.stream.ungetByte(byte);
+	this.stream.ungetByte(b);
 }
 
 
@@ -146,9 +146,9 @@ function JSC$StreamString_read_byte()
 }
 
 
-function JSC$StreamString_unget_byte(byte)
+function JSC$StreamString_unget_byte(b)
 {
-	this.unget_byte = byte;
+	this.unget_byte = b;
 }
 
 
