@@ -78,7 +78,7 @@ $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
 %.lss: %.exe
 	$(OBJDUMP) -h -S $< > $@
 size: $(PROJECT).exe
-	 $(SIZE) $<
+	 $(SIZE) -A $<
 
 ## Clean target
 .PHONY: clean
