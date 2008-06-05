@@ -81,34 +81,6 @@
 
 
 /* ---------------------------------------------------------------------------------------------- */
-/* Misc system headers. */
-
-//#include <sys/types.h>
-
-/*
- * Protability kludges.  If something is missing from the w32
- * environment, please edit the micros/w32.{c,h} files and implement
- * them.
- */
-//#ifndef WIN32
-///* Directory handling. */
-//#include <dirent.h>
-//#endif /* not WIN32 */
-
-
-
-/* ---------------------------------------------------------------------------------------------- */
-//#include <js.h>
-//    /* Byte-code instruction dispatch methods. */
-//    typedef enum {
-//        JS_VM_DISPATCH_SWITCH_BASIC,
-//        JS_VM_DISPATCH_SWITCH,
-//        JS_VM_DISPATCH_JUMPS
-//    } JSVMDispatchMethod;
-
-
-
-/* ---------------------------------------------------------------------------------------------- */
 #if __cplusplus
 extern "C" {
 #endif
@@ -1061,48 +1033,50 @@ extern "C" {
         }
     }
 
-///* RegExp. */
-//    /*
-//     * Create a new regular expression node from <source, sourcelen> according
-//     * to <flags>.  The argument <immutable> defines whether the created
-//     * regexp is immutable.  The new regexp is returned in <result_return>.
-//     * If the <info> is NULL, the function will resolve it.  Otherwise the given
-//     * value is used.
-//     */
-//    void js_builtin_RegExp_new(JSVirtualMachine * vm, char *source,
-//                               unsigned int source_len, unsigned int flags,
-//                               int immutable, JSBuiltinInfo * info, JSNode * result_return);
-//
-//    /*
-//     * Do search-replace for the string <data, datalen> by replacing
-//     * matches of <regexp> with <repl, repl_len>.  The resulting string is
-//     * returned in <result_return>
-//     */
-//    void js_builtin_RegExp_replace(JSVirtualMachine * vm, char *data,
-//                                   unsigned int datalen, JSNode * regexp,
-//                                   char *repl, unsigned int repl_len, JSNode * result_return);
-//
-//    /*
-//     * Do regexp match against <data, datalen>.   Format the result array
-//     * to <result_return>.
-//     */
-//    void js_builtin_RegExp_match(JSVirtualMachine * vm, char *data,
-//                                 unsigned int datalen, JSNode * regexp, JSNode * result_return);
-//
-//    /*
-//     * Do regexp search against <data, datalen>.  Return the start index of
-//     * the match in <result_return>.
-//     */
-//    void js_builtin_RegExp_search(JSVirtualMachine * vm, char *data,
-//                                  unsigned int datalen, JSNode * regexp, JSNode * result_return);
-//
-//    /*
-//     * Split the string <data, datalen> by regular expression <regexp>.
-//     * Function returns an array containing the substrings.
-//     */
-//    void js_builtin_RegExp_split(JSVirtualMachine * vm, char *data,
-//                                 unsigned int datalen, JSNode * regexp,
-//                                 unsigned int limit, JSNode * result_return);
+#if 0
+/* RegExp. */
+    /*
+     * Create a new regular expression node from <source, sourcelen> according
+     * to <flags>.  The argument <immutable> defines whether the created
+     * regexp is immutable.  The new regexp is returned in <result_return>.
+     * If the <info> is NULL, the function will resolve it.  Otherwise the given
+     * value is used.
+     */
+    void js_builtin_RegExp_new(JSVirtualMachine * vm, char *source,
+                               unsigned int source_len, unsigned int flags,
+                               int immutable, JSBuiltinInfo * info, JSNode * result_return);
+
+    /*
+     * Do search-replace for the string <data, datalen> by replacing
+     * matches of <regexp> with <repl, repl_len>.  The resulting string is
+     * returned in <result_return>
+     */
+    void js_builtin_RegExp_replace(JSVirtualMachine * vm, char *data,
+                                   unsigned int datalen, JSNode * regexp,
+                                   char *repl, unsigned int repl_len, JSNode * result_return);
+
+    /*
+     * Do regexp match against <data, datalen>.   Format the result array
+     * to <result_return>.
+     */
+    void js_builtin_RegExp_match(JSVirtualMachine * vm, char *data,
+                                 unsigned int datalen, JSNode * regexp, JSNode * result_return);
+
+    /*
+     * Do regexp search against <data, datalen>.  Return the start index of
+     * the match in <result_return>.
+     */
+    void js_builtin_RegExp_search(JSVirtualMachine * vm, char *data,
+                                  unsigned int datalen, JSNode * regexp, JSNode * result_return);
+
+    /*
+     * Split the string <data, datalen> by regular expression <regexp>.
+     * Function returns an array containing the substrings.
+     */
+    void js_builtin_RegExp_split(JSVirtualMachine * vm, char *data,
+                                 unsigned int datalen, JSNode * regexp,
+                                 unsigned int limit, JSNode * result_return);
+#endif
 
 /* Object. */
     JSObject *js_vm_object_new(JSVirtualMachine * vm);

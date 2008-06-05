@@ -33,7 +33,7 @@
  * Global functions.
  */
 
-/*
+#if 0
 JSByteCode *js_bc_read_file(FILE * fp)
 {
     unsigned char header[8];
@@ -109,7 +109,7 @@ JSByteCode *js_bc_read_file(FILE * fp)
 
     return NULL;
 }
-*/
+#endif
 
 void js_bc_free(JSByteCode * bc)
 {
