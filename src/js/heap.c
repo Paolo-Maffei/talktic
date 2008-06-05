@@ -175,21 +175,16 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
   retry:
 
     /* Take first block from the freelist that is big enough for us. */
-    for (freelist = list(alloc_size); freelist < JS_NUM_HEAP_FREELISTS;
-         freelist++)
-        for (prev = NULL, b = vm->heap_freelists[freelist]; b;
-             prev = b, b = ((JSHeapFreelistBlock *) b)->next)
+    for (freelist = list(alloc_size); freelist < JS_NUM_HEAP_FREELISTS; freelist++) {
+        for (prev = NULL, b = vm->heap_freelists[freelist]; b; prev = b, b = ((JSHeapFreelistBlock *) b)->next) {
             if (b->size >= alloc_size) {
                 /* Ok, take this one. */
                 if (prev)
-                    ((JSHeapFreelistBlock *) prev)->next
-                        = ((JSHeapFreelistBlock *) b)->next;
+                    ((JSHeapFreelistBlock *) prev)->next = ((JSHeapFreelistBlock *) b)->next;
                 else
-                    vm->heap_freelists[freelist] =
-                        ((JSHeapFreelistBlock *) b)->next;
+                    vm->heap_freelists[freelist] = ((JSHeapFreelistBlock *) b)->next;
 
-                if (b->size >
-                    alloc_size + sizeof(JSHeapMemoryBlock) + MIN_ALLOC) {
+                if (b->size > alloc_size + sizeof(JSHeapMemoryBlock) + MIN_ALLOC) {
                     JSHeapMemoryBlock *nb;
 
                     /* We can split it. */
@@ -201,14 +196,12 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
                     nb->magic = MAGIC;
 #endif
                     JS_HEAP_MEMORY_BLOCK_CLEAR_FLAGS(nb);
-                    nb->size =
-                        b->size - sizeof(JSHeapMemoryBlock) - alloc_size;
+                    nb->size = b->size - sizeof(JSHeapMemoryBlock) - alloc_size;
 
                     vm->gc.bytes_free -= sizeof(JSHeapMemoryBlock);
 
                     freelist = list(nb->size);
-                    ((JSHeapFreelistBlock *) nb)->next
-                        = vm->heap_freelists[freelist];
+                    ((JSHeapFreelistBlock *) nb)->next = vm->heap_freelists[freelist];
                     vm->heap_freelists[freelist] = nb;
 
                     b->size = alloc_size;
@@ -220,13 +213,13 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
 
                 return (unsigned char *) b + sizeof(JSHeapMemoryBlock);
             }
+		}
+	}
 
     /* Must allocate new blocks to the freelist. */
 
-    if (alloc_size > (BLOCK_SIZE - sizeof(JSHeapBlock)
-                      - sizeof(JSHeapMemoryBlock)))
-        to_alloc =
-            alloc_size + sizeof(JSHeapBlock) + sizeof(JSHeapMemoryBlock);
+    if (alloc_size > (BLOCK_SIZE - sizeof(JSHeapBlock) - sizeof(JSHeapMemoryBlock)))
+        to_alloc = alloc_size + sizeof(JSHeapBlock) + sizeof(JSHeapMemoryBlock);
     else
         to_alloc = BLOCK_SIZE;
 

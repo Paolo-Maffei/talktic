@@ -1378,6 +1378,7 @@ case 55:
 
         JS_COPY(JS_SP0, &builtin_result);
         JS_PUSH();
+		JS_MAYBE_GC();
     } else if (function->type == JS_FUNC) {
         JS_SUBROUTINE_CALL(function->u.vfunction->implementation);
     } else {

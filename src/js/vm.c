@@ -795,10 +795,12 @@ const char *js_vm_symname(JSVirtualMachine * vm, JSSymbol sym)
 
 void js_vm_error(JSVirtualMachine * vm)
 {
+#if JS_RUNTIME_WARNING
+	char error[1024];
+#endif
 #ifdef JS_RUNTIME_DEBUG
 	const char *file;
 	unsigned int ln;
-	char error[1024];
 
 	file = js_vm_debug_position(vm, &ln);
 	if (file) {

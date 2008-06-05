@@ -32,12 +32,18 @@
 #define HAVE_UNISTD_H 1
 
 /* Define if don't remove runtime warning message formatted in sprintf */
-#define JS_IOSTREAM 1
-#define JS_RUNTIME_DEBUG 1
+/* #define JS_RUNTIME_DEBUG 1 */
+/* #define JS_RUNTIME_WARNING 1 */
+/* #define JS_IOSTREAM 1 */
 #define JS_EVENT_HOOK 1
 #define JS_HEAP_DEBUG 1
 #define JS_PROFILING 1
-#define JS_RUNTIME_WARNING 1
 #define JS_DEBUG_MEMORY_LEAKS 1
 #define JS_ENABLE_STRING_LOWERUPPER
 #define JS_ENABLE_STRING_PACKUNPACK
+
+/* vm.c */
+#define GC_TRIGGER 1024L
+
+/* iostream.c */
+/* #define DEFAULT_BUFFER_SIZE 64 */

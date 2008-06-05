@@ -83,7 +83,11 @@ debug("f="+f+"\r\n");
 while(1) {
 }
 */
-/*
+var hogehoge = 1;
+while(hogehoge < 2000) {
+	hogehoge++;
+	print(hogehoge);
+}
 // 1  2   3  4   5  6    7     8  9   10 11  12
 // ド ド# レ レ# ミ ファ ファ# ソ ソ# ラ ラ# シ
 var m = [0, 440, 466.2, 493.9, 523.3, 554.4, 587.3, 622.3, 659.3, 698.5, 740.0, 784.0, 830.6];
@@ -97,7 +101,6 @@ for(var i=0; i<k.length; i++) {
 snd(0,0);
 while(true) {
 }
-*/
 /*
 while(true) {
 	var f = adc(0);
@@ -106,10 +109,3 @@ while(true) {
 	debug("f="+f+"\r\n");
 }
 */
-var hogehoge = 1;
-while(hogehoge < 1000) {
-	hogehoge++;
-print("hoge is"+hogehoge+". I mean, you are "+hogehoge);
-//print("hoge is", hogehoge , ". I mean, you are ",hogehoge, hogehoge, hogehoge, hogehoge, hogehoge);
-//debug("hoge is"+hogehoge+". I mean, you are "+hogehoge);
-}
