@@ -852,14 +852,14 @@ extern "C" {
 
 /* Byte code. */
     JSByteCode *js_bc_read_data(unsigned char *data, unsigned int datalen);
-    JSByteCode *js_bc_read_file(FILE * fp);
+    //JSByteCode *js_bc_read_file(FILE * fp);
     void js_bc_free(JSByteCode * bc);
 
 /* I/O streams. */
     /* Allocate one I/O stream handle. */
     JSIOStream *js_iostream_new();
     JSIOStream *js_iostream_file(FILE * fp, int readp, int writep, int do_close);
-    JSIOStream *js_iostream_pipe(FILE * fp, int readp);
+    //JSIOStream *js_iostream_pipe(FILE * fp, int readp);
     size_t js_iostream_read(JSIOStream * stream, void *ptr, size_t size);
     size_t js_iostream_write(JSIOStream * stream, void *ptr, size_t size);
     int js_iostream_flush(JSIOStream * stream);
