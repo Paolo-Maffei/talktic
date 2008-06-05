@@ -1,3 +1,4 @@
+/*
 // class methods
 function put() {
 	debug(this.val+"\r\n");
@@ -34,10 +35,17 @@ for(var i=0; i<1000; i++) {
 	var x = new Hello("Hello World!\r\n");
 	x.show();
 }
+*/
+var h = 0;
 
+while(true) {
+	debug(".");
+}
 // interrupt?
 function test() {
 	var x = new Hello("interrupt!!\r\n");
 	x.show();
+	h++;
 	debug(h);
+	led();
 }

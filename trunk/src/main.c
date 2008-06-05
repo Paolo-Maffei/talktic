@@ -31,14 +31,15 @@
 /*
  * Global Method
  */
-/*
 static void
-trace_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                     void *instance_context, JSNode * result_return,
                     JSNode * args)
 {
 #ifdef __AVR__
 	PORTB = 0b10010000;
+	delay_ms(200);
+	PORTB = 0b00000000;
 #endif
     result_return->type = JS_UNDEFINED;
 }
@@ -53,7 +54,7 @@ void add_global_method(JSVirtualMachine * vm)
         JSBuiltinGlobalMethod method;
     } global_methods[] = {
         {
-        "trace", trace_global_method}, {
+        "led", led_global_method}, {
         NULL, NULL}
     };
 
@@ -67,7 +68,6 @@ void add_global_method(JSVirtualMachine * vm)
         js_vm_builtin_create(vm, n, info, NULL);
     }
 }
-*/
 
 /* ---------------------------------------------------------------------------------------------- */
 /*
@@ -381,7 +381,7 @@ int main()
 		bc = js_bc_read_data(_bytecode, _bytecode_size);
 #endif
 
-//      add_global_method(vm);
+        add_global_method(vm);
 		add_hello_class(vm);
 
 #ifdef __AVR__
