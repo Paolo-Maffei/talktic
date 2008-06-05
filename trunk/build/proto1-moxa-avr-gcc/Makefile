@@ -110,9 +110,6 @@ ifdef RADIO
 OBJECTS += radio.o chip_cc2420.o
 endif # RADIO
 
-ifdef ANALOGIO
-OBJECTS += device_ad.o
-endif
 
 
 ### PROTO1 ext libraries
