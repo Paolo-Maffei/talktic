@@ -110,7 +110,7 @@ static void serialInit_global_method(JSVirtualMachine * vm, JSBuiltinInfo * buil
 	_(UBRR,L) = (unsigned char)(baud_reg & 0x00ff);
 	_(UBRR,H) = (unsigned char)(baud_reg >> 8);
 	_(UCSR,A) = 0x00;
-	_(UCSR,B) = 0b10011000; // allow receive interrupt, enable send and receive
+	_(UCSR,B) = 0x98; // allow receive interrupt, enable send and receive
 	_(UCSR,C) = 0x06;
 
 	s_buf_w_index = s_buf_r_index = s_buf_counter = 0;

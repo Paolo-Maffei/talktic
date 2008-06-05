@@ -28,24 +28,24 @@ typedef struct flags_struct {
 } flags_t;
 
 char rs_buff(void) {
-	return (UCSR1A & _BV(RXC1));
+	return (UCSR0A & _BV(RXC0));
 }
 
 void rs_putc(char ch) {
-	while (!(UCSR1A & _BV(UDRE1)));
-	UDR1 = ch;
+	while (!(UCSR0A & _BV(UDRE0)));
+	UDR0 = ch;
 }
 
 char getch(void) {
-	while(!(UCSR1A & _BV(RXC1)));
-	return UDR1;
+	while(!(UCSR0A & _BV(RXC0)));
+	return UDR0;
 }
 
 void getNch(uint8_t count) {
 	uint8_t i;
 	for(i=0;i<count;i++) {
-		while(!(UCSR1A & _BV(RXC1)));
-		UDR1;
+		while(!(UCSR0A & _BV(RXC0)));
+		UDR0;
 	}
 }
 
@@ -68,11 +68,11 @@ void nothing_response(void) {
 #define sbi(addr,bit)			addr|=_BV(bit)
 
 void end() {
-	UBRR1L = 0;
-	UBRR1H = 0;
-	UCSR1A = 0x20;
-	UCSR1B = 0;
-	UCSR1C = 0x06;
+	UBRR0L = 0;
+	UBRR0H = 0;
+	UCSR0A = 0x20;
+	UCSR0B = 0;
+	UCSR0C = 0x06;
 }
 
 void boot()
@@ -85,11 +85,11 @@ void boot()
 	flags_t flags;
 	uint8_t buff[256];
 
-	UBRR1H = BAUD_REG >> 8;
-	UBRR1L = (uint8_t)BAUD_REG;
-	UCSR1A |= _BV(U2X1);
-	UCSR1B |= _BV(TXEN1)|_BV(RXEN1);
-	UCSR1C |= _BV(UCSZ11)|_BV(UCSZ10);
+	UBRR0H = BAUD_REG >> 8;
+	UBRR0L = (uint8_t)BAUD_REG;
+	UCSR0A |= _BV(U2X0);
+	UCSR0B |= _BV(TXEN1)|_BV(RXEN1);
+	UCSR0C |= _BV(UCSZ01)|_BV(UCSZ00);
 
 	ch2 = 0;
 	for (w=0; w<50; ++w) {
