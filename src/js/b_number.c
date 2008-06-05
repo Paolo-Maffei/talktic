@@ -79,7 +79,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
        JSNode * args)
 {
     JSNode *n = instance_context;
-    char buf[32]; // CHANGE buffer size
+    char buf[33]; // CHANGE buffer size
 
     if (method == vm->syms.s_toString) {
         if (n) {
@@ -111,6 +111,7 @@ method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                         bit = i;
                         for (; i >= 0; i--)
                             buf[bit - i] = buf2[i];
+						printf("%d", bit);
                         buf[bit + 1] = '\0';
                     }
                     break;

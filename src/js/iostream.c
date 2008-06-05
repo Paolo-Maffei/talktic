@@ -70,8 +70,9 @@ size_t js_iostream_read(JSIOStream * stream, void *ptr, size_t size)
         /* We have buffered output data. */
         if (js_iostream_flush(stream) == EOF)
             return 0;
-
+#ifdef JS_RUNTIME_DEBUG
         assert(stream->writep == 0);
+#endif
     }
 
     while (size > 0) {
@@ -165,7 +166,9 @@ int js_iostream_flush(JSIOStream * stream)
         return 0;
 
     stream->writep = 0;
+#ifdef JS_RUNTIME_DEBUG
     assert(stream->bufpos == 0);
+#endif
 
     if (stream->data_in_buf > 0) {
         int to_write = stream->data_in_buf;
@@ -188,7 +191,9 @@ int js_iostream_unget(JSIOStream * stream, int byte)
         if (js_iostream_flush(stream) == EOF)
             return EOF;
 
+#ifdef JS_RUNTIME_DEBUG
         assert(stream->writep == 0);
+#endif
     }
 
     if (stream->bufpos > 0) {

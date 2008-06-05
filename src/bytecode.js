@@ -144,3 +144,9 @@ function a() {
 }
 var x = new a();
 x.b();
+/*
+print((1073741823).toString(2));
+print((2147483647).toString(2));
+print((4294967295).toString(2));
+print((-1).toString(2));
+*/

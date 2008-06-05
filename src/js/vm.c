@@ -277,8 +277,10 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 	JSNode *saved_sp;
 	JSErrorHandlerFrame *handler, *saved_handler;
 	int result = 1;
+#ifdef JS_RUNTIME_DEBUG
 	unsigned char *debug_info;
 	unsigned int debug_info_len;
+#endif
 	unsigned int anonymous_function_offset;
 
 	/* We need a toplevel over the whole function. */
@@ -461,6 +463,7 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 			}
 
 		/* Check if we have debugging information. */
+#ifdef JS_RUNTIME_DEBUG
 		debug_info = NULL;
 		debug_info_len = 0;
 		for (sect = 0; sect < bc->num_sects; sect++)
@@ -468,7 +471,7 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 				debug_info = bc->sects[sect].data;
 				debug_info_len = bc->sects[sect].length;
 			}
-
+#endif
 		/* Clear error message and old exec result. */
 #ifdef JS_RUNTIME_WARNING
 		vm->error[0] = '\0';
@@ -481,8 +484,11 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 		result =
 			(*vm->dispatch_execute) (vm, bc, symtab, num_symtab_entries,
 									 consts_offset,
-									 anonymous_function_offset, debug_info,
-									 debug_info_len, NULL, NULL, 0, NULL);
+									 anonymous_function_offset,
+#ifdef JS_RUNTIME_DEBUG
+									 debug_info, debug_info_len,
+#endif
+									 NULL, NULL, 0, NULL);
 	}
 
 	JS_PROFILING_OFF();
@@ -552,7 +558,10 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func, unsigned int 
 
 			/* Call function. */
 			result = (*vm->dispatch_execute) (vm, NULL, NULL, 0, 0, 0,
-											  NULL, 0, NULL, func, argc, argv);
+#ifdef JS_RUNTIME_DEBUG
+											  NULL, 0,
+#endif
+											  NULL, func, argc, argv);
 		} else if (func->type == JS_BUILTIN && func->u.vbuiltin->info->global_method_proc != NULL) {
 			(*func->u.vbuiltin->info->global_method_proc) (vm,
 														   func->u.
@@ -669,7 +678,10 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 					JS_PROFILING_ON();
 					result =
 						(*vm->dispatch_execute) (vm, NULL, NULL, 0, 0, 0,
-												 NULL, 0, object, &method, argc, argv);
+#ifdef JS_RUNTIME_DEBUG
+												 NULL, 0,
+#endif
+												 object, &method, argc, argv);
 				}
 			} else
 				/* Let the built-in Object handle this. */
