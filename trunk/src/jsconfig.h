@@ -177,12 +177,13 @@
 
 /* Define if don't remove runtime warning message formatted in sprintf */
 #if __AVR__ || __ICCAVR__ || __H8300H__
+/* #undef _RUNTIME_DEBUG */
 /* #undef _RUNTIME_WARNING */
 /* #undef JS_DEBUG_MEMORY_LEAKS */
-#define JS_DEBUG_MEMORY_LEAKS 1
 /* #undef _ENABLE_STRING_LOWERUPPER */
 /* #undef _ENABLE_STRING_PACKUNPACK */
 #else
+#define _RUNTIME_DEBUG 1
 #define PROFILING 1
 #define _RUNTIME_WARNING 1
 #define JS_DEBUG_MEMORY_LEAKS 1

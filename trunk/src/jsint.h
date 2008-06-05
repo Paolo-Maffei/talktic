@@ -694,10 +694,14 @@ extern "C" {
 
     struct js_vm_st {
         /* Options for the virtual machine. */
+#ifdef _RUTIME_WARNING
         unsigned int verbose; /* verbosity has different levels. */
+#endif
 
+#ifdef _RUNTIME_DEBUG
         unsigned int stacktrace_on_error:1;
         unsigned int verbose_stacktrace:1;
+#endif
         unsigned int warn_undef:1;
 
         /* Security flags. */
@@ -982,8 +986,10 @@ extern "C" {
                            unsigned char *debug_info,
                            unsigned int debug_info_len,
                            JSNode * object, JSNode * func, unsigned int argc, JSNode * argv);
+#ifdef _RUNTIME_DEBUG
     const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *pc);
     const char *js_vm_switch0_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return);
+#endif
 
 /* #endif */
 /*
@@ -1022,9 +1028,8 @@ extern "C" {
     int js_vm_is_marked_ptr(void *ptr);
 
 /* Function. */
-    static inline JSFunction *js_vm_make_function(JSVirtualMachine * vm, void *implementation) {
-        JSFunction *f = (JSFunction *) js_vm_alloc(vm, sizeof(*f));
-
+    static inline JSFunction *js_vm_make_function(JSVirtualMachine *vm, void *implementation) {
+        JSFunction *f = (JSFunction *) js_vm_alloc(vm, sizeof(JSFunction));
         f->implementation = implementation;
         f->prototype = (JSObject *) NULL;
 

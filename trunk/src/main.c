@@ -58,7 +58,7 @@
 #define JS_BC_EEPROM_READ_INT8(cp, var) \
     (var) = eeprom_read_byte(cp)
 
-JSByteCode *js_bc_read_eeprom(unsigned char *data)
+static JSByteCode *js_bc_read_eeprom(unsigned char *data)
 {
 	JSUInt32 ui = 0;
 	JSUInt8 ub = 0;
@@ -127,10 +127,10 @@ JSByteCode *js_bc_read_eeprom(unsigned char *data)
 static int serial_stdio_putchar(char c, FILE * stream)
 {
 #ifdef _MOXA_SERIAL
-	SERIAL_putchar(0, c);
+	SERIAL_putchar(1, c);
 #else
-	loop_until_bit_is_set(UCSR0A, UDRE);
-	UDR0 = c;
+	loop_until_bit_is_set(UCSR1A, UDRE);
+	UDR1 = c;
 #endif
 	return 0;
 }
@@ -138,10 +138,10 @@ static int serial_stdio_putchar(char c, FILE * stream)
 static int serial_stdio_getchar(FILE * stream)
 {
 #ifdef _MOXA_SERIAL
-	return SERIAL_getchar(0);
+	return SERIAL_getchar(1);
 #else
-	loop_until_bit_is_set(UCSR0A, RXC);
-	return (int) UDR0;
+	loop_until_bit_is_set(UCSR1A, RXC);
+	return (int) UDR1;
 #endif
 }
 
@@ -224,7 +224,7 @@ sendwi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 #endif							/* _MOXA_RADIO */
 #endif							/* __AVR__ */
 
-void add_global_method(JSVirtualMachine * vm)
+static void add_global_method(JSVirtualMachine * vm)
 {
 	int i;
 	JSNode *n;
@@ -328,7 +328,7 @@ static void hello_class_delete_proc(JSBuiltinInfo * builtin_info, void *instance
 	}
 }
 
-void add_hello_class(JSVirtualMachine * vm)
+static void add_hello_class(JSVirtualMachine * vm)
 {
 	HelloCtx *ctx;
 	JSNode *n;
@@ -354,36 +354,38 @@ void add_hello_class(JSVirtualMachine * vm)
 
 /* ---------------------------------------------------------------------------------------------- */
 
-static JSVirtualMachine *s_vm = 0;
+static volatile JSVirtualMachine *s_vm = 0;
 
 #ifdef _MOXA
+/*
 ISR(SIG_INTERRUPT5)
 {
 	if (s_vm) {
-		js_vm_apply(s_vm, "onDigitalIo", NULL, 1, NULL);
+		js_vm_apply(s_vm, "onDigitalIo", NULL, 0, NULL);
 	}
 }
 
 ISR(SIG_INTERRUPT4)
 {
 	if (s_vm) {
-		js_vm_apply(s_vm, "onDigitalIo2", NULL, 1, NULL);
+		js_vm_apply(s_vm, "onDigitalIo2", NULL, 0, NULL);
 	}
 }
+*/
 #endif							/* _MOXA */
 
 #ifdef _MOXA_RADIO
-int receiveVMHandler(JSVirtualMachine * vm, void *data)
+static int receiveVMHandler(JSVirtualMachine * vm, void *data)
 {
 	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *) data;
 	printf("RECEIVE: %d %x %x %d %s %d\r\n", pRRI->seqNumber, pRRI->srcAddr, pRRI->srcPanId,
 		   pRRI->nLength, pRRI->pPayload, pRRI->rssi);
-	js_vm_apply(vm, "onRadio", NULL, 1, NULL);
+	js_vm_apply(vm, "onRadio", NULL, 0, NULL);
 	js_free(data);
 	return 0;
 }
 
-MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
+static MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
 {
 	if (s_vm) {
 		if (!(s_vm->interrupt_table[0].fired)) {
@@ -403,6 +405,15 @@ MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
 /*
  * Entry Point
  */
+#ifdef __AVR__ 
+void extmem_init (void) __attribute__ ((naked)) __attribute__ ((section (".init1")));
+void extmem_init (void) {
+	MCUCR |= (1 << SRE);
+	XMCRA = 0x00;
+	XMCRB |= (1 << XMM0);
+}
+#endif
+
 #ifdef __H8300H__
 //#include <lwip/sys.h>
 //#include <lwip/sockets.h>
@@ -454,11 +465,12 @@ int main()
 #endif							/* __H8300H__ */
 
 #ifdef __AVR__
+/*
 	// enable extrenal ram
 	MCUCR |= (1 << SRE);
 	XMCRA = 0x00;
 	XMCRB |= (1 << XMM0);
-
+*/
 #ifdef _MOXA
 	DDRB |= (1 << 7) | (1 << 4);
 //  PORTB &= ~((1 << 7) | (1 << 4));
@@ -473,13 +485,13 @@ int main()
 #endif							/* _MOXA */
 
 #ifdef _MOXA_SERIAL
-	SERIAL_init(0, 9600);
+	SERIAL_init(1, 9600);
 #else							/* not _MOXA_SERIAL */
-	UBRR0L = 51 & 0xff;			// 9600bps, 8Mhz
-	UBRR0H = 51 >> 8;
-	UCSR0A = 0x00;
-	UCSR0B = 0x18;				// no interrupt, allow to send, recv
-	UCSR0C = 0x06;
+	UBRR1L = 51 & 0xff;			// 9600bps, 8Mhz
+	UBRR1H = 51 >> 8;
+	UCSR1A = 0x00;
+	UCSR1B = 0x18;				// no interrupt, allow to send, recv
+	UCSR1C = 0x06;
 #endif							/* _MOXA_SERIAL */
 
 	// define stdio as serial
@@ -497,7 +509,7 @@ int main()
 #endif							/* not __AVR__ || __ICCAVR__ */
 
 	JSVirtualMachine *vm;
-	vm = js_vm_create(128, 1, 1, s_stdin, s_stdout, s_stderr);
+	vm = js_vm_create(256, 1, 1, s_stdin, s_stdout, s_stderr);
 
 	if (vm != NULL) {
 		s_vm = vm;

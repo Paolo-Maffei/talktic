@@ -106,7 +106,7 @@ void js_alloc_dump_blocks()
 
 	for (b = mem_debug_blocks; b; b = b->next) {
 		if (i < 3) {
-			fprintf(stderr, "%s:%d: %lu\r\n", b->file, b->line, b->size);
+			fprintf(stderr, "%s:%d: %d\r\n", b->file, b->line, b->size);
 			i++;
 		}
 		bytes += b->size;
