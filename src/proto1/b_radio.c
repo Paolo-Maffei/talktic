@@ -35,7 +35,7 @@ static int onRadioReceive_global_vm_interrupt(JSVirtualMachine * vm, void *data)
 	argv[5].type = JS_INTEGER;
 	argv[5].u.vinteger = pRRI->rssi;
 
-	js_vm_apply(vm, "onRedioReceive", NULL, 6, argv);
+	js_vm_apply(vm, "onRadioReceive", NULL, 6, argv);
 	js_free(data);
 
 	return 0;
