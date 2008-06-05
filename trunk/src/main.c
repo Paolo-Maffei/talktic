@@ -208,7 +208,12 @@ sendwi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                      void *instance_context, JSNode * result_return,
                      JSNode * args)
 {
-    RADIO_sendPacket(0xFFFF, "test", 5);    // ブロードキャスト
+	if(args->u.vinteger == 2) {
+		if(args[1].type == JS_INTEGER && args[2].type == JS_STRING) {
+			unsigned short addr = args[1].u.vinteger;
+    		RADIO_sendPacket(addr, args[2].u.vstring->data, args[2].u.vstring->len);
+		}
+	}
     result_return->type = JS_UNDEFINED;
 }
 #endif                          /* _MOXA_RADIO */
@@ -363,14 +368,12 @@ ISR(SIG_INTERRUPT4)
 #ifdef _MOXA_RADIO
 MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
 {
-    /*
-       printf("RECEIVE: %d %x %x %d %s %d\r\n"
-       , pRRI->seqNumber
-       , pRRI->srcAddr, pRRI->srcPanId
-       , pRRI->nLength, pRRI->pPayload
-       , pRRI->rssi
-       );
-     */
+	printf("RECEIVE: %d %x %x %d %s %d\r\n"
+		, pRRI->seqNumber
+		, pRRI->srcAddr, pRRI->srcPanId
+		, pRRI->nLength, pRRI->pPayload
+		, pRRI->rssi
+		);
     if (s_vm) {
         js_vm_apply(s_vm, "onRedio", NULL, 0, NULL);
     }
