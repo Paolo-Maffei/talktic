@@ -6,10 +6,13 @@ CC = avr-gcc
 SIZE = avr-size
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
+AVRDUDE = avrdude
+AVRDUDE_COMPORT = com6
+TEST_COMPORT = com5
 SRC_DIR = ../../src
 
 MOXA = 1
-# MOXA_RADIO = 1
+# MOXA_SERIAL = 1
 MOXA_RADIO = 1
 
 ## Options common to compile, link and assembly rules
@@ -109,7 +112,22 @@ $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
 %.lss: %.elf
 	$(OBJDUMP) -h -S $< > $@
 size: $(PROJECT).elf
-	 $(SIZE) --format=avr --mcu=$(MCU) $<
+	$(SIZE) --format=avr --mcu=$(MCU) $<
+
+## Writing chip
+AVRDUDE_OPTIONS = -p m128 -c stk500v2 -v -P $(AVRDUDE_COMPORT) -V
+write: erase flash eep
+erase:
+	$(AVRDUDE) $(AVRDUDE_OPTIONS) -e
+flash: $(PROJECT).hex
+	$(AVRDUDE) $(AVRDUDE_OPTIONS) -U flash:w:$<:i
+eep: $(PROJECT).eep
+	$(AVRDUDE) $(AVRDUDE_OPTIONS) -U eeprom:w:$<:i
+
+## Testing target
+write_test: erase flash eep test
+test: 
+	cat /dev/$(TEST_COMPORT)
 
 ## Clean target
 .PHONY: clean
