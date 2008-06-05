@@ -1,14 +1,7 @@
 package com.talktic;
 
 import org.mozilla.javascript.*;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Vector;
 
 public class JavaScriptCompiler {
@@ -36,7 +29,7 @@ public class JavaScriptCompiler {
 
 	public void loadScript(File script) throws IOException {
 		try {
-			context.evaluateReader(global, new FileReader(script), script.getPath(), 1, null);
+			context.evaluateReader(global, new InputStreamReader(new FileInputStream(script)), script.getPath(), 1, null);
 		} catch (FileNotFoundException e) {
 			System.err.println(e);
 		}
@@ -72,6 +65,7 @@ public class JavaScriptCompiler {
 		boolean loadSystemLibrary = true;
 		boolean putBytecodeToStdout = false;
 		String asmPath = null, bytecodePath = null, sourcePath = null;
+		String cheaderPath = null;
 		Vector<String> baseLibraryPathList = new Vector<String>();
 
 		for (String arg : args) {
@@ -81,11 +75,13 @@ public class JavaScriptCompiler {
 				asmPath = arg.substring(2);
 			} else if (arg.startsWith("-B")) {
 				bytecodePath = arg.substring(2);
+			} else if (arg.startsWith("-C")) {
+				cheaderPath = arg.substring(2);
 			} else if (arg.equals("-n")) {
 				loadSystemLibrary = false;
 			} else if (arg.equals("-")) {
 				putBytecodeToStdout = true;
-			}else {
+			} else {
 				sourcePath = arg;
 			}
 		}
@@ -106,8 +102,29 @@ public class JavaScriptCompiler {
 				jsc.load(baseLibraryPathList.get(i));
 			}
 			String bc = jsc.compile(sourcePath, asmPath, bytecodePath);
-			if(putBytecodeToStdout && bc != null) {
-				System.out.println(bc);
+			if(bc != null) {
+				if(cheaderPath != null) {
+					File f = new File(cheaderPath);
+					FileWriter w = new FileWriter(f);
+					w.write("unsigned char EEMEM _bytecode[] = {\r\n\t");
+					for(int i=0; i<bc.length(); i++) {
+						String s = "0x" + Integer.toHexString(bc.charAt(i));
+						if(i != bc.length()-1) {
+							s += ",";
+							if( i % 8 == 7) {
+								s += "\r\n\t";
+							}
+						}
+						w.write(s);
+					}
+					w.write("\r\n};\r\n");
+					w.write("unsigned int _bytecode_size = "+bc.length()+";\r\n");
+					w.flush();
+					w.close();
+				}
+				if(putBytecodeToStdout) {
+					System.out.println(bc);
+				}
 			}
 		} catch (Exception e) {
 			System.err.println(e);

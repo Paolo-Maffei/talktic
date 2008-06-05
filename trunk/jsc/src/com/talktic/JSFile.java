@@ -46,7 +46,7 @@ public class JSFile extends ScriptableObject {
 				return false;
 			}
 			is_read = true;
-			FileReader r = new FileReader(file);
+			FileInputStream r = new FileInputStream(file);
 			int b = -1;
 			while((b = r.read()) != -1) {
 				bytes.addElement((char)b);
@@ -62,10 +62,10 @@ public class JSFile extends ScriptableObject {
 
 	public boolean jsFunction_close() throws IOException {
 		if(is_write) {
-			FileWriter w = new FileWriter(file);
+			FileOutputStream w = new FileOutputStream(file);
 			for(int i=0; i<bytes.size(); i++) {
 				char b = bytes.get(i);
-				w.append(b);
+				w.write(b);
 			}
 			w.flush();
 			w.close();
@@ -95,7 +95,7 @@ public class JSFile extends ScriptableObject {
 		}
 		return ret;
 	}
-	
+
 	public void jsFunction_setPosition(int p) throws IOException {
 		pos = p;
 	}
