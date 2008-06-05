@@ -671,8 +671,9 @@ static struct {
 
 void js_builtin_core(JSVirtualMachine * vm)
 {
-    int i;
+    unsigned int i, j;
     JSNode *n;
+    JSBuiltinInfo *info;
 
     /* Properties. */
 
@@ -684,12 +685,11 @@ void js_builtin_core(JSVirtualMachine * vm)
 
     /* Global methods. */
     for (i = 0; global_methods[i].name; i++) {
-        JSBuiltinInfo *info;
-
         info = js_vm_builtin_info_create(vm);
         info->global_method_proc = global_methods[i].method;
 
-        n = &vm->globals[js_vm_intern(vm, global_methods[i].name)];
+        j = js_vm_intern(vm, global_methods[i].name);
+        n = &vm->globals[j];
         js_vm_builtin_create(vm, n, info, NULL);
     }
 }
