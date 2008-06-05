@@ -125,8 +125,8 @@ eep: $(PROJECT).eep
 	$(AVRDUDE) $(AVRDUDE_OPTIONS) -U eeprom:w:$<:i
 
 ## Testing target
-write_test: flash eep test
-test: 
+test: flash eep console
+console: 
 	cat /dev/$(TEST_COMPORT)
 
 ## Clean target
