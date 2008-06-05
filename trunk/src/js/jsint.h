@@ -39,7 +39,9 @@
 
 /* ---------------------------------------------------------------------------------------------- */
 #include <stdio.h>
+#ifdef JS_RUNTIME_DEBUG
 #include <assert.h>
+#endif
 #include <setjmp.h>
 #include <math.h>
 //#include <time.h>
@@ -605,8 +607,6 @@ extern "C" {
 /* ---------------------------------------------------------------------------------------------- */
 /* Heap memory block. */
 
-#define JS_MEM_DEBUG 0
-
     /* All allocated blocks have this header. */
     struct js_heap_memory_block_st {
 #if JS_MEM_DEBUG
@@ -652,8 +652,9 @@ extern "C" {
                                 unsigned int num_symtab_entries,
                                 unsigned int consts_offset,
                                 unsigned int anonymous_function_offset,
-                                unsigned char *debug_info,
-                                unsigned int debug_info_len,
+#ifdef JS_RUNTIME_DEBUG
+                                unsigned char *debug_info, unsigned int debug_info_len,
+
                                 JSNode * object, JSNode * func, unsigned int argc, JSNode * argv);
 
     typedef const char *(*JSVMFuncName) (struct js_vm_st * vm, void *pc);
@@ -918,13 +919,13 @@ extern "C" {
      */
     int js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
                           const char *method_name, unsigned int argc, JSNode * argv);
-
+#ifdef JS_RUNTIME_DEBUG
     /* Map program counter to the source file line. */
     const char *js_vm_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return);
 
     /* Fetch the function name from the program counter value. */
     const char *js_vm_func_name(JSVirtualMachine * vm, void *pc);
-
+#endif
     /* Intern symbol <name, len> to virtual machine and return its JSSymbol id. */
     JSSymbol js_vm_intern_with_len(JSVirtualMachine * vm, const char *name, unsigned int len);
 
@@ -999,8 +1000,9 @@ extern "C" {
                            unsigned int num_symtab_entries,
                            unsigned int consts_offset,
                            unsigned int anonymous_function_offset,
-                           unsigned char *debug_info,
-                           unsigned int debug_info_len,
+#ifdef JS_RUNTIME_DEBUG
+                           unsigned char *debug_info, unsigned int debug_info_len,
+#endif
                            JSNode * object, JSNode * func, unsigned int argc, JSNode * argv);
 #ifdef JS_RUNTIME_DEBUG
     const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *pc);

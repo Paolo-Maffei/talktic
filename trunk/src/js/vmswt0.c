@@ -67,7 +67,9 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 				   unsigned int num_symtab_entries,
 				   unsigned int consts_offset,
 				   unsigned int anonymous_function_offset,
+#ifdef JS_RUNTIME_DEBUG
 				   unsigned char *debug_info, unsigned int debug_info_len,
+#endif
 				   JSNode * object, JSNode * func, unsigned int argc, JSNode * argv)
 {
 	int i;
@@ -86,7 +88,9 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 		for (i = 0; i < bc->num_sects; i++)
 			if (bc->sects[i].type == JS_BCST_CODE)
 				code = bc->sects[i].data;
+#ifdef JS_RUNTIME_DEBUG
 		assert(code != NULL);
+#endif
 
 		/* Enter all functions to the known functions of the VM. */
 		for (i = 0; i < num_symtab_entries; i++) {
@@ -218,7 +222,6 @@ const char *js_vm_switch0_debug_position(JSVirtualMachine * vm, unsigned int *li
 	/* XXX */
 	return NULL;
 }
-
 #endif
 
 /*
@@ -330,7 +333,6 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 
 	/* Ok, now we are ready to run. */
 	while (1) {
-//		printf("pc=%d op=%d sp=%d fp=%d\r\n", pc, *pc, sp, fp);
 		switch (*pc++) {
 			/* include eswt0.h */
 #include "eswt0.h"

@@ -29,7 +29,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef JS_RUNTIME_DEBUG
 #include <assert.h>
+#endif
 #include <string.h>
 
 #include "mrgsort.h"
@@ -105,7 +107,9 @@ mergesort_r(void *base, unsigned int number_of_elements,
 
     /* Allocate tmp buffer. */
     tmp = malloc(number_of_elements * size);
+#ifdef JS_RUNTIME_DEBUG
     assert(tmp != NULL);
+#endif
 
     do_mergesort(base, size, tmp, 0, number_of_elements - 1,
                  comparison_func, comparison_func_context);

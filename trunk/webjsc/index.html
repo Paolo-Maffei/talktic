@@ -180,6 +180,11 @@ function make() {
 function send(host, param) {
 	$('send_iframe').src = 'http://'+host+'/'+param;
 }
+
+/* compatibility to njs */
+function print() {
+	console.log.apply(this, arguments);
+}
 //]]>
 </script>
 
@@ -274,6 +279,7 @@ small {
 <div>
 <input type="button" onclick="make();" value="make" />
 <input type="button" onclick="Element.toggle($('out'))" value="Toggle Output" />
+<input type="button" onclick="eval($('source').value);" value="eval here!" />
 </div>
 <div>
 script:<textarea id="source" onkeydown="return catchTab(this,event)">
