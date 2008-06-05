@@ -1759,6 +1759,7 @@ case 68:
     JSErrorHandlerFrame *f = vm->error_handler;
 
     if (f->sp == NULL) {
+#ifdef _RUNTIME_WARNING  
         JSNode cvt;
         int len;
 
@@ -1774,6 +1775,7 @@ case 68:
 
         memcpy(vm->error, cvt.u.vstring->data, len);
         vm->error[len] = '\0';
+#endif
     } else
         JS_COPY(&f->thrown, JS_SP1);
 

@@ -684,6 +684,14 @@ extern "C" {
     };
     typedef struct js_error_handler_frame_st JSErrorHandlerFrame;
 
+    struct js_vm_interrupt_st {
+      unsigned char enable;
+      unsigned char fired;
+      void* data;
+      int (*handler) (void* data);
+    };
+    typedef struct js_vm_interrupt_st JSVMInterrupt;
+
     struct js_vm_st {
         /* Options for the virtual machine. */
         unsigned int verbose; /* verbosity has different levels. */
@@ -762,7 +770,9 @@ extern "C" {
         JSErrorHandlerFrame *error_handler;
 
         /* Buffer for the error message.  Sorry, we don't support long errors ;-) */
+#ifdef _RUNTIME_WARNING
         char error[256];
+#endif
 
         /*
          * The result from the latest evaluation.  This is set when the
@@ -785,18 +795,20 @@ extern "C" {
         unsigned int prof_count[256];
         unsigned char prof_op;
 #endif /* PROFILING */
+        unsigned char enable_interrupt;
+        JSVMInterrupt interrupt_table[8];
     };
 
     typedef struct js_vm_st JSVirtualMachine;
-
 
 /* ---------------------------------------------------------------------------------------------- */
 /*
  * Global variables.
  */
-
+#ifdef _ENABLE_STRING_LOWERUPPER
     extern unsigned char js_latin1_tolower[256];
     extern unsigned char js_latin1_toupper[256];
+#endif
 
 /* ---------------------------------------------------------------------------------------------- */
 /*

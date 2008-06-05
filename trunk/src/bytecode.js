@@ -38,14 +38,21 @@ for(var i=0; i<1000; i++) {
 */
 var h = 0;
 
+function wait(t) {
+  for(var i=0; i<t; i++) {
+  }
+}
+
 while(true) {
 	debug(".");
+  sendRadio(0xFFFF, "hogehoge?");
+  led(1, true);
+  wait(50);
+  led(1, false);
+  wait(50);
 }
-// interrupt?
-function test() {
-	var x = new Hello("interrupt!!\r\n");
-	x.show();
-	h++;
+
+function onRadio() {
 	debug(h);
-	led();
+  h++;
 }
