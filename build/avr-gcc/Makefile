@@ -16,6 +16,10 @@ CFLAGS = $(COMMON)
 CFLAGS += -Wall -Os -fsigned-char  -gstabs
 CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d 
 
+# CFLAGS += -D_MOXA
+# CFLAGS += -D_MOXA_SERIAL
+# CFLAGS += -D_MOXA_RADIO
+
 ## Assembly specific flags
 ASMFLAGS = $(COMMON)
 ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf2
@@ -24,6 +28,7 @@ ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf2
 LDFLAGS = $(COMMON)
 LDFLAGS += -Wl,--defsym=__heap_start=0x801100,--defsym=__heap_end=0x8090FF
 LDFLAGS += -Wl,-Map=$(PROJECT).map
+#LDFLAGS += -Wl,--section-start=.bootloader=0x1F800 
 
 ## Intel Hex file production flags
 HEX_FLASH_FLAGS = -R .eeprom
@@ -43,7 +48,10 @@ MAIN_OBJECTS = 	\
 	main.o 		\
 	$(NULL)
 # MAIN_OBJECTS += js_class.o 
-# MAIN_OBJECTS += serial.o iostream_serial.o
+# MAIN_OBJECTS += iostream_serial.o
+# MAIN_OBJECTS += serial.o
+# MAIN_OBJECTS += radio.o chip_cc2420.o
+# MAIN_OBJECTS += bootloader.o
 JS_OBJCETS =	\
 	alloc.o		\
 	heap.o		\
@@ -62,7 +70,7 @@ JS_OBJCETS =	\
 	bc.o		\
 	iostream.o	\
 	$(NULL)
-OBJECTS = $(MAIN_OBJECTS) $(JS_OBJCETS)
+OBJECTS = $(MAIN_OBJECTS) $(JS_OBJCETS) $(BOOTLOADER_OBJECTS)
 
 ## Objects explicitly added by the user
 LINKONLYOBJECTS = 
@@ -71,6 +79,8 @@ LINKONLYOBJECTS =
 all: $(TARGET) size
 
 ## Compile
+chip_cc2420.o: $(SRC_DIR)/chip_cc2420.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -O0 -c $<
 %.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h $(SRC_DIR)/bytecode.h
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
 %.o: $(SRC_DIR)/%.c $(SRC_DIR)/%.h
