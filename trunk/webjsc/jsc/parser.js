@@ -920,7 +920,7 @@ function JSC$parser_parse_assignment_expr(stream)
 		return false;
 
 	if (JSC$parser_expr_is_left_hand_side(expr)) {
-		token = JSC$parser_peek_token(strem);
+		token = JSC$parser_peek_token(stream);
 		if (token == '='.charCodeAt(0) || token == JSC$tMULA
 			|| token == JSC$tDIVA || token == JSC$tMODA
 			|| token == JSC$tADDA || token == JSC$tSUBA
