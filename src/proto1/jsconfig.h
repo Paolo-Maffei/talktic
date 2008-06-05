@@ -43,3 +43,6 @@
 
 /* vm.c */
 #define GC_TRIGGER 1024L
+
+/* iostream.c */
+#define DEFAULT_BUFFER_SIZE 64

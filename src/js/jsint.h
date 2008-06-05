@@ -30,10 +30,6 @@
 #ifndef JSINT_H
 #define JSINT_H
 
-/* dummy */
-#ifdef __ICCAVR__
-#define FILE int
-#endif
 
 
 /* ---------------------------------------------------------------------------------------------- */

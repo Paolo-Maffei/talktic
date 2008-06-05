@@ -29,12 +29,13 @@ int main()
 
 #ifdef _PROTO1
 	init_stdio();
-	s_stdin = s_stdout = s_stderr = NULL;
-#else
+#endif
+//	s_stdin = s_stdout = s_stderr = NULL;
+//#else
 	s_stdin = js_iostream_file(stdin, 1, 0, 0);
 	s_stdout = js_iostream_file(stdout, 0, 1, 0);
 	s_stderr = js_iostream_file(stderr, 0, 1, 0);
-#endif
+//#endif
 
 	JSVirtualMachine *vm;
 	vm = js_vm_create(256, 1, 1, s_stdin, s_stdout, s_stderr);
