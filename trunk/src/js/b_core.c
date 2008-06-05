@@ -581,34 +581,31 @@ print_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                     void *instance_context, JSNode * result_return,
                     JSNode * args)
 {
+	JSNode result;
     int i;
 
-    /* The result is undefined.  */
-    result_return->type = JS_UNDEFINED;
-
     for (i = 1; i <= args->u.vinteger; i++) {
-        JSNode result;
-
         js_vm_to_string(vm, &args[i], &result);
 #ifdef JS_IOSTREAM
         js_iostream_write(vm->s_stdout, result.u.vstring->data, result.u.vstring->len);
 #else
         fwrite(result.u.vstring->data, result.u.vstring->len, 1, stdout);
 #endif
-
-        if (i + 1 <= args->u.vinteger)
+        if (i + 1 <= args->u.vinteger) {
 #ifdef JS_IOSTREAM
             js_iostream_write(vm->s_stdout, " ", 1);
 #else
 			fwrite(" ", 1, 1, stdout);
 #endif
+		}
     }
-
 #ifdef JS_IOSTREAM
     js_iostream_write(vm->s_stdout, JS_HOST_LINE_BREAK, JS_HOST_LINE_BREAK_LEN);
 #else
     fwrite(JS_HOST_LINE_BREAK, JS_HOST_LINE_BREAK_LEN, 1, stdout);
 #endif
+    /* The result is undefined.  */
+    result_return->type = JS_UNDEFINED;
 }
 
 

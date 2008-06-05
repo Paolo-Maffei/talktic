@@ -4,9 +4,6 @@
 /* Do we want to profile byte-code operands. */
 /* #undef JS_PROFILING */
 
-/* Do we want the byte-code operand hooks. */
-/* #undef BC_OPERAND_HOOKS */
-
 /*
  * Unconditionall disable the jumps byte-code instruction dispatch
  * method.
@@ -37,6 +34,8 @@
 /* Define if don't remove runtime warning message formatted in sprintf */
 #define JS_IOSTREAM 1
 #define JS_RUNTIME_DEBUG 1
+#define JS_EVENT_HOOK 1
+#define JS_HEAP_DEBUG 1
 #define JS_PROFILING 1
 #define JS_RUNTIME_WARNING 1
 #define JS_DEBUG_MEMORY_LEAKS 1

@@ -35,8 +35,8 @@
         vm->pc = pc; \
     } while (0)
 
+#ifdef JS_EVENT_HOOK
 #ifdef JS_RUNTIME_WARNING
-
 #define JS_CALL_HOOK(event) \
     do { \
         int hook_result; \
@@ -49,18 +49,7 @@
                 /* NOTREACHED */ \
             } \
     } while (0)
-
-#define JS_VM_ALLOCATE_FD(vm, where) \
-    do { \
-        if ((vm)->fd_count == 0) { \
-            sprintf ((vm)->error, "%s: no more file descriptors allowed", (where)); \
-            js_vm_error (vm); \
-        } \
-        (vm)->fd_count--; \
-    } while (0)
-
 #else /* not JS_RUNTIME_WARNING */
-
 #define JS_CALL_HOOK(event) \
     do { \
         int hook_result; \
@@ -72,7 +61,21 @@
                 /* NOTREACHED */ \
             } \
     } while (0)
+#endif /* not JS_RUNTIME_WARNING */
+#else
+#define JS_CALL_HOOK(a)
+#endif
 
+#ifdef JS_RUNTIME_WARNING
+#define JS_VM_ALLOCATE_FD(vm, where) \
+    do { \
+        if ((vm)->fd_count == 0) { \
+            sprintf ((vm)->error, "%s: no more file descriptors allowed", (where)); \
+            js_vm_error (vm); \
+        } \
+        (vm)->fd_count--; \
+    } while (0)
+#else /* not JS_RUNTIME_WARNING */
 #define JS_VM_ALLOCATE_FD(vm, where) \
     do { \
         if ((vm)->fd_count == 0) { \
@@ -80,7 +83,6 @@
         } \
         (vm)->fd_count--; \
     } while (0)
-
 #endif /* not JS_RUNTIME_WARNING */
 
 #define JS_VM_FREE_FD(vm) \
