@@ -687,8 +687,8 @@ extern "C" {
     struct js_vm_interrupt_st {
       unsigned char enable;
       unsigned char fired;
-      void* data;
-      int (*handler) (void* data);
+      void *data;
+      int (*handler) (struct js_vm_st *vm, void *data);
     };
     typedef struct js_vm_interrupt_st JSVMInterrupt;
 

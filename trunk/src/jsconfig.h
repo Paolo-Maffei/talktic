@@ -179,6 +179,7 @@
 #if __AVR__ || __ICCAVR__ || __H8300H__
 /* #undef _RUNTIME_WARNING */
 /* #undef JS_DEBUG_MEMORY_LEAKS */
+#define JS_DEBUG_MEMORY_LEAKS 1
 /* #undef _ENABLE_STRING_LOWERUPPER */
 /* #undef _ENABLE_STRING_PACKUNPACK */
 #else
