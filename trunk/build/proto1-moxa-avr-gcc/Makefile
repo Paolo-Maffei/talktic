@@ -21,9 +21,8 @@ TEST_COMPORT = com5
 SRC_DIR = ../../src
 
 ## Build options
-MOXA = 1
 # MOXA_SERIAL = 1
-MOXA_RADIO = 1
+RADIO = 1
 
 
 
@@ -38,7 +37,7 @@ CFLAGS = $(COMMON)
 #CFLAGS += -fsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CFLAGS += -gdwarf-2
 CFLAGS += -Wall -Os -mcall-prologues
-CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d 
+CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d
 
 ## Assembly specific flags
 ASMFLAGS = $(COMMON)
@@ -53,7 +52,6 @@ LDFLAGS += -Wl,-Map=$(PROJECT).map
 # |0x1000        0x10FF|0x1100             0x90FF|
 # |data,bss--> <--stack|heap                     |
 LDFLAGS += -Wl,--defsym=__heap_start=0x801100,--defsym=__heap_end=0x8090FF
-
 # |internal SRAM       |extrenal SRAM(32K)       |
 # |0x1000        0x10FF|0x1100             0x90FF|
 # |            <--stack|data,bss,heap            |
@@ -114,17 +112,15 @@ OBJECTS +=		\
 
 
 
-ifdef MOXA
 ### MOXA libraries
 
 ## C macro flags
-CFLAGS += -D_MOXA
 ifdef MOXA_SERIAL
-CFLAGS += -D_MOXA_SERIAL
+CFLAGS += -D_PROTO1_MOXA_SERIAL
 endif # MOXA_SERIAL
-ifdef MOXA_RADIO
-CFLAGS += -D_MOXA_RADIO
-endif # MOXA_RADIO
+ifdef RADIO
+CFLAGS += -D_PROTO1_RADIO
+endif # RADIO
 
 ## Includes
 INCLUDES += -I$(SRC_DIR)/moxa
@@ -135,9 +131,9 @@ OBJECTS += 		\
 ifdef MOXA_SERIAL
 OBJECTS += serial.o
 endif # MOXA_SERIAL
-ifdef MOXA_RADIO
+ifdef RADIO
 OBJECTS += radio.o chip_cc2420.o
-endif # MOXA_RADIO
+endif # RADIO
 
 ## Compile
 %.o: $(SRC_DIR)/moxa/%.c
@@ -152,16 +148,16 @@ INCLUDES += -I$(SRC_DIR)/proto1
 
 ## Objects
 OBJECTS +=		\
-	b_radio.o	\
 	init1.o		\
 	stdio.o		\
 	$(NULL)
+ifdef RADIO
+OBJECTS += b_radio.o
+endif
 
 ## Compile
 %.o: $(SRC_DIR)/proto1/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
-
-endif # MOXA
 
 
 
