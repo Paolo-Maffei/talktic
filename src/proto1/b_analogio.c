@@ -3,7 +3,6 @@
 #include "device_ad.h"
 #include <avr/io.h>
 
-#define F_CPU MOXA_MCU_CLOCK
 #define delay_us _delay_us
 #define delay_ms _delay_ms
 

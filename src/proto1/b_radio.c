@@ -6,10 +6,13 @@ extern JSVirtualMachine *s_vm;
 static void radioSend_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 					 void *instance_context, JSNode * result_return, JSNode * args)
 {
+	JSNode n;
+
 	if (args->u.vinteger == 2) {
-		if (args[1].type == JS_INTEGER && args[2].type == JS_STRING) {
+		if (args[1].type == JS_INTEGER) {
 			unsigned short addr = args[1].u.vinteger;
-			RADIO_sendPacket(addr, args[2].u.vstring->data, args[2].u.vstring->len);
+			js_vm_to_string(vm, &args[2], &n);
+			RADIO_sendPacket(addr, n.u.vstring->data, n.u.vstring->len);
 		}
 	}
 	result_return->type = JS_UNDEFINED;

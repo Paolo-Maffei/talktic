@@ -64,14 +64,14 @@
   else以下の値はプロジェクト設定で各ボードに設定すべきクロックをメモする程度の
   意味で記述してあります。新しくボードを開発したときは動作クロックを追加してください。
 */
-#else
-#if (MOXA_BOARD_TYPE == MOXA_BOARD_PROTO_1)
+#elif defined F_CPU
+#define MOXA_MCU_CLOCK  F_CPU
+#elif (MOXA_BOARD_TYPE == MOXA_BOARD_PROTO_1)
 #define MOXA_MCU_CLOCK  8000000                 //!< PROTO1 Board MCU Clock (Hz)
 #elif (MOXA_BOARD_TYPE == MOXA_BOARD_STK300)
 #define MOXA_MCU_CLOCK  4000000                 //!< STK300 Board MCU Clock (Hz)
 #elif (MOXA_BOARD_TYPE == MOXA_BOARD_CC2420DBK)
 #define MOXA_MCU_CLOCK  8000000                 //!< CC2420DBK Board MCU Clock (Hz)
-#endif
 #endif // _MCU_CLOCK_FREQUENCY_
 
 #if defined _CHIP_ATMEGA128_ | defined _CHIP_ATMEGA128L_
