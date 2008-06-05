@@ -1,0 +1,9 @@
+#!/usr/bin/ruby
+
+require 'webrick'
+
+server = WEBrick::HTTPServer.new({:DocumentRoot => File.dirname(__FILE__), :Port => 3000})
+trap("INT") do
+  server.shutdown
+end
+server.start

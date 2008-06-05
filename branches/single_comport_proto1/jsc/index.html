@@ -1,0 +1,217 @@
+<html>
+<head>
+
+<script type="text/javascript">
+//<![CDATA[
+function File(name) {
+	this.name = name;
+	this.opentype = 'rw';
+	this.position = 0;
+	this.binary = "";
+	this.text = "";
+}
+File.prototype.open = function(a) {
+	if(a) {
+		this.opentype = a;
+	}
+	if($(this.name).tagName == 'TEXTAREA') {
+		this.text = $(this.name).value;
+	} else {
+		this.text = $(this.name).innerHTML;
+	}
+	this.position = 0;
+	this.binary = "";
+	return true;
+}
+File.prototype.close = function() {
+	if(this.opentype.indexOf('w') != -1) {
+		var e;
+		if(e = $(this.name + "_bin")) {
+			var bin = "data:application/octet-stream;base64," + base64encode(this.binary);
+			e.innerHTML = "<a href='"+bin+"'>"+this.name+".bin</a>";
+		}
+		if(e = $(this.name + "_hex")) {
+			var hex = this.binary.intelHex();
+			//e.innerHTML = hex;
+			var bin = "data:application/octet-stream;base64," + base64encode(hex);
+			e.innerHTML = "<a href='"+bin+"'>"+this.name+".hex</a>";
+		}
+		if(e = $(this.name + "_raw")) {
+			e.innerHTML = base64encode(this.binary);
+		}
+	}
+	return true;
+}
+File.prototype.readByte = function() {
+	if(this.position >= this.text.length) {
+		return -1;
+	}
+	return this.text.charCodeAt(this.position++);
+}
+File.prototype.readln = function() {
+	var ret = "";
+	for(;this.position<this.text.length;this.position++) {
+		var ch = this.text.charAt(this.position);
+		ret += ch;
+		if(ch == '\r' || ch == '\n') {
+			if(ch == '\r' && this.text.charAt(this.position+1) == '\n') {
+				this.position++;
+			}
+			break;
+		}
+	}
+	return ret;
+}
+File.prototype.setPosition = function(p) {
+	this.position = p;
+}
+File.prototype.ungetByte = function(b) {
+	this.position --;
+}
+File.prototype.write = function(a) {
+	if(this.opentype.indexOf('w') != -1) {
+		this.binary += a;
+		$(this.name).innerHTML += a;
+		var r = "";
+		for(var i=0; i<a.length; i++) {
+			r += (a.charCodeAt(i).toString(16)) + " ";
+			if(i % 16 == 15) {
+				r += "<br />";
+			}
+		}
+		$(this.name).innerHTML += "<small>" + r + "</small>\n";
+	}
+}
+File.prototype.writeln = function(a) {
+	this.write(a + "\n");
+}
+//]]>
+</script>
+
+<script type="text/javascript" src="lib/jsc/debug.js"></script>
+<script type="text/javascript" src="lib/jsc/asm.js"></script>
+<script type="text/javascript" src="lib/jsc/defs.js"></script>
+<script type="text/javascript" src="lib/jsc/entry.js"></script>
+<script type="text/javascript" src="lib/jsc/gram.js"></script>
+<script type="text/javascript" src="lib/jsc/lexer.js"></script>
+<script type="text/javascript" src="lib/jsc/namespace.js"></script>
+<script type="text/javascript" src="lib/jsc/parser.js"></script>
+<script type="text/javascript" src="lib/jsc/streams.js"></script>
+
+<script type="text/javascript" src="lib/support/base64.js"></script>
+<script type="text/javascript" src="lib/support/binary-parser.js"></script>
+<script type="text/javascript" src="lib/support/support.js"></script>
+
+<script type="text/javascript" src="lib/web/prototype.js"></script>
+<script type="text/javascript" src="lib/web/catchtab.js"></script>
+
+<script type="text/javascript">
+//<![CDATA[
+var error = function(a) {
+	$('message').innerHTML += "<span class='error'>error: " + a + "</span><br />";
+	exit(); // trap
+	throw(a);
+}
+var warning = function(a) {
+	$('message').innerHTML += "warning: " + a + "<br />";
+}
+var message = function(a) {
+	$('message').innerHTML += "message: " + a + "<br />";
+}
+function make() {
+	$('asm').innerHTML = "";
+	$('bc').innerHTML = "";
+	$('message').innerHTML = "";
+	var flag = JSC$FLAG_VERBOSE | JSC$FLAG_OPTIMIZE_MASK;
+	JSC$compile_file('source', flag, 'asm', 'bc');
+}
+function send(host, param) {
+	$('send_iframe').src = 'http://'+host+'/'+param;
+}
+function print() {
+	var line = "print:";
+	for(var i=0; i<arguments.length; i++) {
+		line += " " + arguments[i];
+	}
+	line += "<br />";
+	$('message').innerHTML += line;
+}
+//]]>
+</script>
+
+<style>
+body {
+	font-size: 12px;
+	font-family: "Courier New";
+}
+textarea {
+	width: 100%;
+	height: 300px;
+	border: 1px solid #ddd;
+	font-family: "Courier New";
+}
+pre {
+	background: #eee;
+	width: 100%;
+	border: 1px solid #ddd;
+	font-family: "Courier New";
+	white-space: -moz-pre-wrap;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+small {
+	color: #999;
+}
+.error {
+	color: #f30;
+}
+</style>
+</head>
+<body>
+<h1>Talktic Scripting</h1>
+<div>
+<input type="button" onclick="make();" value="make" />
+<input type="button" onclick="Element.toggle($('out'))" value="Toggle Output" />
+<input type="button" onclick="message(eval($('source').value));" value="eval here!" />
+</div>
+<div>
+script:<textarea id="source" onkeydown="return catchTab(this,event)">
+while(true) {
+}
+
+function blink() {
+	led(true);
+	for(var i=0; i<200; i++) {
+	}
+	led(false);
+}
+
+function onDigitalIo() {
+	blink();
+}
+</textarea>
+</div>
+<div>
+<pre id="bc_raw"></pre>
+<input type="text" id="ipaddr" value="192.168.1.16" />
+<input type="button" onclick="send($('ipaddr').value, $('bc_raw').innerHTML);" value="send" />
+<iframe style="display: none;" id="send_iframe"></iframe>
+</div>
+
+<div>
+<span id="asm_bin"></span>
+<span id="bc_hex"></span>
+<span id="bc_bin"></span>
+</div>
+
+<div>
+<pre id="message"></pre>
+</div>
+
+<div id="out" style="display: none;">
+asm:<pre id="asm"></pre>
+bc:<pre id="bc"></pre>
+</div>
+
+</body>
+</html>
