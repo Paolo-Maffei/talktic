@@ -49,6 +49,7 @@ LIBS = -lc
 OBJECTS = 		\
 	main.o 		\
 	bytecode.o	\
+	b_hello.o	\
 	$(NULL)
 
 ## Objects explicitly added by the user
