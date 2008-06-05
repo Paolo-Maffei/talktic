@@ -49,7 +49,6 @@ function JSC$StreamFile(name)
 function JSC$StreamFile_open()
 {
 	if (!this.stream.open("r")) {
-		this.error = System.strerror(System.errno);
 		return false;
 	}
 

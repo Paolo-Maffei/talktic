@@ -89,18 +89,18 @@ File.byteToString = function(b) {
 	return String.fromCharCode(b);
 }
 var error = function(a) {
-	System.stderr.write(a);
+	console.error(a);
 	exit(); // report error to browser. exit() is not defined in browser js, this code raise an error.
 }
-var System = {
-	stderr: new File('stderr'),
-	stdout: new File('stdout')
-};
+var warning = function(a) {
+	console.error("warning: "+a);
+}
+var message = function(a) {
+	console.info(a);
+}
 function make() {
 	$('asm').innerHTML = "";
 	$('bc').innerHTML = "";
-	$('stdout').innerHTML = "";
-	$('stderr').innerHTML = "";
 	var flag = JSC$FLAG_VERBOSE;// | JSC$FLAG_GENERATE_DEBUG_INFO;
 	JSC$compile_file('source', flag, 'asm', 'bc');
 }
@@ -188,8 +188,6 @@ function onDigitalIo() {
 <div id="out" style="display: none;">
 asm:<span id="asm_bin"></span><pre id="asm"></pre>
 bc:<span id="bc_bin"></span><pre id="bc"></pre>
-stdout:<pre id="stdout"></pre>
-stderr:<pre id="stderr"></pre>
 </div>
 </body>
 </html>

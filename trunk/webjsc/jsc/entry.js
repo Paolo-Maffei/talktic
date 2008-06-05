@@ -130,8 +130,7 @@ function JSC$compile_stream(stream, flags, asm_file, bc_file)
 					JSC$asm_print(src_stream, asm_stream);
 					asm_stream.close();
 				} else
-					JSC$message("jsc: couldn't create asm output file \""
-								+ asm_file + "\": " + System.strerror(System.errno));
+					JSC$message("jsc: couldn't create asm output file \"" + asm_file + "\"");
 			}
 
 			JSC$asm_finalize();
@@ -154,14 +153,12 @@ function JSC$compile_stream(stream, flags, asm_file, bc_file)
 							if (!File.chmod(bc_file, st[2] | 0111))
 								JSC$message("jsc: couldn't add execute "
 											+ "permissions to bc file \""
-											+ bc_file + "\": " + System.strerror(System.errno));
+											+ bc_file + "\"");
 						} else
-							JSC$message("jsc: couldn't stat bc file \"" + bc_file
-										+ "\": " + System.strerror(System.errno));
+							JSC$message("jsc: couldn't stat bc file \"" + bc_file + "\"");
 					}
 				} else
-					JSC$message("jsc: couldn't create bc file \"" + bc_file
-								+ "\": " + System.strerror(System.errno));
+					JSC$message("jsc: couldn't create bc file \"" + bc_file + "\"");
 			}
 		}
 		finally {
