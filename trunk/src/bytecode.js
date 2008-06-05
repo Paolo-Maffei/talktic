@@ -5,13 +5,13 @@ function put() {
 
 // class definition
 function PrintString(val) {
-  this.val = val;
-  this.put = put;
+	this.val = val;
+	this.put = put;
 }
 
 // extend PrintString
 function PrintHoge() {
-  this.val = "hoge";
+	this.val = "hoge";
 }
 PrintHoge.prototype = new PrintString;
 
@@ -28,9 +28,16 @@ for(var i=0; i<arr.length; i++) {
 var f = 3.1415
 debug(f);
 debug(f*10);
+var h = "global";
 
-for(var i=0; i<100; i++) {
-var x = new Hello("Hello World!");
-debug(x.msg);
-x.show();
+for(var i=0; i<1000; i++) {
+	var x = new Hello("Hello World!\r\n");
+	x.show();
+}
+
+// interrupt?
+function test() {
+	var x = new Hello("interrupt!!\r\n");
+	x.show();
+	debug(h);
 }

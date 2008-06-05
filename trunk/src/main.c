@@ -7,6 +7,9 @@
 #include <avr/interrupt.h>
 //#include "serial.h"
 
+#define F_CPU 8000000
+#include "delay.h"
+
 #else							/* __AVR__ */
 
 #define EEMEM
@@ -266,6 +269,19 @@ static FILE serial_stdio = FDEV_SETUP_STREAM(serial_stdio_putchar, serial_stdio_
 
 
 /* ---------------------------------------------------------------------------------------------- */
+
+static JSVirtualMachine *s_vm = 0;
+
+#ifdef __AVR__
+ISR(SIG_INTERRUPT5)
+{
+	if(s_vm) {
+		js_vm_apply(s_vm, "test", NULL, 0, NULL);
+	}
+}
+#endif
+
+/* ---------------------------------------------------------------------------------------------- */
 /*
  * Entry Point
  */
@@ -335,6 +351,10 @@ int main()
 	UCSR0B = 0x18;				// äÑÇËçûÇ›Ç»ÇµëóéÛêMãñâ¬
 	UCSR0C = 0x06;
 
+	// enable interrupt 5 on up edge
+	EICRB |= (1 << 2) | (1 << 3);
+	EIMSK |= (1 << 5);
+
 	stdin = &serial_stdio;
 	stderr = stdout = &serial_stdio;
 #endif
@@ -352,7 +372,7 @@ int main()
 	JSVirtualMachine *vm;
 	vm = js_vm_create(128, JS_VM_DISPATCH_SWITCH_BASIC, 1, 1, s_stdin, s_stdout, s_stderr);
 	if (vm != NULL) {
-		int result;
+		s_vm = vm;
 		JSByteCode *bc;
 
 #ifdef __AVR__
@@ -364,9 +384,13 @@ int main()
 //      add_global_method(vm);
 		add_hello_class(vm);
 
-		result = js_vm_execute(vm, bc);
+#ifdef __AVR__
+		sei();
+#endif
+		js_vm_execute(vm, bc);
 
 		js_bc_free(bc);
+		s_vm = 0;
 		js_vm_destroy(vm);
 
 #if JS_DEBUG_MEMORY_LEAKS
