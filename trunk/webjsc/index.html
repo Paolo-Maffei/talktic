@@ -2,6 +2,35 @@
 <head>
 <script type="text/javascript">
 //<![CDATA[
+Number.prototype.zsHex = function(len) {
+	if(len == undefined) {
+		len = 0;
+	}
+	var h = this.toString(16).toUpperCase();
+	var zs = '';
+	for(var i=0; i<len - h.length; i++) {
+		zs += '0'
+	}
+	return zs + h;
+}
+String.prototype.intelHex = function() {
+	var h = "";
+	for(var i=0; i<this.length; i+= 16) {
+		var s = 0;
+		var l = Math.min(this.length - i, 16);
+		h += ':' + l.zsHex(2) + i.zsHex(4) + '00';
+		s += l;
+		s += i;
+		for(var j=0; j<l; j++) {
+			var code = this.charCodeAt(i+j);
+			h += code.zsHex(2);
+			s += code;
+		}
+		h += (0x100 - (s & 0xFF)).zsHex(2) + "\n";
+	}
+	h += ':00000001FF';
+	return h;
+}
 function File(name) {
 	this.name = name;
 	this.opentype = 'rw';
@@ -24,8 +53,15 @@ File.prototype.open = function(a) {
 }
 File.prototype.close = function() {
 	if(this.opentype.indexOf('w') != -1) {
-		var bin = "data:application/octet-stream;base64," + base64encode(this.binary);
-		$(this.name).innerHTML += "<a href='"+bin+"'>"+this.name+".bin</a>";
+		var e;
+		if(e = $(this.name + "_bin")) {
+			var bin = "data:application/octet-stream;base64," + base64encode(this.binary);
+			e.innerHTML = "<a href='"+bin+"'>"+this.name+".bin</a>";
+		}
+		if(e = $(this.name + "_hex")) {
+			var bin = "data:application/octet-stream;base64," + base64encode(this.binary.intelHex());
+			e.innerHTML = "<a href='"+bin+"'>"+this.name+".hex</a>";
+		}
 	}
 	return true;
 }
@@ -173,7 +209,10 @@ function make() {
 	$('stdout').innerHTML = "";
 	$('stderr').innerHTML = "";
 	var flag = JSC$FLAG_VERBOSE;// | JSC$FLAG_GENERATE_DEBUG_INFO;
-	JSC$compile_file('source', flag, 'asm', 'bc')
+	$('bc_hex').innerHTML = "<img src='spinner.gif' />";
+	setTimeout(function() {
+		JSC$compile_file('source', flag, 'asm', 'bc');
+	}, 2);
 }
 //]]>
 </script>
@@ -249,7 +288,7 @@ body {
 }
 textarea {
 	width: 100%;
-	height: 200px;
+	height: 300px;
 	border: 1px solid #ddd;
 	font-family: "Courier New";
 }
@@ -265,17 +304,19 @@ small {
 </style>
 </head>
 <body>
-<input type="button" onclick="make();" value="make" />
-source:<textarea id="source" onkeydown="return catchTab(this,event)">
+<h1>Talktic Scripting</h1>
+script:<textarea id="source" onkeydown="return catchTab(this,event)">
 for(var i=0; i<10; i+=0.1) {
 	System.print(i);
 }
 </textarea>
+<input type="button" onclick="make();" value="make" /> <span id="bc_hex"></span>
+<input type="button" onclick="Element.toggle($('out'))" value="Toggle Output" />
+<div id="out" style="display: none;">
 asm:<pre id="asm"></pre>
 bc:<pre id="bc"></pre>
 stdout:<pre id="stdout"></pre>
 stderr:<pre id="stderr"></pre>
-<script type="text/javascript">
-</script>
+</div>
 </body>
 </html>
