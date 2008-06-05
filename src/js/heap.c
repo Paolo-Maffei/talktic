@@ -471,8 +471,8 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
     }
 #endif
-    printf("VM: heap: garbage collect: num_consts=%u, num_globals=%u\r\n",
-                vm->num_consts, vm->num_globals);
+//    printf("VM: heap: garbage collect: num_consts=%u, num_globals=%u\r\n",
+//                vm->num_consts, vm->num_globals);
 
     vm->gc.count++;
 

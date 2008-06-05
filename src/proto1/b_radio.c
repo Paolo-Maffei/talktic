@@ -5,7 +5,7 @@
 #define RADIO_PANID   0x2420
 #define RADIO_ADDRESS 0x0002
 
-extern volatile JSVirtualMachine *s_vm;
+extern JSVirtualMachine *s_vm;
 
 static void srd_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 					 void *instance_context, JSNode * result_return, JSNode * args)
@@ -44,7 +44,7 @@ static MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
 	if (s_vm) {
 		if (!(s_vm->interrupt_table[0].fired)) {
 			void *data;
-			if (data = js_malloc(s_vm, sizeof(RADIO_PACKET_RX_INFO))) {
+			if ((data = js_malloc(s_vm, sizeof(RADIO_PACKET_RX_INFO))) != NULL) {
 				memcpy(data, pRRI, sizeof(RADIO_PACKET_RX_INFO));
 				s_vm->interrupt_table[0].data = data;
 				s_vm->interrupt_table[0].fired = 1;

@@ -1,17 +1,26 @@
 #include "jsint.h"
 
-volatile JSVirtualMachine *s_vm = 0;
+JSVirtualMachine *s_vm = 0;
 
 #ifdef __AVR__
 extern void init_stdio();
 #endif
+
 #ifdef _PROTO1_RADIO
 extern void init_builtin_radio();
 #endif
+#ifdef _PROTO1_DIGITALIO
+extern void init_builtin_digitalio();
+#endif
+#ifdef _PROTO1_ANALOGIO
+extern void init_builtin_analogio();
+#endif
+
 #ifdef _AKI3068NET_NET
 extern void init_builtin_net_class();
 extern void init_net_bytecode();
 #endif
+
 extern JSByteCode *init_bytecode();
 extern void init_builtin_globals();
 extern void init_builtin_hello_class();
@@ -50,6 +59,13 @@ int main()
 #ifdef _PROTO1_RADIO
 		init_builtin_radio(vm);
 #endif
+#ifdef _PROTO1_DIGITALIO
+		init_builtin_digitalio(vm);
+#endif
+#ifdef _PROTO1_ANALOGIO
+		init_builtin_analogio(vm);
+#endif
+
 #ifdef _AKI3068NET_NET
 		init_builtin_net_class(vm);
 #endif
