@@ -7,7 +7,7 @@
 
 extern volatile JSVirtualMachine *s_vm;
 
-static void send_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+static void srd_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 					 void *instance_context, JSNode * result_return, JSNode * args)
 {
 	if (args->u.vinteger == 2) {
@@ -19,7 +19,7 @@ static void send_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_in
 	result_return->type = JS_UNDEFINED;
 }
 
-static int receiveVMHandler(JSVirtualMachine * vm, void *data)
+static int onr_global_vm_interrupt(JSVirtualMachine * vm, void *data)
 {
 	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *) data;
 	JSNode argv[6];
@@ -59,12 +59,12 @@ void init_builtin_radio(JSVirtualMachine *vm) {
 	JSNode *n;
 
 	info = js_vm_builtin_info_create(vm);
-	info->global_method_proc = send_global_method;
+	info->global_method_proc = srd_global_method;
 	n = &vm->globals[js_vm_intern(vm, "srd")];
 	js_vm_builtin_create(vm, n, info, NULL);
 
 	RADIO_init(RADIO_CHANNEL, RADIO_PANID, RADIO_ADDRESS, 31);
 	RADIO_setRecvHandler(&receiveHandler);
-	vm->interrupt_table[0].handler = receiveVMHandler;
+	vm->interrupt_table[0].handler = onr_global_vm_interrupt;
 	vm->interrupt_table[0].enable = 1;
 }
