@@ -37,26 +37,38 @@ for(var i=0; i<1000; i++) {
 }
 */
 var h = 0;
-var b = true;
 
 function onr(seq,src,pan,pay,rss) {
 	debug(pay);
 	debug(h++);
-	dps(1, false);
 }
 
-if(dpi(0,false)) {
-	debug("init port0");
+if(dpi(2,false)) {
+	debug("init port0 as out");
 }
-if(dpi(1,true)) {
-	debug("init port1");
+if(dpi(3,true)) {
+	debug("init port1 as in");
 }
+var v = 0;
+var i = 1;
+var hz = 0;
 
 while(true) {
-	if(dpg(0)) {
+	if(dpg(3)) {
 		h++;
+		hz += 10;
+		snd(1, hz);
+		debug("hz="+hz+"\r\n");
 	}
-	dps(1, (h % 2) == 0);
+
+	pwm(0, v);
+	v += i;
+	if(v>255 || v<0) {
+		i = i * -1;
+		v += i;
+	}
+
+	dps(2, (h % 2) == 0);
 	if(srd) {
 		srd(0xFFFF, "muchmorebigpacket");
 	}

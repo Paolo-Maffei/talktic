@@ -61,6 +61,59 @@ LINKONLYOBJECTS =
 
 
 
+### aki3086net ext libraries
+
+## C macro flags
+CFLAGS += -D_AKI3068NET
+
+## Includes
+INCLUDES += -I$(SRC_DIR)/aki3068net
+
+## Objects
+OBJECTS += 		\
+	$(NULL)
+
+## Compile
+%.o: $(SRC_DIR)/aki3068net/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+
+## Libraries
+ifdef NET
+CFLAGS += -D_AKI3068NET_NET
+OBJECTS += b_net.o base64.o
+endif # NET
+
+ifdef DNS
+INCLUDES += -I$(SRC_DIR)/aki3068net/ares
+CFLAGS += -D_AKI3068NET_DNS
+OBJECTS +=		\
+	ares__close_sockets.o	\
+	ares_compat.o	\
+	ares_destroy.o	\
+	ares_expand_name.o	\
+	ares_fds.o	\
+	ares_free_errmem.o	\
+	ares_free_hostent.o	\
+	ares_free_string.o	\
+	ares_gethostbyaddr.o	\
+	ares_gethostbyname.o	\
+	ares_init.o	\
+	ares_mkquery.o	\
+	ares_parse_a_reply.o	\
+	ares_parse_ptr_reply.o	\
+	ares_process.o	\
+	ares_query.o	\
+	ares_search.o	\
+	ares_send.o	\
+	ares_strerror.o	\
+	ares_timeout.o	\
+	$(NULL)
+%.o: $(SRC_DIR)/aki3068net/ares/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+endif # DNS
+
+
+
 ### JavaScript libraries
 
 ## Includes
@@ -89,59 +142,6 @@ OBJECTS +=		\
 ## Compile
 %.o: $(SRC_DIR)/js/%.c
 	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
-
-
-
-### aki3086net ext libraries
-
-## C macro flags
-ifdef NET
-CFLAGS += -D_AKI3068NET_NET
-endif # NET
-
-## Includes
-INCLUDES += -I$(SRC_DIR)/aki3068net
-ifdef DNS
-INCLUDES += -I$(SRC_DIR)/aki3068net/ares
-endif
-
-## Objects
-OBJECTS += 		\
-	$(NULL)
-ifdef NET
-OBJECTS += b_net.o netbytecode.o base64.o
-endif # NET
-ifdef DNS
-OBJECTS +=		\
-	ares__close_sockets.o	\
-	ares_compat.o	\
-	ares_destroy.o	\
-	ares_expand_name.o	\
-	ares_fds.o	\
-	ares_free_errmem.o	\
-	ares_free_hostent.o	\
-	ares_free_string.o	\
-	ares_gethostbyaddr.o	\
-	ares_gethostbyname.o	\
-	ares_init.o	\
-	ares_mkquery.o	\
-	ares_parse_a_reply.o	\
-	ares_parse_ptr_reply.o	\
-	ares_process.o	\
-	ares_query.o	\
-	ares_search.o	\
-	ares_send.o	\
-	ares_strerror.o	\
-	ares_timeout.o	\
-	$(NULL)
-endif
-## Compile
-%.o: $(SRC_DIR)/aki3068net/%.c
-	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
-ifdef DNS
-%.o: $(SRC_DIR)/aki3068net/ares/%.c
-	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
-endif
 
 
 

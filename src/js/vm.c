@@ -37,15 +37,13 @@
  * Collect garbage if we allocated more than GC_TRIGGER bytes of
  * memory since the last gc.
  */
-#if __AVR__ || __ICCAVR__ || __H8300H__
-#define GC_TRIGGER 512L 
-#else							/* __AVR__ || __ICC_AVR__ || __H8300H__ */
+#ifndef GC_TRIGGER
 #if SIZEOF_INT == 2
 #define GC_TRIGGER (1L * 1024L * 1024L)
 #else
 #define GC_TRIGGER (2 * 1024 * 1024)
-#endif
-#endif							/* not __AVR__ || __ICC_AVR__ || __H8300H__ */
+#endif /* not SIZEOF_INT == 2 */
+#endif /* not GC_TRIGGER */
 
 /*
  * Prototypes for static functions.

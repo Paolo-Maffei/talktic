@@ -30,19 +30,12 @@
 
 #include "jsint.h"
 
-
-#ifndef __ICCAVR__
-
-#ifndef __AVR__
-
 /*
  * Types and definitions.
  */
-#ifdef __H8300H__
-#define DEFAULT_BUFFER_SIZE 1024
-#else
+#ifndef DEFAULT_BUFFER_SIZE
 #define DEFAULT_BUFFER_SIZE 4096
-#endif
+#endif /* not DEFAULT_BUFFER_SIZE */
 
 /*
  * Global functions.
@@ -68,7 +61,6 @@ JSIOStream *js_iostream_new()
 
 
 /* The `FILE *' stream. */
-
 static int file_read(void *context, unsigned char *buffer, unsigned int todo, int *error_return)
 {
     int got;
@@ -111,17 +103,17 @@ static long file_get_length(void *context)
     long cpos;
     long result = -1;
 
-    /* Save current position. */
+    // Save current position.
     cpos = ftell(fp);
     if (cpos >= 0) {
-        /* Seek to the end of the file. */
+        // Seek to the end of the file.
         if (fseek(fp, 0, SEEK_END) >= 0) {
-            /* Fetch result. */
+            // Fetch result.
             result = ftell(fp);
 
-            /* Seek back. */
+            // Seek back.
             if (fseek(fp, cpos, SEEK_SET) < 0)
-                /* Couldn't revert the fp to the original position. */
+                // Couldn't revert the fp to the original position.
                 result = -1;
         }
     }
@@ -129,12 +121,10 @@ static long file_get_length(void *context)
     return result;
 }
 
-
 static void file_close(void *context)
 {
     fclose((FILE *) context);
 }
-
 
 JSIOStream *js_iostream_file(FILE * fp, int readp, int writep, int do_close)
 {
@@ -164,8 +154,7 @@ JSIOStream *js_iostream_file(FILE * fp, int readp, int writep, int do_close)
     return stream;
 }
 
-#ifndef __H8300H__
-
+/*
 static void close_pipe(void *context)
 {
     pclose((FILE *) context);
@@ -197,12 +186,7 @@ JSIOStream *js_iostream_pipe(FILE * fp, int readp)
 
     return stream;
 }
-
-#endif /* not __H8300__ */
-
-#endif /* not __AVR__ */
-
-
+*/
 
 size_t js_iostream_read(JSIOStream * stream, void *ptr, size_t size)
 {
@@ -244,16 +228,13 @@ size_t js_iostream_read(JSIOStream * stream, void *ptr, size_t size)
     return total;
 }
 
-
 size_t js_iostream_write(JSIOStream * stream, void *ptr, size_t size)
 {
     int space;
     size_t total = 0;
 
     if (stream->write == NULL) {
-#ifndef __AVR__
         stream->error = EBADF;
-#endif
         return 0;
     }
 
@@ -443,12 +424,3 @@ void js_iostream_fill_buffer(JSIOStream * stream)
     if (stream->data_in_buf == 0)
         stream->at_eof = 1;
 }
-
-#else
-size_t js_iostream_write(JSIOStream * stream, void *ptr, size_t size) {
-    return 0;
-}
-int js_iostream_close(JSIOStream * stream) {
-    return 0;
-}
-#endif

@@ -1,6 +1,66 @@
 #include "jsint.h"
+#include "pwm.h"
 #include "device_ad.h"
 #include <avr/io.h>
+
+static void
+pwm_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+				  void *instance_context, JSNode * result_return, JSNode * args)
+{
+	result_return->type = JS_BOOLEAN;
+	result_return->u.vboolean = 0;
+	if (args->u.vinteger == 2
+		&& args[1].type == JS_INTEGER
+		&& args[1].u.vinteger >= 0
+		&& args[1].u.vinteger < 2
+		&& args[2].type == JS_INTEGER) {
+		switch(args[1].u.vinteger) {
+		case 0:
+			if(! PWM_is_inited(0)) {
+				PWM_init(0);
+			}
+			PWM_out(0,args[2].u.vinteger);
+			break;
+		case 1:
+			if(! PWM_is_inited(1)) {
+				PWM_init(1);
+			}
+			PWM_out(1,args[2].u.vinteger);
+			break;
+		}
+		result_return->u.vboolean = 1;
+	}
+}
+
+static void
+snd_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+				  void *instance_context, JSNode * result_return, JSNode * args)
+{
+	result_return->type = JS_BOOLEAN;
+	result_return->u.vboolean = 0;
+	if (args->u.vinteger == 2
+		&& args[1].type == JS_INTEGER
+		&& args[1].u.vinteger >= 0
+		&& args[1].u.vinteger < 2
+		&& args[2].type == JS_INTEGER
+		&& args[2].u.vinteger >= 245) {
+		switch(args[1].u.vinteger) {
+		case 0:
+			if(! SOUND_is_inited(0)) {
+				SOUND_init(0);
+			}
+			SOUND_out(0,args[2].u.vinteger);
+			break;
+		case 1:
+			if(! SOUND_is_inited(1)) {
+				SOUND_init(1);
+			}
+			SOUND_out(1,args[2].u.vinteger);
+			break;
+		}
+		result_return->u.vboolean = 1;
+	}
+}
 
 void init_builtin_analogio(JSVirtualMachine *vm) {
 	JSBuiltinInfo *info;
@@ -11,9 +71,8 @@ void init_builtin_analogio(JSVirtualMachine *vm) {
 		char *name;
 		JSBuiltinGlobalMethod method;
 	} global_methods[] = {
-//		{"dpi", dpi_global_method},
-//		{"dps", dps_global_method},
-//		{"dpg", dpg_global_method},
+		{"pwm", pwm_global_method},
+		{"snd", snd_global_method},
 		{NULL, NULL}
 	};
 

@@ -1,5 +1,6 @@
 #include "jsint.h"
 #include "device_port.h"
+#include "pwm.h"
 #include <avr/io.h>
 
 static void
@@ -15,10 +16,12 @@ dpi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		&& args[2].type == JS_BOOLEAN) {
 		switch(args[1].u.vinteger) {
 		case 0:
+			PWM_off(0);
 			DEVICE_PORT_DIR0_(args[2].u.vboolean);
 			DEVICE_PORT_OUT0_(0);
 			break;
 		case 1:
+			PWM_off(1);
 			DEVICE_PORT_DIR1_(args[2].u.vboolean);
 			DEVICE_PORT_OUT1_(0);
 			break;

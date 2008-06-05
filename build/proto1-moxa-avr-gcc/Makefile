@@ -85,37 +85,6 @@ LINKONLYOBJECTS =
 
 
 
-### JavaScript libraries
-
-## Includes
-INCLUDES += -I$(SRC_DIR)/js
-
-## Objects
-OBJECTS +=		\
-	alloc.o		\
-	heap.o		\
-	object.o	\
-	vm.o		\
-	vmswt0.o	\
-	utils.o		\
-	b_core.o	\
-	b_bool.o	\
-	b_object.o	\
-	b_func.o	\
-	b_number.o	\
-	b_array.o	\
-	mrgsort.o	\
-	b_string.o	\
-	bc.o		\
-	iostream.o	\
-	$(NULL)
-
-## Compile
-%.o: $(SRC_DIR)/js/%.c
-	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
-
-
-
 ### MOXA libraries
 
 ## Includes
@@ -146,6 +115,9 @@ endif
 
 ### PROTO1 ext libraries
 
+## C macro flags
+CFLAGS += -D_PROTO1
+
 ## Includes
 INCLUDES += -I$(SRC_DIR)/proto1
 
@@ -174,6 +146,38 @@ ifdef ANALOGIO
 CFLAGS += -D_PROTO1_ANALOGIO
 OBJECTS += b_analogio.o
 endif
+
+
+
+### JavaScript libraries
+
+## Includes
+INCLUDES += -I$(SRC_DIR)/js
+
+## Objects
+OBJECTS +=		\
+	alloc.o		\
+	heap.o		\
+	object.o	\
+	vm.o		\
+	vmswt0.o	\
+	utils.o		\
+	b_core.o	\
+	b_bool.o	\
+	b_object.o	\
+	b_func.o	\
+	b_number.o	\
+	b_array.o	\
+	mrgsort.o	\
+	b_string.o	\
+	bc.o		\
+	iostream.o  \
+	$(NULL)
+
+## Compile
+%.o: $(SRC_DIR)/js/%.c
+	$(CC) -o $@ $(INCLUDES) $(CFLAGS) -c $<
+
 
 
 ### Common
