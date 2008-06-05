@@ -15,8 +15,8 @@ JSC = ../../jsc/jsc
 
 ## Testing enviroment
 AVRDUDE = avrdude
-AVRDUDE_COMPORT = com6
-TEST_COMPORT = com5
+AVRDUDE_COMPORT = /dev/tty.usbserial
+TEST_COMPORT = /dev/tty.usbserial
 
 ## Source path
 SRC_DIR = ../../src
@@ -215,6 +215,7 @@ $(SRC_DIR)/bytecode.h: $(SRC_DIR)/bytecode.js
 	$(OBJDUMP) -h -S $< > $@
 %.lst: %.elf
 	$(NM) -n $< > $@
+
 size: $(PROJECT).elf
 	$(SIZE) --format=avr --mcu=$(MCU) $<
 
@@ -235,7 +236,7 @@ init_console:
 console: init_console
 	cat /dev/$(TEST_COMPORT)
 loader: $(PROJECT).eep
-	$(AVRDUDE) -b 9600 -p m128 -c stk500 -v -P $(TEST_COMPORT) -V -U eeprom:w:$<:i
+	$(AVRDUDE) -b 9600 -p m128 -c stk500 -v -F -P $(TEST_COMPORT) -V -U eeprom:w:$<:i
 
 ## Clean target
 .PHONY: clean
