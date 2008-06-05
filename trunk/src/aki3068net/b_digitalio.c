@@ -1,7 +1,6 @@
+#include <cyg/hal/var_arch.h>
 #include "jsint.h"
-#include "device_port.h"
-#include "pwm.h"
-#include <avr/io.h>
+#include "reg_macro.h"
 
 static void
 pinMode_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
@@ -18,36 +17,28 @@ pinMode_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		mode = js_vm_to_boolean(vm, &args[2]);
 		switch(pin) {
 		case 0:
-			DEVICE_PORT_DIR0_(mode);
-			DEVICE_PORT_OUT0_(0);
+			REG_WRITE(CYGARC_PADDR, 0, mode);
 			break;
 		case 1:
-			DEVICE_PORT_DIR1_(mode);
-			DEVICE_PORT_OUT1_(0);
+			REG_WRITE(CYGARC_PADDR, 1, mode);
 			break;
 		case 2:
-			DEVICE_PORT_DIR2_(mode);
-			DEVICE_PORT_OUT2_(0);
+			REG_WRITE(CYGARC_PADDR, 2, mode);
 			break;
 		case 3:
-			DEVICE_PORT_DIR3_(mode);
-			DEVICE_PORT_OUT3_(0);
+			REG_WRITE(CYGARC_PADDR, 3, mode);
 			break;
 		case 4:
-			DEVICE_PORT_DIR4_(mode);
-			DEVICE_PORT_OUT4_(0);
+			REG_WRITE(CYGARC_PADDR, 4, mode);
 			break;
 		case 5:
-			DEVICE_PORT_DIR5_(mode);
-			DEVICE_PORT_OUT5_(0);
+			REG_WRITE(CYGARC_PADDR, 5, mode);
 			break;
 		case 6:
-			DEVICE_PORT_DIR6_(mode);
-			DEVICE_PORT_OUT6_(0);
+			REG_WRITE(CYGARC_PADDR, 6, mode);
 			break;
 		case 7:
-			DEVICE_PORT_DIR7_(mode);
-			DEVICE_PORT_OUT7_(0);
+			REG_WRITE(CYGARC_PADDR, 7, mode);
 			break;
 		default:
 			return;
@@ -71,28 +62,28 @@ digitalWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		mode = js_vm_to_boolean(vm, &args[2]);
 		switch(pin) {
 		case 0:
-			DEVICE_PORT_OUT0_(mode);
+			REG_WRITE(CYGARC_PADR, 0, mode);
 			break;
 		case 1:
-			DEVICE_PORT_OUT1_(mode);
+			REG_WRITE(CYGARC_PADR, 1, mode);
 			break;
 		case 2:
-			DEVICE_PORT_OUT2_(mode);
+			REG_WRITE(CYGARC_PADR, 2, mode);
 			break;
 		case 3:
-			DEVICE_PORT_OUT3_(mode);
+			REG_WRITE(CYGARC_PADR, 3, mode);
 			break;
 		case 4:
-			DEVICE_PORT_OUT4_(mode);
+			REG_WRITE(CYGARC_PADR, 4, mode);
 			break;
 		case 5:
-			DEVICE_PORT_OUT5_(mode);
+			REG_WRITE(CYGARC_PADR, 5, mode);
 			break;
 		case 6:
-			DEVICE_PORT_OUT6_(mode);
+			REG_WRITE(CYGARC_PADR, 6, mode);
 			break;
 		case 7:
-			DEVICE_PORT_OUT7_(mode);
+			REG_WRITE(CYGARC_PADR, 7, mode);
 			break;
 		default:
 			return;
@@ -114,28 +105,28 @@ digitalRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		pin = js_vm_to_int32(vm, &args[1]);
 		switch(pin) {
 		case 0:
-			result_return->u.vboolean = DEVICE_PORT_INP0;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 0);
 			break;
 		case 1:
-			result_return->u.vboolean = DEVICE_PORT_INP1;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 1);
 			break;
 		case 2:
-			result_return->u.vboolean = DEVICE_PORT_INP2;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 2);
 			break;
 		case 3:
-			result_return->u.vboolean = DEVICE_PORT_INP3;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 3);
 			break;
 		case 4:
-			result_return->u.vboolean = DEVICE_PORT_INP4;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 4);
 			break;
 		case 5:
-			result_return->u.vboolean = DEVICE_PORT_INP5;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 5);
 			break;
 		case 6:
-			result_return->u.vboolean = DEVICE_PORT_INP6;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 6);
 			break;
 		case 7:
-			result_return->u.vboolean = DEVICE_PORT_INP7;
+			result_return->u.vboolean = REG_READ(CYGARC_PADR, 7);
 			break;
 		default:
 			return;

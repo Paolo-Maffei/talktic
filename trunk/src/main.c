@@ -20,7 +20,13 @@ extern void init_builtin_serial();
 #endif
 
 #ifdef _AKI3068NET_NET
-extern void init_builtin_net_class();
+extern void init_builtin_net();
+#endif
+#ifdef _AKI3068NET_DIGITALIO
+extern void init_builtin_digitalio();
+#endif
+#ifdef _AKI3068NET_ANALOGIO
+extern void init_builtin_analogio();
 #endif
 
 extern JSByteCode *init_bytecode();
@@ -85,8 +91,15 @@ int main()
 #ifdef _PROTO1_ANALOGIO
 		init_builtin_analogio(vm);
 #endif
+
 #ifdef _AKI3068NET_NET
-		init_builtin_net_class(vm);
+		init_builtin_net(vm);
+#endif
+#ifdef _AKI3068NET_DIGITALIO
+		init_builtin_digitalio(vm);
+#endif
+#ifdef _AKI3068NET_ANALOGIO
+		init_builtin_analogio(vm);
 #endif
 
 		vm->enable_interrupt = 1;
