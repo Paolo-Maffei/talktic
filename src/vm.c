@@ -61,7 +61,7 @@ static void intern_builtins (JSVirtualMachine *vm);
  */
 
 JSVirtualMachine *js_vm_create(unsigned int stack_size,
-                               JSVMDispatchMethod dispatch_method,
+//                               JSVMDispatchMethod dispatch_method,
                                unsigned int verbose,
                                int stacktrace_on_error,
                                JSIOStream * s_stdin, JSIOStream * s_stdout,
@@ -82,7 +82,7 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
     vm->s_stderr = s_stderr;
 
     /* Resolve the dispatch method. */
-    vm->dispatch_method = dispatch_method;
+//    vm->dispatch_method = dispatch_method;
     vm->dispatch_method_name = "switch-basic";
     vm->dispatch_execute = js_vm_switch0_exec;
     vm->dispatch_func_name = js_vm_switch0_func_name;

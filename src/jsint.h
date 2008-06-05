@@ -92,21 +92,21 @@
  * environment, please edit the micros/w32.{c,h} files and implement
  * them.
  */
-#ifndef WIN32
-/* Directory handling. */
+//#ifndef WIN32
+///* Directory handling. */
 //#include <dirent.h>
-#endif /* not WIN32 */
+//#endif /* not WIN32 */
 
 
 
 /* ---------------------------------------------------------------------------------------------- */
 //#include <js.h>
-    /* Byte-code instruction dispatch methods. */
-    typedef enum {
-        JS_VM_DISPATCH_SWITCH_BASIC,
-        JS_VM_DISPATCH_SWITCH,
-        JS_VM_DISPATCH_JUMPS
-    } JSVMDispatchMethod;
+//    /* Byte-code instruction dispatch methods. */
+//    typedef enum {
+//        JS_VM_DISPATCH_SWITCH_BASIC,
+//        JS_VM_DISPATCH_SWITCH,
+//        JS_VM_DISPATCH_JUMPS
+//    } JSVMDispatchMethod;
 
 
 
@@ -1111,7 +1111,7 @@ extern "C" {
         JSIOStream *s_stderr;
 
         /* The byte-code instruction dispatcher. */
-        JSVMDispatchMethod dispatch_method;
+//        JSVMDispatchMethod dispatch_method;
         const char *dispatch_method_name;
         JSVMExecute dispatch_execute;
         JSVMFuncName dispatch_func_name;
@@ -1266,7 +1266,7 @@ extern "C" {
 
 /* Virtual machine. */
     JSVirtualMachine *js_vm_create(unsigned int stack_size,
-                                   JSVMDispatchMethod dispatch_method,
+//                                   JSVMDispatchMethod dispatch_method,
                                    unsigned int verbose,
                                    int stacktrace_on_error,
                                    JSIOStream * s_stdin,

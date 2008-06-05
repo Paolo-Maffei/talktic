@@ -480,7 +480,8 @@ int main()
 #endif
 
     JSVirtualMachine *vm;
-    vm = js_vm_create(128, JS_VM_DISPATCH_SWITCH_BASIC, 1, 1, s_stdin,
+//    vm = js_vm_create(128, JS_VM_DISPATCH_SWITCH_BASIC, 1, 1, s_stdin,
+    vm = js_vm_create(128, 1, 1, s_stdin,
                       s_stdout, s_stderr);
     if (vm != NULL) {
         s_vm = vm;
