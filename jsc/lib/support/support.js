@@ -75,14 +75,13 @@ function isFloat(a) {
 }
 
 function error(a) {
-	stderr.println(a);
-	exit();
+	throw("internal error: "+a);
 }
 function warning(a) {
-	stderr.println(a);
+	stderr.println("warning: "+a);
 }
 function message(a) {
-	stdout.println(a);
+	stderr.println("message: "+a);
 }
 
 File.byteToString = String.fromCharCode;
