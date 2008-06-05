@@ -205,8 +205,9 @@ eep: $(PROJECT).eep
 
 ## Testing target
 test: flash eep console
-console:
+init_console:
 	mode.com $(TEST_COMPORT): BAUD=9600 PARITY=N DATA=8 STOP=1
+console: init_console
 	cat /dev/$(TEST_COMPORT)
 
 ## Clean target

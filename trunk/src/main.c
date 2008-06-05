@@ -8,6 +8,10 @@ extern void init_stdio();
 #ifdef _PROTO1_RADIO
 extern void init_builtin_radio();
 #endif
+#ifdef _AKI3068NET_NET
+extern void init_builtin_net_class();
+extern void init_net_bytecode();
+#endif
 extern JSByteCode *init_bytecode();
 extern void init_builtin_globals();
 extern void init_builtin_hello_class();
@@ -35,6 +39,9 @@ int main()
 		s_vm = vm;
 		JSByteCode *bc;
 
+#ifdef _AKI3068NET_NET
+	//	init_net_bytecode();
+#endif
 		bc = init_bytecode();
 
 		init_builtin_globals(vm);
@@ -42,6 +49,9 @@ int main()
 
 #ifdef _PROTO1_RADIO
 		init_builtin_radio(vm);
+#endif
+#ifdef _AKI3068NET_NET
+		init_builtin_net_class(vm);
 #endif
 		vm->enable_interrupt = 1;
 		js_vm_execute(vm, bc);

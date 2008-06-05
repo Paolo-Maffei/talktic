@@ -1,5 +1,6 @@
 <html>
 <head>
+
 <script type="text/javascript">
 //<![CDATA[
 Number.prototype.zsHex = function(len) {
@@ -66,6 +67,9 @@ File.prototype.close = function() {
 			//e.innerHTML = hex;
 			var bin = "data:application/octet-stream;base64," + base64encode(hex);
 			e.innerHTML = "<a href='"+bin+"'>"+this.name+".hex</a>";
+		}
+		if(e = $(this.name + "_raw")) {
+			e.innerHTML = base64encode(this.binary);
 		}
 	}
 	return true;
@@ -214,13 +218,14 @@ function make() {
 	$('stdout').innerHTML = "";
 	$('stderr').innerHTML = "";
 	var flag = JSC$FLAG_VERBOSE;// | JSC$FLAG_GENERATE_DEBUG_INFO;
-	$('bc_hex').innerHTML = "<img src='spinner.gif' />";
-	setTimeout(function() {
-		JSC$compile_file('source', flag, 'asm', 'bc');
-	}, 2);
+	JSC$compile_file('source', flag, 'asm', 'bc');
+}
+function send(host, param) {
+	$('send_iframe').src = 'http://'+host+'/'+param;
 }
 //]]>
 </script>
+
 <script type="text/javascript">
 function setSelectionRange(input, selectionStart, selectionEnd) {
   if (input.setSelectionRange) {
@@ -330,6 +335,12 @@ function onDigitalIo() {
 	blink();
 }
 </textarea>
+</div>
+<div>
+<div id="bc_raw"></div>
+<input type="text" id="ipaddr" value="192.168.1.16" />
+<input type="button" onclick="send($('ipaddr').value, $('bc_raw').innerHTML);" value="send" />
+<iframe style="display: none;" id="send_iframe"></iframe>
 </div>
 <div id="bc_hex"></div>
 <div id="out" style="display: none;">
