@@ -5,18 +5,27 @@
 #include <avr/io.h>
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
-//#include "serial.h"
 
-#define F_CPU 8000000
-#include "delay.h"
+#ifdef _MOXA
+
+#ifdef _MOXA_SERIAL
+#include "serial.h"
+#endif
+
+#ifdef _MOXA_RADIO
+#include "radio.h"
+#define RADIO_CHANNEL 11
+#define RADIO_PANID   0x2420
+#define RADIO_ADDRESS 0x0002
+#endif
+
+#endif
 
 #else							/* __AVR__ */
 
 #define EEMEM
 
 #endif							/* not __AVR__ */
-
-
 
 #include "bytecode.h"
 
@@ -27,135 +36,6 @@
  *   -Wl,-Tdata=0x801100,--defsym=__heap_end=0x80ffff
  */
 
-/* ---------------------------------------------------------------------------------------------- */
-/*
- * Global Method
- */
-static void
-led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
-                    void *instance_context, JSNode * result_return,
-                    JSNode * args)
-{
-#ifdef __AVR__
-	PORTB = 0b10010000;
-	delay_ms(200);
-	PORTB = 0b00000000;
-#endif
-    result_return->type = JS_UNDEFINED;
-}
-
-void add_global_method(JSVirtualMachine * vm)
-{
-    int i;
-    JSNode *n;
-
-    struct {
-        char *name;
-        JSBuiltinGlobalMethod method;
-    } global_methods[] = {
-        {
-        "led", led_global_method}, {
-        NULL, NULL}
-    };
-
-    for (i = 0; global_methods[i].name; i++) {
-        JSBuiltinInfo *info;
-
-        info = js_vm_builtin_info_create(vm);
-        info->global_method_proc = global_methods[i].method;
-
-        n = &vm->globals[js_vm_intern(vm, global_methods[i].name)];
-        js_vm_builtin_create(vm, n, info, NULL);
-    }
-}
-
-/* ---------------------------------------------------------------------------------------------- */
-/*
- * Class Define
- */
-
-typedef struct hello_ctx_st {
-	JSSymbol s_show;
-	JSSymbol s_msg;
-} HelloCtx;
-
-static int hello_class_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
-							  void *instance_context, JSSymbol method, JSNode * result_return,
-							  JSNode * args)
-{
-	HelloCtx *ctx = builtin_info->obj_context;
-	if (method == ctx->s_show) {
-		printf(instance_context);
-	} else {
-		return JS_PROPERTY_UNKNOWN;
-	}
-	return JS_PROPERTY_FOUND;
-}
-
-static int
-hello_class_property(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info, void *instance_context,
-					 JSSymbol property, int set, JSNode * node)
-{
-	HelloCtx *ctx = builtin_info->obj_context;
-
-	if (instance_context && property == ctx->s_msg) {
-		if (set)
-			return 0;
-		js_vm_make_string(vm, node, instance_context, strlen(instance_context));
-	} else {
-		if (!set)
-			node->type = JS_UNDEFINED;
-		return JS_PROPERTY_UNKNOWN;
-	}
-	return JS_PROPERTY_FOUND;
-}
-
-static void hello_class_new_proc(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info, JSNode * args,
-								 JSNode * result_return)
-{
-	char *ictx;
-	if (args->u.vinteger == 1) {
-		if (args[1].type == JS_STRING) {
-			int len = args[1].u.vstring->len;
-			if ((ictx = js_malloc(vm, len + 1)) != NULL) {
-				memcpy(ictx, args[1].u.vstring->data, len);
-				ictx[len] = '\0';
-				js_vm_builtin_create(vm, result_return, builtin_info, ictx);
-				return;
-			}
-		}
-	}
-	js_vm_error(vm);
-}
-
-static void hello_class_delete_proc(JSBuiltinInfo * builtin_info, void *instance_context)
-{
-	if (instance_context) {
-		js_free(instance_context);
-	}
-}
-
-void add_hello_class(JSVirtualMachine * vm)
-{
-	HelloCtx *ctx;
-	JSNode *n;
-	JSBuiltinInfo *info;
-
-	ctx = js_calloc(vm, 1, sizeof(*ctx));
-	ctx->s_show = js_vm_intern(vm, "show");
-	ctx->s_msg = js_vm_intern(vm, "msg");
-
-	info = js_vm_builtin_info_create(vm);
-	info->method_proc = hello_class_method;
-	info->property_proc = hello_class_property;
-	info->new_proc = hello_class_new_proc;
-	info->delete_proc = hello_class_delete_proc;
-	info->obj_context = ctx;
-	info->obj_context_delete = js_free;
-
-	n = &vm->globals[js_vm_intern(vm, "Hello")];
-	js_vm_builtin_create(vm, n, info, NULL);
-}
 
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -250,22 +130,210 @@ JSByteCode *js_bc_read_eeprom(unsigned char *data)
 
 static int serial_stdio_putchar(char c, FILE * stream)
 {
-//  SERIAL_putchar(0, c);
-	while (!(UCSR0A & (1 << UDRE)));
+#ifdef _MOXA_SERIAL
+	SERIAL_putchar(0, c);
+#else
+	loop_until_bit_is_set(UCSR0A, UDRE);
 	UDR0 = c;
+#endif
 	return 0;
 }
 
 static int serial_stdio_getchar(FILE * stream)
 {
-//  return SERIAL_getchar(0);
-	return 0;
+#ifdef _MOXA_SERIAL
+	return SERIAL_getchar(0);
+#else
+	loop_until_bit_is_set(UCSR0A, RXC);
+	return (int)UDR0;
+#endif
 }
 
 static FILE serial_stdio = FDEV_SETUP_STREAM(serial_stdio_putchar, serial_stdio_getchar,
 											 _FDEV_SETUP_RW);
 
 #endif							/* __AVR__ */
+
+
+
+/* ---------------------------------------------------------------------------------------------- */
+/*
+ * Global Method
+ */
+
+#ifdef __AVR__
+static void
+led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+                    void *instance_context, JSNode * result_return,
+                    JSNode * args)
+{
+/*
+	int pin;
+	if (args->u.vinteger == 2) {
+		if (args[1].type == JS_INTEGER) {
+			switch(args[1].u.vinteger) {
+			case 1:
+				pin = 4;
+			case 2:
+				pin = 7;
+			default:
+				goto end;
+			}
+			if (args[2].type == JS_BOOLEAN) {
+				if( args[2].u.vboolean ) {
+					PORTB |= (1 << pin);
+				} else {
+					PORTB &= ~(1 << pin);
+				}
+			}
+		}
+	}
+end:
+    result_return->type = JS_UNDEFINED;
+*/
+	if (args->u.vinteger == 1) {
+		if (args[1].type == JS_BOOLEAN) {
+			if( args[1].u.vboolean ) {
+				PORTB &= ~(1 << 7);
+			} else {
+				PORTB |= (1 << 7);
+			}
+		}
+	}
+    result_return->type = JS_UNDEFINED;
+}
+
+#ifdef _MOXA_RADIO
+static void
+sendwi_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+                    void *instance_context, JSNode * result_return,
+                    JSNode * args)
+{
+    RADIO_sendPacket(0xFFFF, "test", 5); // ブロードキャスト
+    result_return->type = JS_UNDEFINED;
+}
+#endif
+#endif
+
+void add_global_method(JSVirtualMachine * vm)
+{
+    int i;
+    JSNode *n;
+
+    struct {
+        char *name;
+        JSBuiltinGlobalMethod method;
+    } global_methods[] = {
+#ifdef __AVR__
+        { "led", led_global_method },
+#ifdef _MOXA_RADIO
+        { "sendRedio", sendwi_global_method },
+#endif
+#endif
+		{ NULL, NULL }
+    };
+
+    for (i = 0; global_methods[i].name; i++) {
+        JSBuiltinInfo *info;
+
+        info = js_vm_builtin_info_create(vm);
+        info->global_method_proc = global_methods[i].method;
+
+        n = &vm->globals[js_vm_intern(vm, global_methods[i].name)];
+        js_vm_builtin_create(vm, n, info, NULL);
+    }
+}
+
+
+
+/* ---------------------------------------------------------------------------------------------- */
+/*
+ * Class Define
+ */
+
+typedef struct hello_ctx_st {
+	JSSymbol s_show;
+	JSSymbol s_msg;
+} HelloCtx;
+
+static int hello_class_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+							  void *instance_context, JSSymbol method, JSNode * result_return,
+							  JSNode * args)
+{
+	HelloCtx *ctx = builtin_info->obj_context;
+	if (method == ctx->s_show) {
+		printf(instance_context);
+	} else {
+		return JS_PROPERTY_UNKNOWN;
+	}
+	return JS_PROPERTY_FOUND;
+}
+
+static int
+hello_class_property(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info, void *instance_context,
+					 JSSymbol property, int set, JSNode * node)
+{
+	HelloCtx *ctx = builtin_info->obj_context;
+
+	if (instance_context && property == ctx->s_msg) {
+		if (set)
+			return 0;
+		js_vm_make_string(vm, node, instance_context, strlen(instance_context));
+	} else {
+		if (!set)
+			node->type = JS_UNDEFINED;
+		return JS_PROPERTY_UNKNOWN;
+	}
+	return JS_PROPERTY_FOUND;
+}
+
+static void hello_class_new_proc(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info, JSNode * args,
+								 JSNode * result_return)
+{
+	char *ictx;
+	if (args->u.vinteger == 1) {
+		if (args[1].type == JS_STRING) {
+			int len = args[1].u.vstring->len;
+			if ((ictx = js_malloc(vm, len + 1)) != NULL) {
+				memcpy(ictx, args[1].u.vstring->data, len);
+				ictx[len] = '\0';
+				js_vm_builtin_create(vm, result_return, builtin_info, ictx);
+				return;
+			}
+		}
+	}
+	js_vm_error(vm);
+}
+
+static void hello_class_delete_proc(JSBuiltinInfo * builtin_info, void *instance_context)
+{
+	if (instance_context) {
+		js_free(instance_context);
+	}
+}
+
+void add_hello_class(JSVirtualMachine * vm)
+{
+	HelloCtx *ctx;
+	JSNode *n;
+	JSBuiltinInfo *info;
+
+	ctx = js_calloc(vm, 1, sizeof(*ctx));
+	ctx->s_show = js_vm_intern(vm, "show");
+	ctx->s_msg = js_vm_intern(vm, "msg");
+
+	info = js_vm_builtin_info_create(vm);
+	info->method_proc = hello_class_method;
+	info->property_proc = hello_class_property;
+	info->new_proc = hello_class_new_proc;
+	info->delete_proc = hello_class_delete_proc;
+	info->obj_context = ctx;
+	info->obj_context_delete = js_free;
+
+	n = &vm->globals[js_vm_intern(vm, "Hello")];
+	js_vm_builtin_create(vm, n, info, NULL);
+}
+
 
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -276,9 +344,32 @@ static JSVirtualMachine *s_vm = 0;
 ISR(SIG_INTERRUPT5)
 {
 	if(s_vm) {
-		js_vm_apply(s_vm, "test", NULL, 0, NULL);
+		js_vm_apply(s_vm, "onDigitalIo", NULL, 0, NULL);
 	}
 }
+ISR(SIG_INTERRUPT4)
+{
+	if(s_vm) {
+		js_vm_apply(s_vm, "onDigitalIo2", NULL, 0, NULL);
+	}
+}
+#ifdef _MOXA_RADIO
+MRESULT receiveHandler(RADIO_PACKET_RX_INFO *pRRI)
+{
+	/*
+    printf("RECEIVE: %d %x %x %d %s %d\r\n"
+		, pRRI->seqNumber
+		, pRRI->srcAddr, pRRI->srcPanId
+		, pRRI->nLength, pRRI->pPayload
+		, pRRI->rssi
+	);
+	*/
+	if(s_vm) {
+		js_vm_apply(s_vm, "onRedio", NULL, 0, NULL);
+	}
+	return 0;
+}
+#endif
 #endif
 
 /* ---------------------------------------------------------------------------------------------- */
@@ -336,27 +427,35 @@ int main()
 #endif
 
 #ifdef __AVR__
-	/* enable extrenal ram */
+	// enable extrenal ram
 	MCUCR |= (1 << SRE);
 	XMCRA = 0x00;
 	XMCRB |= (1 << XMM0);
-	DDRB = 0b10010000;
-	PORTB = 0b00000000;
 
-//  ENABLE_GLOBAL_INT();
-//  SERIAL_init(0, 9600);
+//	DDRB |= (1 << 7) | (1 << 4);
+//	PORTB &= ~((1 << 7) | (1 << 4));
+	DDRB |= (1 << 7) | (1 << 4);
+	PORTB |= (1 << 7) | (1 << 4);
+
+	// enable interrupt 5 on up edge
+	EICRB |= (1 << 2) | (1 << 3);
+	EIMSK |= (1 << 5);
+	EICRB |= (1 << 0) | (1 << 1);
+	EIMSK |= (1 << 4);
+	sei();
+
+#ifdef _MOXA_SERIAL
+	SERIAL_init(0, 9600);
+#else
 	UBRR0L = 51 & 0xff;			// 9600bps, 8Mhz
 	UBRR0H = 51 >> 8;
 	UCSR0A = 0x00;
 	UCSR0B = 0x18;				// 割り込みなし送受信許可
 	UCSR0C = 0x06;
+#endif
 
-	// enable interrupt 5 on up edge
-	EICRB |= (1 << 2) | (1 << 3);
-	EIMSK |= (1 << 5);
-
-	stdin = &serial_stdio;
-	stderr = stdout = &serial_stdio;
+	// define stdio as serial
+	stdin = stderr = stdout = &serial_stdio;
 #endif
 
 	JSIOStream *s_stdin = NULL;
@@ -384,8 +483,9 @@ int main()
         add_global_method(vm);
 		add_hello_class(vm);
 
-#ifdef __AVR__
-		sei();
+#ifdef _MOXA_RADIO
+    	RADIO_init(RADIO_CHANNEL, RADIO_PANID, RADIO_ADDRESS, 31);
+    	RADIO_setRecvHandler(&receiveHandler);
 #endif
 		js_vm_execute(vm, bc);
 
