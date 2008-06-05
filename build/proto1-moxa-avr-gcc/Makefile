@@ -170,8 +170,6 @@ OBJECTS +=		\
 	mrgsort.o	\
 	b_string.o	\
 	bc.o		\
-	iostream.o  \
-	iostream_file.o	\
 	$(NULL)
 
 ## Compile

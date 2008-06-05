@@ -35,6 +35,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define if don't remove runtime warning message formatted in sprintf */
+#define JS_IOSTREAM 1
 #define JS_RUNTIME_DEBUG 1
 #define JS_PROFILING 1
 #define JS_RUNTIME_WARNING 1

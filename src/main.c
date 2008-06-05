@@ -25,20 +25,23 @@ extern void init_builtin_hello_class();
 
 int main()
 {
-	JSIOStream *s_stdin, *s_stdout, *s_stderr;
+	JSVirtualMachine *vm;
 
 #ifdef _PROTO1
 	init_stdio();
 #endif
-//	s_stdin = s_stdout = s_stderr = NULL;
-//#else
+
+#ifdef JS_IOSTREAM
+	JSIOStream *s_stdin, *s_stdout, *s_stderr;
 	s_stdin = js_iostream_file(stdin, 1, 0, 0);
 	s_stdout = js_iostream_file(stdout, 0, 1, 0);
 	s_stderr = js_iostream_file(stderr, 0, 1, 0);
-//#endif
 
-	JSVirtualMachine *vm;
 	vm = js_vm_create(256, 1, 1, s_stdin, s_stdout, s_stderr);
+#else
+	vm = js_vm_create(256, 1, 1);
+#endif
+
 
 	if (vm != NULL) {
 		s_vm = vm;

@@ -2,8 +2,12 @@
 case 0:
 #ifdef JS_RUNTIME_WARNING
 sprintf(buf, "VM: halt%s", JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
 js_iostream_write(vm->s_stderr, buf, strlen(buf));
 js_iostream_flush(vm->s_stderr);
+#else
+fwrite(buf, strlen(buf), 1, stderr);
+#endif
 #endif
 //  while (1)
 //    sleep (5);
@@ -151,7 +155,11 @@ JS_PUSH();
 if (vm->warn_undef && JS_SP1->type == JS_UNDEFINED) {
     sprintf(buf, "VM: warning: using undefined global `%s'%s",
             js_vm_symname(vm, j), JS_HOST_LINE_BREAK);
-    js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#ifdef JS_IOSTREAM
+	js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+	fwrite(buf, strlen(buf), 1, stderr);
+#endif
 }
 #endif
 
@@ -1796,8 +1804,12 @@ case 68:
 #ifdef JS_RUNTIME_WARNING  
     sprintf(buf, "VM: no valid error handler initialized%s",
             JS_HOST_LINE_BREAK);
-    js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#ifdef JS_IOSTREAM
+	js_iostream_write(vm->s_stderr, buf, strlen(buf));
     js_iostream_flush(vm->s_stderr);
+#else
+	fwrite(buf, strlen(buf), 1, stderr);
+#endif
 #endif
 
     abort();
@@ -1884,7 +1896,11 @@ READ_INT32(j);
         if (vm->warn_undef && JS_SP1->type == JS_UNDEFINED) {
             sprintf(buf, "VM: warning: using undefined global `%s'%s",
                     js_vm_symname(vm, j), JS_HOST_LINE_BREAK);
-            js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#ifdef JS_IOSTREAM
+			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+			fwrite(buf, strlen(buf), 1, stderr);
+#endif
         }
 #endif
     }

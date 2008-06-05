@@ -27,8 +27,9 @@
  * $Id: iostream.c,v 1.3 1998/08/26 08:05:59 mtr Exp $
  */
 
-
 #include "jsint.h"
+
+#ifdef JS_IOSTREAM
 
 /*
  * Types and definitions.
@@ -297,3 +298,5 @@ void js_iostream_fill_buffer(JSIOStream * stream)
     if (stream->data_in_buf == 0)
         stream->at_eof = 1;
 }
+
+#endif

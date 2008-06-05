@@ -121,7 +121,11 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 						sprintf(buf + strlen(buf),
 								", relocating with offset %u", anonymous_function_offset);
 					strcat(buf, JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
 					js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+					fwrite(buf, strlen(buf), 1, stderr);
+#endif
 				}
 #endif
 
@@ -150,7 +154,11 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 #ifdef JS_RUNTIME_WARNING
 		if (vm->verbose > 1) {
 			sprintf(buf, "VM: calling function%s", JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+			fwrite(buf, strlen(buf), 1, stderr);
+#endif
 		}
 #endif
 		f = func->u.vfunction->implementation;
@@ -162,7 +170,11 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 #ifdef JS_RUNTIME_WARNING
 		if (vm->verbose > 1) {
 			sprintf(buf, "VM: exec: %s%s", global_f->name, JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+			fwrite(buf, strlen(buf), 1, stderr);
+#endif
 		}
 #endif
 
@@ -327,8 +339,12 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 		default:
 #ifdef JS_RUNTIME_WARNING
 			sprintf(buf, "execute_code: unknown opcode %d%s", *(pc - 1), JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
 			js_iostream_write(vm->s_stderr, buf, strlen(buf));
 			js_iostream_flush(vm->s_stderr);
+#else
+			fwrite(buf, strlen(buf), 1, stderr);
+#endif
 #endif
 			abort();
 			break;

@@ -236,7 +236,11 @@ void *js_vm_alloc(JSVirtualMachine * vm, unsigned int size)
                 "VM: heap: malloc(%u): needed=%u, size=%lu, free=%lu, allocated=%lu%s",
                 to_alloc, alloc_size, vm->heap_size, vm->gc.bytes_free,
                 vm->gc.bytes_allocated, JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+		fwrite(buf, strlen(buf), 1, stderr);
+#endif
     }
 #endif
 //    printf("VM: heap: malloc(%u): needed=%u, size=%lu, free=%lu, allocated=%lu\r\n",
@@ -468,7 +472,11 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
     if (vm->verbose > 1) {
         sprintf(buf, "VM: heap: garbage collect: num_consts=%u, num_globals=%u%s",
                 vm->num_consts, vm->num_globals, JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+		fwrite(buf, strlen(buf), 1, stderr);
+#endif
     }
 #endif
 //    printf("VM: heap: garbage collect: num_consts=%u, num_globals=%u\r\n",
@@ -553,7 +561,11 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
     if (vm->verbose > 1) {
         sprintf(buf, "VM: heap: bytes_in_use=%lu, bytes_free=%lu%s",
                 bytes_in_use, vm->gc.bytes_free, JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+		fwrite(buf, strlen(buf), 1, stderr);
+#endif
     }
 #if GC_TIMES
     if (vm->verbose > 1) {
@@ -561,7 +573,11 @@ void js_vm_garbage_collect(JSVirtualMachine * vm, JSNode * fp, JSNode * sp)
                 (double) (after_mark_clock - start_clock) / CLOCKS_PER_SEC,
                 (double) (after_sweep_clock - after_mark_clock)
                 / CLOCKS_PER_SEC, JS_HOST_LINE_BREAK);
+#ifdef JS_IOSTREAM
         js_iostream_write(vm->s_stderr, buf, strlen(buf));
+#else
+		fwrite(buf, strlen(buf), 1, stderr);
+#endif
     }
 #endif
 #endif
