@@ -2,10 +2,9 @@
 
 JSVirtualMachine *s_vm = 0;
 
-#ifdef __AVR__
+#ifdef _PROTO1
 extern void init_stdio();
 #endif
-
 #ifdef _PROTO1_RADIO
 extern void init_builtin_radio();
 #endif
@@ -18,7 +17,6 @@ extern void init_builtin_analogio();
 
 #ifdef _AKI3068NET_NET
 extern void init_builtin_net_class();
-extern void init_net_bytecode();
 #endif
 
 extern JSByteCode *init_bytecode();
@@ -27,19 +25,16 @@ extern void init_builtin_hello_class();
 
 int main()
 {
-#ifdef __AVR__
+	JSIOStream *s_stdin, *s_stdout, *s_stderr;
+
+#ifdef _PROTO1
 	init_stdio();
-#endif							/* __AVR __ */
-
-	JSIOStream *s_stdin = NULL;
-	JSIOStream *s_stdout = NULL;
-	JSIOStream *s_stderr = NULL;
-
-#if !(__AVR__ || __ICCAVR__)
+	s_stdin = s_stdout = s_stderr = NULL;
+#else
 	s_stdin = js_iostream_file(stdin, 1, 0, 0);
 	s_stdout = js_iostream_file(stdout, 0, 1, 0);
 	s_stderr = js_iostream_file(stderr, 0, 1, 0);
-#endif							/* not __AVR__ || __ICCAVR__ */
+#endif
 
 	JSVirtualMachine *vm;
 	vm = js_vm_create(256, 1, 1, s_stdin, s_stdout, s_stderr);
@@ -48,9 +43,6 @@ int main()
 		s_vm = vm;
 		JSByteCode *bc;
 
-#ifdef _AKI3068NET_NET
-	//	init_net_bytecode();
-#endif
 		bc = init_bytecode();
 
 		init_builtin_globals(vm);
@@ -65,10 +57,10 @@ int main()
 #ifdef _PROTO1_ANALOGIO
 		init_builtin_analogio(vm);
 #endif
-
 #ifdef _AKI3068NET_NET
 		init_builtin_net_class(vm);
 #endif
+
 		vm->enable_interrupt = 1;
 		js_vm_execute(vm, bc);
 
@@ -79,11 +71,11 @@ int main()
 #if JS_DEBUG_MEMORY_LEAKS
 		js_alloc_dump_blocks();
 #endif							/* JS_DEBUG_MEMORY_LEAKS */
-
 	}
-#ifdef __AVR__
+
+#if _PROTO1 && __AVR__
 	while (1) {
-		asm("sleep");
+		__asm__ __volatile__ ("sleep"::);
 	}
 #endif
 

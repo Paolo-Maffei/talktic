@@ -40,3 +40,6 @@
 /* #undef JS_DEBUG_MEMORY_LEAKS */
 /* #undef JS_ENABLE_STRING_LOWERUPPER */
 /* #undef JS_ENABLE_STRING_PACKUNPACK */
+
+/* vm.c */
+#define GC_TRIGGER 1024L

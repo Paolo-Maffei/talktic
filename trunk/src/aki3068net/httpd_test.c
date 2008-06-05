@@ -76,7 +76,7 @@ bye:
 	}
 }
 
-void init_net_bytecode() {
+void init_httpd() {
 	lwip_init();
 
 	printf("wait...\n");
