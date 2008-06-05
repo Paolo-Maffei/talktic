@@ -1210,6 +1210,7 @@ extern "C" {
 //    unsigned long js_crc32(const unsigned char *s, unsigned int len);
 
 
+	void js_alloc_dump_blocks();
 /* ---------------------------------------------------------------------------------------------- */
 /*
  * Definitions for the JavaScript part of the JavaScript interp.

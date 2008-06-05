@@ -39,25 +39,18 @@ for(var i=0; i<1000; i++) {
 var h = 0;
 
 function wait(t) {
-  for(var i=0; i<t; i++) {
-  }
-}
-
-while(true) {
-	debug(".");
-//  sendRadio(0xFFFF, "aaa");
-/*
-  led(1, true);
-  wait(50);
-  led(1, false);
-  wait(50);
-*/
-  sei(true);
-  sei(false);
+	for(var i=0; i<t; i++) {
+	}
 }
 
 function onRadio() {
-  dump();
+	dump();
 	debug(h);
-  h++;
+	h++;
+}
+
+sei(true);
+while(true) {
+	debug(".");
+	sendRadio(0xFFFF, "aaa");
 }
