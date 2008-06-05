@@ -145,7 +145,9 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
     } else {
         /* Applying arguments to function. */
         if (func->type != JS_FUNC) {
+#ifdef _RUNTIME_WARNING
             sprintf(vm->error, "illegal function in apply");
+#endif
             return 0;
         }
 
@@ -323,7 +325,6 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f,
     JS_SUBROUTINE_CALL(f);
 
     /* Ok, now we are ready to run. */
-
     while (1) {
         switch (*pc++) {
             /* include eswt0.h */
@@ -340,7 +341,19 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f,
             abort();
             break;
         }
+        if(vm->enable_interrupt) {
+          unsigned char i;
+          vm->enable_interrupt = 0;
+          for(i=0; i<8; i++) {
+              if(vm->interrupt_table[i].enable && vm->interrupt_table[i].fired) {
+                vm->interrupt_table[i].fired = 0;
+                (vm->interrupt_table[i].handler)(vm->interrupt_table[i].data);
+              }
+          }
+          vm->enable_interrupt = 1;
+        }
     }
+
 
   done:
 

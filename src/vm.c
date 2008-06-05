@@ -67,6 +67,7 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
                                JSIOStream * s_stdin, JSIOStream * s_stdout,
                                JSIOStream * s_stderr)
 {
+    unsigned char i;
     JSVirtualMachine *vm;
     vm = js_calloc(NULL, 1, sizeof(*vm));
     if (vm == NULL)
@@ -167,6 +168,12 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
             js_vm_destroy(vm);
             return NULL;
         }
+    }
+
+    vm->enable_interrupt = 0;
+    for(i=0; i<8; i++) {
+      vm->interrupt_table[i].enable = 0;
+      vm->interrupt_table[i].fired = 0;
     }
 
     return vm;
@@ -496,7 +503,9 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
             }
 
         /* Clear error message and old exec result. */
+#ifdef _RUNTIME_WARNING
         vm->error[0] = '\0';
+#endif
         vm->exec_result.type = JS_UNDEFINED;
 
         PROFILING_ON();
@@ -558,7 +567,9 @@ js_vm_apply(JSVirtualMachine * vm, char *func_name, JSNode * func,
         result = 0;
     } else {
         /* Clear error message and old exec result. */
+#ifdef _RUNTIME_WARNING
         vm->error[0] = '\0';
+#endif
         vm->exec_result.type = JS_UNDEFINED;
 
         if (func_name)
@@ -645,7 +656,9 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
         symbol = js_vm_intern(vm, method_name);
 
         /* Clear error message and old exec result. */
+#ifdef _RUNTIME_WARNING
         vm->error[0] = '\0';
+#endif
         vm->exec_result.type = JS_UNDEFINED;
 
         /* What kind of object was called? */
@@ -817,12 +830,12 @@ void js_vm_error(JSVirtualMachine * vm)
 
         js_vm_stacktrace(vm, (unsigned int) -1);
     }
-#endif
     // We are jumping to a catch-block.  Format our error message to
     // the `thrown' node.
     if (vm->error_handler->sp)
         js_vm_make_string(vm, &vm->error_handler->thrown,
                           vm->error, strlen(vm->error));
+#endif
     longjmp(vm->error_handler->error_jmp, 1);
     // NOTREACHED (I hope)
 #ifdef _RUNTIME_WARNING

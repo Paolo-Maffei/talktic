@@ -165,39 +165,22 @@ led_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                   void *instance_context, JSNode * result_return,
                   JSNode * args)
 {
-/*
-	int pin;
-	if (args->u.vinteger == 2) {
-		if (args[1].type == JS_INTEGER) {
-			switch(args[1].u.vinteger) {
-			case 1:
-				pin = 4;
-			case 2:
-				pin = 7;
-			default:
-				goto end;
-			}
-			if (args[2].type == JS_BOOLEAN) {
-				if( args[2].u.vboolean ) {
-					PORTB |= (1 << pin);
-				} else {
-					PORTB &= ~(1 << pin);
-				}
-			}
+	unsigned char pin = 0;
+	if( args->u.vinteger == 2 && args[1].type == JS_INTEGER && args[2].type == JS_BOOLEAN ) {
+		switch(args[1].u.vinteger) {
+		case 1:
+			pin = 4;
+			break;
+		case 2:
+			pin = 7;
+			break;
+		}
+		if(pin && args[2].u.vboolean) {
+			PORTB |= (1 << pin);
+		} else {
+			PORTB &= ~(1 << pin);
 		}
 	}
-end:
-    result_return->type = JS_UNDEFINED;
-*/
-    if (args->u.vinteger == 1) {
-        if (args[1].type == JS_BOOLEAN) {
-            if (args[1].u.vboolean) {
-                PORTB &= ~(1 << 7);
-            } else {
-                PORTB |= (1 << 7);
-            }
-        }
-    }
     result_return->type = JS_UNDEFINED;
 }
 #endif                          /* _MOXA */
@@ -231,7 +214,7 @@ void add_global_method(JSVirtualMachine * vm)
         {"led", led_global_method},
 #endif                          /* _MOXA */
 #ifdef _MOXA_RADIO
-        {"sendRedio", sendwi_global_method},
+        {"sendRadio", sendwi_global_method},
 #endif                          /* _MOXA_RADIO */
         {NULL, NULL}
     };
@@ -366,17 +349,32 @@ ISR(SIG_INTERRUPT4)
 #endif                          /* _MOXA */
 
 #ifdef _MOXA_RADIO
-MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
-{
+int receiveVMHandler(void* data) {
+	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *)data;
 	printf("RECEIVE: %d %x %x %d %s %d\r\n"
 		, pRRI->seqNumber
 		, pRRI->srcAddr, pRRI->srcPanId
 		, pRRI->nLength, pRRI->pPayload
 		, pRRI->rssi
 		);
-    if (s_vm) {
-        js_vm_apply(s_vm, "onRedio", NULL, 0, NULL);
-    }
+	if (s_vm) {
+		js_vm_apply(s_vm, "onRadio", NULL, 0, NULL);
+	}
+	js_free(data);
+	return 1;
+}
+MRESULT receiveHandler(RADIO_PACKET_RX_INFO * pRRI)
+{
+	if(s_vm) {
+		if(!s_vm->interrupt_table[0].fired) {
+			void *data;
+			if(data = js_malloc(s_vm, sizeof(RADIO_PACKET_RX_INFO))) {
+				memcpy(data, pRRI, sizeof(RADIO_PACKET_RX_INFO));
+				s_vm->interrupt_table[0].data = data;
+				s_vm->interrupt_table[0].fired = 1;
+			}
+		}
+	}
     return 0;
 }
 #endif                          /* _MOXA_RADIO */
@@ -480,9 +478,8 @@ int main()
 #endif
 
     JSVirtualMachine *vm;
-//    vm = js_vm_create(128, JS_VM_DISPATCH_SWITCH_BASIC, 1, 1, s_stdin,
-    vm = js_vm_create(128, 1, 1, s_stdin,
-                      s_stdout, s_stderr);
+    vm = js_vm_create(128, 1, 1, s_stdin, s_stdout, s_stderr);
+
     if (vm != NULL) {
         s_vm = vm;
         JSByteCode *bc;
@@ -501,7 +498,10 @@ int main()
 #ifdef _MOXA_RADIO
         RADIO_init(RADIO_CHANNEL, RADIO_PANID, RADIO_ADDRESS, 31);
         RADIO_setRecvHandler(&receiveHandler);
+		vm->interrupt_table[0].handler = receiveVMHandler;
+		vm->interrupt_table[0].enable = 1;
 #endif
+		vm->enable_interrupt = 1;
         js_vm_execute(vm, bc);
 
         js_bc_free(bc);

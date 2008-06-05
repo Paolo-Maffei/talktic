@@ -403,7 +403,9 @@ error_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
                     void *instance_context,
                     JSNode * result_return, JSNode * args)
 {
+#ifdef _RUNTIME_WARNGING
     unsigned int len;
+#endif
 
     if (args->u.vinteger != 1) {
 #ifdef _RUNTIME_WARNGING
@@ -418,12 +420,14 @@ error_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         js_vm_error(vm);
     }
 
+#ifdef _RUNTIME_WARNGING
     len = args[1].u.vstring->len;
     if (len > sizeof(vm->error) - 1)
         len = sizeof(vm->error) - 1;
 
     memcpy(vm->error, args[1].u.vstring->data, len);
     vm->error[len] = '\0';
+#endif
 
     /* Here we go... */
     js_vm_error(vm);
