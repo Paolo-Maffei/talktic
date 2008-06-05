@@ -39,7 +39,7 @@ LDFLAGS = $(COMMON)
 LDFLAGS += -Wl,-Map=$(PROJECT).map
 
 ## Include Directories
-INCLUDES = -I$(SRC_DIR)
+INCLUDES =
 
 ## Common Libraries
 LIBDIRS =
@@ -89,6 +89,9 @@ OBJECTS +=		\
 
 
 ### Common
+
+## Include
+INCLUDES += -I$(SRC_DIR)
 
 ## Build
 all: $(TARGET) size
