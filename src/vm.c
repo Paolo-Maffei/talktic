@@ -69,9 +69,12 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 	vm = js_calloc(NULL, 1, sizeof(*vm));
 	if (vm == NULL)
 		return NULL;
-
+#ifdef _RUNTIME_WARNING
 	vm->verbose = verbose;
+#endif
+#ifdef _RUNTIME_DEBUG
 	vm->stacktrace_on_error = stacktrace_on_error;
+#endif
 	vm->warn_undef = 1;
 
 	/* Set the system streams. */
@@ -83,8 +86,10 @@ JSVirtualMachine *js_vm_create(unsigned int stack_size,
 //    vm->dispatch_method = dispatch_method;
 //    vm->dispatch_method_name = "switch-basic";
 	vm->dispatch_execute = js_vm_switch0_exec;
+#ifdef _RUNTIME_DEBUG
 	vm->dispatch_func_name = js_vm_switch0_func_name;
 	vm->dispatch_debug_position = js_vm_switch0_debug_position;
+#endif
 /*
     switch (dispatch_method) {
     case JS_VM_DISPATCH_SWITCH_BASIC:
@@ -290,7 +295,7 @@ static void sig_alarm(int sig)
 #define PROFILING_ON()
 #define PROFILING_OFF()
 
-#endif							/* not PROFILING */
+#endif							/* PROFILING */
 
 int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 {
@@ -399,11 +404,10 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 						/* Intern symbol. */
 						c->u.vsymbol = js_vm_intern(vm, buf);
 						break;
-
+#if 0
 					case JS_BUILTIN:
 						/* Regular expression. */
-						/*
-						   {
+						{
 						   unsigned char flags;
 						   unsigned int length;
 
@@ -415,10 +419,9 @@ int js_vm_execute(JSVirtualMachine * vm, JSByteCode * bc)
 						   js_builtin_RegExp_new (vm, cp + ui, length, flags, 1,
 						   NULL, c);
 						   ui += length;
-						   }
-						 */
+						}
 						break;
-
+#endif
 					case JS_NAN:
 						/* Nothing here. */
 						break;
@@ -723,13 +726,11 @@ js_vm_call_method(JSVirtualMachine * vm, JSNode * object,
 	return result;
 }
 
-
+#ifdef _RUNTIME_DEBUG
 const char *js_vm_func_name(JSVirtualMachine * vm, void *pc)
 {
 	return (*vm->dispatch_func_name) (vm, pc);
 }
-
-#ifdef _RUNTIME_WARNING
 const char *js_vm_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return)
 {
 	return (*vm->dispatch_debug_position) (vm, linenum_return);
@@ -782,7 +783,7 @@ const char *js_vm_symname(JSVirtualMachine * vm, JSSymbol sym)
 
 void js_vm_error(JSVirtualMachine * vm)
 {
-#ifdef _RUNTIME_WARNING
+#ifdef _RUNTIME_DEBUG
 	const char *file;
 	unsigned int ln;
 	char error[1024];

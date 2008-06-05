@@ -173,7 +173,7 @@ js_vm_switch0_exec(JSVirtualMachine * vm, JSByteCode * bc,
 	return 1;
 }
 
-
+#ifdef _RUNTIME_DEBUG
 const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *program_counter)
 {
 	int i;
@@ -201,13 +201,13 @@ const char *js_vm_switch0_func_name(JSVirtualMachine * vm, void *program_counter
 	return JS_GLOBAL_NAME;
 }
 
-
 const char *js_vm_switch0_debug_position(JSVirtualMachine * vm, unsigned int *linenum_return)
 {
 	/* XXX */
 	return NULL;
 }
 
+#endif
 
 /*
  * Static functions.
@@ -319,7 +319,7 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 
 	/* Ok, now we are ready to run. */
 	while (1) {
-		printf("pc=%d op=%d sp=%d fp=%d\r\n", pc, *pc, sp, fp);
+//		printf("pc=%d op=%d sp=%d fp=%d\r\n", pc, *pc, sp, fp);
 		switch (*pc++) {
 			/* include eswt0.h */
 #include "eswt0.h"
@@ -334,15 +334,18 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 			abort();
 			break;
 		}
+
 		if (vm->enable_interrupt) {
 			unsigned char k;
 			vm->enable_interrupt = 0;
 			for (k = 0; k < 8; k++) {
-				if (vm->interrupt_table[k].enable) {
-					if (vm->interrupt_table[k].fired) {
+				JSVMInterrupt *itr = &(vm->interrupt_table[k]);
+				if (itr->enable) {
+					if (itr->fired) {
 						JS_SAVE_REGS();
-						vm->interrupt_table[k].fired = 0;
-						(vm->interrupt_table[k].handler) (vm, vm->interrupt_table[k].data);
+						if( (*itr->handler)(vm, itr->data) == 0) {
+							itr->fired = 0;
+						}
 						JS_MAYBE_GC();
 					}
 				}
