@@ -489,7 +489,9 @@ int main()
         bc = js_bc_read_data(_bytecode, _bytecode_size);
 #endif
 
+#ifdef __AVR__
         add_global_method(vm);
+#endif
         add_hello_class(vm);
 
 #ifdef _MOXA_RADIO
