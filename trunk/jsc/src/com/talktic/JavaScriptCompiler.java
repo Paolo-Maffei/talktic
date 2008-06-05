@@ -94,7 +94,7 @@ public class JavaScriptCompiler {
 			System.out.println("\t-Aasm_file      asm output file path");
 			System.out.println("\t-Bbc_file       bytecode ouput file path");
 			System.out.println("\t-Ccheader_file  .h ouput file path");
-			System.out.println("\t-Xhex_file      .hex ouput file path");
+//			System.out.println("\t-Xhex_file      .hex ouput file path");
 			return;
 		}
 
@@ -130,6 +130,7 @@ public class JavaScriptCompiler {
 			}
 		} catch (Exception e) {
 			System.err.println(e);
+			System.exit(1);
 		}
 	}
 }
