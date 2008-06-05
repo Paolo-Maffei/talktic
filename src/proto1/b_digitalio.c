@@ -56,6 +56,38 @@ pinMode_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 	}
 }
 
+unsigned char device_port_out(unsigned char pin, unsigned char mode) {
+	switch(pin) {
+	case 0:
+		DEVICE_PORT_OUT0_(mode);
+		break;
+	case 1:
+		DEVICE_PORT_OUT1_(mode);
+		break;
+	case 2:
+		DEVICE_PORT_OUT2_(mode);
+		break;
+	case 3:
+		DEVICE_PORT_OUT3_(mode);
+		break;
+	case 4:
+		DEVICE_PORT_OUT4_(mode);
+		break;
+	case 5:
+		DEVICE_PORT_OUT5_(mode);
+		break;
+	case 6:
+		DEVICE_PORT_OUT6_(mode);
+		break;
+	case 7:
+		DEVICE_PORT_OUT7_(mode);
+		break;
+	default:
+		return 1;
+	}
+	return 0;
+}
+
 static void
 digitalWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 				  void *instance_context, JSNode * result_return, JSNode * args)
@@ -69,32 +101,7 @@ digitalWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 	if (args->u.vinteger == 2) {
 		pin = js_vm_to_int32(vm, &args[1]);
 		mode = js_vm_to_boolean(vm, &args[2]);
-		switch(pin) {
-		case 0:
-			DEVICE_PORT_OUT0_(mode);
-			break;
-		case 1:
-			DEVICE_PORT_OUT1_(mode);
-			break;
-		case 2:
-			DEVICE_PORT_OUT2_(mode);
-			break;
-		case 3:
-			DEVICE_PORT_OUT3_(mode);
-			break;
-		case 4:
-			DEVICE_PORT_OUT4_(mode);
-			break;
-		case 5:
-			DEVICE_PORT_OUT5_(mode);
-			break;
-		case 6:
-			DEVICE_PORT_OUT6_(mode);
-			break;
-		case 7:
-			DEVICE_PORT_OUT7_(mode);
-			break;
-		default:
+		if(device_port_out(pin, mode)) {
 			return;
 		}
 		result_return->u.vboolean = 1;

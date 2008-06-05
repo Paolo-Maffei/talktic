@@ -2,6 +2,7 @@
 #include "pwm.h"
 #include "device_ad.h"
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 #define delay_us _delay_us
 #define delay_ms _delay_ms
@@ -30,7 +31,6 @@ analogRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 			DEVICE_ADC_ENABLE();
 		}
 
-		// チャンネルを変更したときは最低7us待つ必要がある
     	DEVICE_ADC_SET_CHANNEL(pin);
 		delay_us(7);
 
@@ -40,6 +40,68 @@ analogRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		result_return->u.vfloat = (JSFloat)val / 0x3ff;
 	}
 }
+
+/*
+static unsigned char s_analog_pwm = 0;
+static unsigned char s_analog_value[8];
+
+extern unsigned char device_port_out(unsigned char pin, unsigned char mode);
+
+#define TCNT1_BOTTOM (0xFFFF-0x02)
+
+ISR(SIG_OVERFLOW1) {
+	unsigned char i;
+
+	TCNT1 = TCNT1_BOTTOM;
+
+	for(i=0; i<8; i++) {
+		if(s_analog_pwm == 0 && s_analog_value[i] > 0) {
+			device_port_out(i, 1);
+		}
+		if(s_analog_pwm == s_analog_value[i]) {
+			device_port_out(i, 0);
+		}
+	}
+
+	s_analog_pwm++;
+}
+
+static void
+analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+				  void *instance_context, JSNode * result_return, JSNode * args)
+{
+	JSInt32 pin;
+	JSNode n;
+
+	result_return->type = JS_BOOLEAN;
+	result_return->u.vboolean = 0;
+
+	if (args->u.vinteger == 2) {
+		pin = js_vm_to_int32(vm, &args[1]);
+		if(pin < 0 || 7 < pin) {
+			return;
+		}
+
+		js_vm_to_number(vm, &args[2], &n);
+
+		if(n.type == JS_INTEGER) {
+			s_analog_value[pin] = n.u.vinteger;
+		} else if (n.type == JS_FLOAT) {
+			s_analog_value[pin] = (int)(n.u.vfloat * 0xff);
+		} else {
+			return;
+		}
+
+		TCCR1A = 0;
+		TCCR1B = 0x03; // 1/1024 Clock
+		TIMSK |= (1 << TOIE1); // Enable counter overflow interrupt
+		sei(); // Enable global interrupt
+
+		result_return->u.vboolean = 1;
+	}
+}
+*/
+
 
 static void
 analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
