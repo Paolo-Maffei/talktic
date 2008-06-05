@@ -401,7 +401,6 @@ js_vm_object_nth(JSVirtualMachine * vm, JSObject * obj, int nth,
 
     return 1;
 }
-
 
 /*
  * Static functions.

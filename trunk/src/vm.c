@@ -38,16 +38,14 @@
  * memory since the last gc.
  */
 #if __AVR__ || __ICCAVR__ || __H8300H__
-#define GC_TRIGGER 512L
-#else
-
+#define GC_TRIGGER 512L 
+#else							/* __AVR__ || __ICC_AVR__ || __H8300H__ */
 #if SIZEOF_INT == 2
 #define GC_TRIGGER (1L * 1024L * 1024L)
 #else
 #define GC_TRIGGER (2 * 1024 * 1024)
 #endif
-
-#endif							// __AVR__
+#endif							/* not __AVR__ || __ICC_AVR__ || __H8300H__ */
 
 /*
  * Prototypes for static functions.
@@ -242,7 +240,7 @@ void js_vm_destroy(JSVirtualMachine * vm)
 					i, vm->prof_count[i],
 					(double) vm->prof_count[i] / total * 100, JS_HOST_LINE_BREAK);
 
-			js_iostream_write(vm->s_stderr);
+			js_iostream_write(vm->s_stderr, buf, strlen(buf));
 		}
 	}
 #endif

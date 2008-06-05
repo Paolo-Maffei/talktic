@@ -360,14 +360,14 @@ static JSVirtualMachine *s_vm = 0;
 ISR(SIG_INTERRUPT5)
 {
 	if (s_vm) {
-		js_vm_apply(s_vm, "onDigitalIo", NULL, 0, NULL);
+		js_vm_apply(s_vm, "onDigitalIo", NULL, 1, NULL);
 	}
 }
 
 ISR(SIG_INTERRUPT4)
 {
 	if (s_vm) {
-		js_vm_apply(s_vm, "onDigitalIo2", NULL, 0, NULL);
+		js_vm_apply(s_vm, "onDigitalIo2", NULL, 1, NULL);
 	}
 }
 #endif							/* _MOXA */
@@ -378,7 +378,7 @@ int receiveVMHandler(JSVirtualMachine * vm, void *data)
 	RADIO_PACKET_RX_INFO *pRRI = (RADIO_PACKET_RX_INFO *) data;
 	printf("RECEIVE: %d %x %x %d %s %d\r\n", pRRI->seqNumber, pRRI->srcAddr, pRRI->srcPanId,
 		   pRRI->nLength, pRRI->pPayload, pRRI->rssi);
-	js_vm_apply(vm, "onRadio", NULL, 0, NULL);
+	js_vm_apply(vm, "onRadio", NULL, 1, NULL);
 	js_free(data);
 	return 0;
 }

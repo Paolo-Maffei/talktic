@@ -269,6 +269,7 @@ link_code(JSVirtualMachine * vm, unsigned char *code,
 #define ERROR(...) \
   	do { \
     	JS_SAVE_REGS (); \
+		printf(__VA_ARGS__); \
     	js_vm_error (vm); \
     	/* NOTREACHED */ \
   	} while (0)
@@ -318,7 +319,8 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 
 	/* Ok, now we are ready to run. */
 	while (1) {
-		switch (*(pc++)) {
+		printf("pc=%d op=%d sp=%d fp=%d\r\n", pc, *pc, sp, fp);
+		switch (*pc++) {
 			/* include eswt0.h */
 #include "eswt0.h"
 			/* end include eswt0.h */
@@ -339,8 +341,8 @@ execute_code(JSVirtualMachine * vm, JSNode * object, Function * f, unsigned int 
 				if (vm->interrupt_table[k].enable) {
 					if (vm->interrupt_table[k].fired) {
 						JS_SAVE_REGS();
-						(vm->interrupt_table[k].handler) (vm, vm->interrupt_table[k].data);
 						vm->interrupt_table[k].fired = 0;
+						(vm->interrupt_table[k].handler) (vm, vm->interrupt_table[k].data);
 						JS_MAYBE_GC();
 					}
 				}
