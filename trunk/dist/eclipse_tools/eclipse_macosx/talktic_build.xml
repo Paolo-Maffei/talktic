@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="write">
+	<dirname property="ant.file.dir" file="${ant.file}" />
+
+	<property name="bc.file" value="bc.bin" />
+	<property name="source.file" value="source.js" />
+
+	<property name="avrdude.dir" value="${ant.file.dir}/avrdude" />
+	<property name="avrdude.file" value="${avrdude.dir}/bin/avrdude" />
+	<property name="avrdude.conf" value="${avrdude.dir}/etc/avrdude.conf" />
+	<property name="avrdude.comport" value="/dev/tty.usbserial" />
+
+	<target name="compile">
+		<java jar="${ant.file.dir}/jsc/jsc.jar" failonerror="true" fork="yes">
+			<arg value="-B${bc.file}"/>
+			<arg value="${source.file}"/>
+		</java>
+	</target>
+
+	<target name="write" depends="compile">
+		<input message="書き込みを開始します。OKを押してください" />
+		<echo message="${avrdude.comport}に書き込みます..." />
+		<exec executable="${avrdude.file}" failonerror="true" timeout="15000">
+			<arg value="-C${avrdude.conf}" />
+			<arg value="-pm128" />
+			<arg value="-cstk500" />
+			<arg value="-b9600" />
+			<arg value="-P${avrdude.comport}" />
+			<arg value="-F" />
+			<arg value="-Ueeprom:w:${bc.file}:r" />
+		</exec>
+	</target>
+</project>
