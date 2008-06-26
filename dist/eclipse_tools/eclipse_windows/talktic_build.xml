@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="write">
+	<dirname property="ant.file.dir" file="${ant.file}" />
+
+	<property name="bc.file" value="bc.bin" />
+	<property name="source.file" value="source.js" />
+
+	<property name="avrdude.dir" value="${ant.file.dir}/avrdude" />
+	<property name="avrdude.file" value="${avrdude.dir}/avrdude.exe" />
+	<property name="avrdude.conf" value="${avrdude.dir}/avrdude.conf" />
+
+	<target name="compile">
+		<echo message="${basedir}" />
+		<java jar="${ant.file.dir}/jsc/jsc.jar" failonerror="true" fork="yes">
+			<arg value="-B${bc.file}"/>
+			<arg value="${source.file}"/>
+		</java>
+	</target>
+
+	<target name="write" depends="compile">
+		<input message="COMポート番号を指定して、OKを押して下さい (指定なしはCOM1)"
+			addproperty="avrdude.portnum" defaultvalue="1"/>
+		<echo message="COM${avrdude.portnum}に書き込みます... " />
+		<exec executable="${avrdude.file}" timeout="15000">
+			<arg value="-C${avrdude.conf}" />
+			<arg value="-pm128" />
+			<arg value="-cstk500" />
+			<arg value="-PCOM${avrdude.portnum}" />
+			<arg value="-b9600" />
+			<arg value="-F" />
+			<arg value="-Ueeprom:w:${bc.file}:r" />
+		</exec>
+	</target>
+</project>
