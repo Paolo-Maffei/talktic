@@ -18,6 +18,9 @@ extern void init_builtin_analogio();
 #ifdef _PROTO1_SERIAL
 extern void init_builtin_serial();
 #endif
+#ifdef _PROTO1_TIMER
+extern void init_builtin_timer();
+#endif
 
 #ifdef _AKI3068NET_NET
 extern void init_builtin_net();
@@ -89,6 +92,11 @@ int main()
 #ifdef _PROTO1_ANALOGIO
 		init_builtin_analogio(vm);
 #endif
+#ifdef _PROTO1_TIMER
+		init_builtin_timer(vm);
+#endif
+
+
 
 #ifdef _AKI3068NET_NET
 		init_builtin_net(vm);
