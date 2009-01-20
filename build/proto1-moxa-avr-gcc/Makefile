@@ -15,7 +15,7 @@ JSC = ../../jsc/jsc
 
 ## Testing enviroment
 AVRDUDE = avrdude
-AVRDUDE_COMPORT = /dev/tty.usbserial
+AVRDUDE_COMPORT = usb
 TEST_COMPORT = /dev/tty.usbserial
 
 ## Source path
@@ -27,6 +27,7 @@ RADIO = 1
 DIGITALIO = 1
 ANALOGIO = 1
 SERIAL = 1
+TIMER = 1
 
 
 
@@ -154,6 +155,11 @@ CFLAGS += -D_PROTO1_SERIAL
 OBJECTS += b_serial.o
 endif
 
+ifdef TIMER
+CFLAGS += -D_PROTO1_TIMER
+OBJECTS += b_timer.o
+endif
+
 
 ### JavaScript libraries
 
@@ -220,7 +226,7 @@ size: $(PROJECT).elf
 	$(SIZE) --format=avr --mcu=$(MCU) $<
 
 ## Writing chip
-AVRDUDE_OPTIONS = -p m128 -c stk500v2 -v -P $(AVRDUDE_COMPORT) -V
+AVRDUDE_OPTIONS = -p m128 -c avrispmkii -v -v -P $(AVRDUDE_COMPORT) -V -b 115200
 write: erase flash eep
 erase:
 	$(AVRDUDE) $(AVRDUDE_OPTIONS) -e
