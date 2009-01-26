@@ -1,6 +1,7 @@
 #include "jsint.h"
 #include "pwm.h"
 #include "device_ad.h"
+#include "device_port.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -41,28 +42,40 @@ analogRead_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 	}
 }
 
-/*
+
 static unsigned char s_analog_pwm = 0;
 static unsigned char s_analog_value[8];
 
 extern unsigned char device_port_out(unsigned char pin, unsigned char mode);
 
-#define TCNT1_BOTTOM (0xFFFF-0x02)
+#define TCNT1_BOTTOM (0xFFFF-0x0009)
 
 ISR(SIG_OVERFLOW1) {
 	unsigned char i;
-
 	TCNT1 = TCNT1_BOTTOM;
 
-	for(i=0; i<8; i++) {
-		if(s_analog_pwm == 0 && s_analog_value[i] > 0) {
-			device_port_out(i, 1);
-		}
-		if(s_analog_pwm == s_analog_value[i]) {
-			device_port_out(i, 0);
-		}
-	}
-
+	if(s_analog_pwm == 0){
+	    if(s_analog_value[0] != 0) DEVICE_PORT_OUT0_(1); // verbose code for speed
+	    if(s_analog_value[1] != 0) DEVICE_PORT_OUT1_(1);
+	    if(s_analog_value[2] != 0) DEVICE_PORT_OUT2_(1);
+	    if(s_analog_value[3] != 0) DEVICE_PORT_OUT3_(1);
+	    if(s_analog_value[4] != 0) DEVICE_PORT_OUT4_(1);
+	    if(s_analog_value[5] != 0) DEVICE_PORT_OUT5_(1);
+	    if(s_analog_value[6] != 0) DEVICE_PORT_OUT6_(1);
+	    if(s_analog_value[7] != 0) DEVICE_PORT_OUT7_(1);
+	}else{
+		if(s_analog_pwm == s_analog_value[0]) DEVICE_PORT_OUT0_(0); // verbose code for speed
+	    if(s_analog_pwm == s_analog_value[1]) DEVICE_PORT_OUT1_(0);
+	    if(s_analog_pwm == s_analog_value[2]) DEVICE_PORT_OUT2_(0);
+	    if(s_analog_pwm == s_analog_value[3]) DEVICE_PORT_OUT3_(0);
+	    if(s_analog_pwm == s_analog_value[4]) DEVICE_PORT_OUT4_(0);
+	    if(s_analog_pwm == s_analog_value[5]) DEVICE_PORT_OUT5_(0);
+	    if(s_analog_pwm == s_analog_value[6]) DEVICE_PORT_OUT6_(0);
+	    if(s_analog_pwm == s_analog_value[7]) DEVICE_PORT_OUT7_(0);
+    }
+    //device_port_out(i, 1);
+    //device_port_out(i, 0);
+    
 	s_analog_pwm++;
 }
 
@@ -92,16 +105,11 @@ analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 			return;
 		}
 
-		TCCR1A = 0;
-		TCCR1B = 0x03; // 1/1024 Clock
-		TIMSK |= (1 << TOIE1); // Enable counter overflow interrupt
-		sei(); // Enable global interrupt
-
 		result_return->u.vboolean = 1;
 	}
 }
-*/
 
+/*
 
 static void
 analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
@@ -145,6 +153,7 @@ analogWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		result_return->u.vboolean = 1;
 	}
 }
+*/
 
 static void
 soundWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
@@ -172,9 +181,6 @@ soundWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 		if(f == 0) {
 			switch(pin) {
 			case 0:
-				SOUND_off(0);
-				break;
-			case 1:
 				SOUND_off(1);
 				break;
 			default:
@@ -186,12 +192,6 @@ soundWrite_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
 			}
 			switch(args[1].u.vinteger) {
 			case 0:
-				if(! SOUND_is_inited(0)) {
-					SOUND_init(0);
-				}
-				SOUND_out(0,f);
-				break;
-			case 1:
 				if(! SOUND_is_inited(1)) {
 					SOUND_init(1);
 				}
@@ -227,4 +227,11 @@ void init_builtin_analogio(JSVirtualMachine *vm) {
 		n = &vm->globals[js_vm_intern(vm, global_methods[i].name)];
 		js_vm_builtin_create(vm, n, info, NULL);
 	}
+	
+	TCCR1A = 0;
+	TCCR1B = 0x03; // 1/64 Clock
+    TCNT1 = TCNT1_BOTTOM;
+	TIMSK |= (1 << TOIE1); // Enable counter overflow interrupt
+	sei(); // Enable global interrupt
+	
 }
