@@ -4,7 +4,9 @@
 
 extern JSVirtualMachine *s_vm;
 
-#define B_TIMER_MIN_INTERVAL 1
+//limitation: interval should be ranged from 0.008[sec] to 500[sec].
+#define B_TIMER_MIN_INTERVAL 9
+#define B_TIMER_MAX_INTERVAL 500000
 
 typedef struct timer_node_st{
     JSNode  func;               //function to call
@@ -39,7 +41,7 @@ ISR(SIG_OVERFLOW0) {
     if(timerList == NULL) return;
     
     intervalCount++;
-	while(intervalCount > timerList->when){
+	while(intervalCount >= timerList->when){
 	    
         intervalCount -= timerList->when;
 
@@ -59,18 +61,25 @@ ISR(SIG_OVERFLOW0) {
 		if(s_vm && !(s_vm->interrupt_table[2].fired)) {
 			s_vm->interrupt_table[2].fired = 1;
 		}
+
+        //if all the timers are fired, end up interrupt.
+        if(timerList == NULL) return;
 	}
 }
 
 static void addTimer(TIMER_NODE** pTimerList, TIMER_NODE* aTimer){
     
     TIMER_NODE *current, *previous;
+    uint8_t save_sreg;
     
     aTimer->when = aTimer->interval >> 3;   //rough approximation(2.34% error)
                                             //using pseudo value instead of real one.
                                             //pseudo: 1024/128[msec] per tickCount
                                             //real:   1000/128[msec] per tickCount
-
+                                                    
+    save_sreg = SREG;
+    cli();
+    
     if(timerList == NULL){
          //add aTimer at the begining as timerList contains nothing
          aTimer->next = NULL;
@@ -85,12 +94,14 @@ static void addTimer(TIMER_NODE** pTimerList, TIMER_NODE* aTimer){
                      current->when = current->when - aTimer->when;
                      aTimer->next = current;
                      *pTimerList = aTimer;
+                     SREG = save_sreg;
                      return;
                  }else{
                      //add aTimer between previous and current
                      previous->next = aTimer;
                      current->when = current->when - aTimer->when;
                      aTimer->next = current;                    
+                     SREG = save_sreg;
                      return;
                  }
              }else{
@@ -104,6 +115,7 @@ static void addTimer(TIMER_NODE** pTimerList, TIMER_NODE* aTimer){
          previous->next = aTimer;
          aTimer->next = NULL;
      }
+     SREG = save_sreg;
 }
 
 
@@ -121,6 +133,10 @@ setInterval_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
         (&args[1])->type = JS_FUNC;    
         aTimer->func = args[1];                 //there would be better way to pass function
         aTimer->interval = js_vm_to_int32(vm, &args[2]);
+
+        if (aTimer->interval < B_TIMER_MIN_INTERVAL) aTimer->interval = B_TIMER_MIN_INTERVAL;
+        if (aTimer->interval > B_TIMER_MAX_INTERVAL) aTimer->interval = B_TIMER_MAX_INTERVAL;
+            
         aTimer->isRepeated = 1;
     	result_return->u.vinteger = aTimer;     //should be more careful to cast 
         addTimer(&timerList, aTimer);
@@ -187,14 +203,21 @@ static int onTimer_global_vm_interrupt(JSVirtualMachine * vm, void *data)
 {
     TIMER_NODE *aTimer;
 	JSNode argv[1];
+    uint8_t save_sreg;
 
 	argv[0].type = JS_INTEGER;
 	argv[0].u.vinteger = 0;
 
     while(firedTimerList != NULL){
-        js_vm_apply(vm, NULL, &(firedTimerList->func), 1, argv);
         aTimer = firedTimerList;
+
+        save_sreg = SREG;
+        cli();
         firedTimerList = firedTimerList -> next;
+        SREG = save_sreg;
+
+        js_vm_apply(vm, NULL, &(aTimer->func), 1, argv);
+
         if (aTimer->isRepeated){
             addTimer(&timerList, aTimer);
         }else{
@@ -203,6 +226,50 @@ static int onTimer_global_vm_interrupt(JSVirtualMachine * vm, void *data)
     }
 	return 0;
 }
+
+/*
+static void
+testTimer_global_method(JSVirtualMachine * vm, JSBuiltinInfo * builtin_info,
+				  void *instance_context, JSNode * result_return, JSNode * args)
+{
+    TIMER_NODE* current;
+    JSNode argv[1];
+    char buf[200];
+    char *head;
+    unsigned int timerLength = 0;
+    unsigned int firedTimerLength = 0;
+        
+    head = buf;
+    
+	if (args->u.vinteger == 1) {
+        
+        head += sprintf(head, "timer\r\n");
+        if(timerList != NULL)
+        {
+            current = timerList;
+            do{
+                head += sprintf(head, "-%d:%d\r\n", current->interval, current->when);
+                timerLength++;            
+                current = current->next;            
+            }while(current != NULL);
+        }
+        
+        head += sprintf(head, "fired\r\n");
+        if(firedTimerList != NULL)
+        {
+            current = firedTimerList;
+            do{
+                head += sprintf(head, "-%d:%d\r\n", current->interval, current->when);
+                firedTimerLength++;           
+                current = current->next;            
+            }while(current != NULL);
+        }
+                
+        sprintf(head, "timer:%d, fired:%d, interval:%d\r\n", timerLength, firedTimerLength, intervalCount);        
+    }
+    js_vm_make_string(vm, result_return, buf, strlen(buf));
+}
+*/
 
 void init_builtin_timer(JSVirtualMachine *vm) {
 	JSBuiltinInfo *info;
@@ -217,6 +284,7 @@ void init_builtin_timer(JSVirtualMachine *vm) {
     	{"setInterval", setInterval_global_method},
 		{"clearInterval", clearInterval_global_method},
 /*
+		{"testTimer", testTimer_global_method},
 		{"setTimeout", setTimeout_global_method},
 		{"clearTimeout", clearTimeout_global_method},
 */
