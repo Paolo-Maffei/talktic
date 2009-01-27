@@ -88,7 +88,11 @@ void boot()
 	UBRR0H = BAUD_REG >> 8;
 	UBRR0L = (uint8_t)BAUD_REG;
 	UCSR0A |= _BV(U2X0);
+#ifdef _GEMSBOK
+	UCSR0B |= _BV(TXEN0)|_BV(RXEN0);
+#else
 	UCSR0B |= _BV(TXEN1)|_BV(RXEN1);
+#endif
 	UCSR0C |= _BV(UCSZ01)|_BV(UCSZ00);
 
 	ch2 = 0;
